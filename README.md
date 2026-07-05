@@ -1,61 +1,67 @@
 # unslop
 
-A tiny command-line tool that flags the tells that make writing read as AI-generated, so you can rewrite them before you hit send.
+A small command-line tool that flags the parts of your writing that sound like a chatbot, so you can fix them before you hit send.
 
-It doesn't rewrite anything for you. It just points at the smells — the filler phrases, the overused buzzwords, the "not just X, but Y" reflex, em-dash spray, emoji, and the eerily even sentence rhythm that LLM prose falls into — and gives you a score. What you do about it is up to you.
+It doesn't rewrite anything. It marks the spots — stock phrases, filler words, tired contrast frames, em-dash pileups, emoji, sentences that all run the same length — and gives you a score. The rewrite is yours.
 
-No dependencies, no network, no telemetry. One Python file, standard library only.
+No dependencies. No network. Nothing phones home. One Python file.
 
 ## Why
 
-AI writing has a texture. Once you notice it you can't stop: the same forty words, the same hedging, the same tidy tricolons, an em-dash in every other sentence. Readers notice too, and in a lot of places — a pull request, a cover letter, a code review — that texture gets your writing distrusted or skimmed past. `unslop` is a quick check you can run before that happens.
+AI writing has a sound. Once you can hear it, you hear it everywhere. It leans on the same few words. Everything gets hedged. The rhythm never changes.
 
-It's a smell detector, not a grader. A clean score doesn't mean the writing is good, and a flagged word isn't always wrong. Read the output, use your judgment, keep the em-dash if you meant it.
+Readers pick up on it too, even when they can't name it. In a pull request, a cover letter, an email to someone who matters, that sound gets your writing skimmed or trusted a little less. This is a gut-check before that happens.
+
+It's a smell test, not a grade. A clean score doesn't mean the writing is good, and a flagged word isn't always wrong. Read what it says and use your judgment. Keep the em-dash if you meant it.
 
 ## Install
 
 ```bash
-pipx install unslop        # once published
-# or just grab the file — it has no dependencies:
+pipx install unslop        # once it's on PyPI
+```
+
+Or skip that. It's one file with nothing to install:
+
+```bash
 python unslop.py --help
 ```
 
 ## Use
 
 ```bash
-unslop draft.md                 # scan a file
-git show HEAD:MESSAGE | unslop   # scan a commit message
+unslop draft.md                  # scan a file
+git show HEAD:MESSAGE | unslop    # scan a commit message
 echo "Let's dive into it" | unslop
-unslop --quiet draft.md          # just the verdict line
-unslop --json draft.md           # machine-readable
+unslop --quiet draft.md           # just the verdict
+unslop --json draft.md            # machine-readable
 ```
 
-The exit code is `0` when the text reads human enough and `1` when it doesn't, so you can wire it into a pre-commit hook or CI:
+The exit code is 0 when the writing reads human and 1 when it doesn't, so you can drop it into a git hook or CI:
 
 ```bash
 # .git/hooks/commit-msg
-unslop --quiet "$1" || echo "heads up: that message reads a bit AI. ^"
+unslop --quiet "$1" || echo "heads up, that message reads a bit AI ^"
 ```
 
 ## What it flags
 
-- **Buzzwords** — delve, tapestry, robust, seamless, leverage, pivotal, myriad, harness, and the rest of the usual suspects.
-- **Filler phrases** — "it's important to note", "at the end of the day", "when it comes to", "I hope this helps".
-- **The "not just X, but Y" frame** and the "it isn't X, it's Y" flip.
-- **Em-dash density** — one is fine; a cluster is a tell.
-- **Emoji** in prose.
-- **Flat rhythm** — sentences that are all suspiciously the same length.
+- Buzzwords: delve, tapestry, robust, seamless, leverage, pivotal, myriad, harness, and the rest of the usual crowd.
+- Filler phrases: "it's important to note," "at the end of the day," "when it comes to," "I hope this helps."
+- The "not just X, but Y" frame, and its cousin "it isn't X, it's Y."
+- Em-dash pileups. One is fine. Five in a paragraph is a tell.
+- Emoji in prose.
+- Flat rhythm, where every sentence is the same length.
 
-Scores under 10 (per 1,000 words) read clean, 10–25 want a pass, 25+ need a real rewrite. The threshold is tunable with `--threshold`.
+Under 10 per 1,000 words reads clean. 10 to 25 wants a pass. Past 25 needs real work. Move the cutoff with `--threshold`.
 
 ## Yes, running it on this README lights up
 
-If you `unslop` this file it flags a pile of hits — because the section above quotes the exact buzzwords and phrases it hunts for, and one example literally pipes in "let's dive into it." The scanner can't tell a quoted example from the real use. This is the one file where the false positives are the whole point.
+Point unslop at this file and it flags plenty, because the section above quotes the exact words and phrases it hunts for, and one example pipes in "let's dive into it." It can't tell a quote from the real thing. This is the one file where the false alarms are the point.
 
 ## Not a language cop
 
-The word lists are opinions, not laws. If your field genuinely uses "robust" or "comprehensive" as terms of art, `--threshold` or a quick eyeball is your friend. The goal is to catch the reflexive version of these, the kind you didn't choose — not to ban words.
+The word lists are opinions, not law. If your field really does use "robust" or "comprehensive" as terms of art, lean on `--threshold` or just your own eyes. The point is to catch the reflex version of these words, the ones you reached for without thinking, not to ban them.
 
 ## License
 
-MIT. Use it however you like.
+MIT. Do what you want with it.

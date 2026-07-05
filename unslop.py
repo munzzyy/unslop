@@ -152,6 +152,10 @@ def analyze(text):
     emdash_excess = max(0, emdash - max(2, wc // 90))
     raw += emdash_excess
     raw += emoji * 2
+    # repeated "**Term:** explanation" bullets - a formatting tell
+    bold_bullets = len(re.findall(r"(?m)^\s*[-*+]\s+\*\*[^*\n]{1,45}?(?::\*\*|\*\*:)", text))
+    if bold_bullets >= 3:
+        raw += (bold_bullets - 2) * 2
     score = per1k(raw)
     if uniformity is not None and uniformity < 0.35:
         score += 8
@@ -166,7 +170,7 @@ def analyze(text):
         "words": wc, "score_per_1k": score, "verdict": verdict,
         "buzzwords": buzz, "phrases": phr, "patterns": pat,
         "em_dashes": emdash, "em_dash_excess": emdash_excess, "emoji": emoji,
-        "sentence_uniformity_cv": uniformity,
+        "bold_label_bullets": bold_bullets, "sentence_uniformity_cv": uniformity,
     }
 
 
@@ -195,6 +199,8 @@ def report(r, quiet=False):
         misc.append(f"{r['emoji']} emoji (usually worth dropping in prose)")
     if r["sentence_uniformity_cv"] is not None and r["sentence_uniformity_cv"] < 0.35:
         misc.append(f"sentence lengths very even (cv={r['sentence_uniformity_cv']}) - vary the rhythm")
+    if r.get("bold_label_bullets", 0) >= 3:
+        misc.append(f"{r['bold_label_bullets']} '**Term:** ...' bullets - a formatting tell; write some as prose")
     if misc:
         out.append("\nRhythm & surface:")
         for m in misc:
