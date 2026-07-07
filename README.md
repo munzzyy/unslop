@@ -1,6 +1,10 @@
 # unslop
 
-**See what makes your writing sound like a robot, then fix it before you hit send.** unslop flags the patterns that read as chatbot prose: stock phrases, overused buzzwords, the `not just X, but Y` frame, em-dash pileups, emoji, sentences that all run the same length. It shows you what it found and where, and gives you a score. Fixing the words is your job.
+**See what makes your writing sound like a robot, then fix it before you hit send.** unslop flags the patterns that read as chatbot prose, shows you what it found and where, and gives you a score. Fixing the words is your job.
+
+[![CI](https://github.com/munzzyy/unslop/actions/workflows/test.yml/badge.svg)](https://github.com/munzzyy/unslop/actions/workflows/test.yml)
+[![License: Prosperity 3.0.0](https://img.shields.io/badge/license-Prosperity--3.0.0-blue.svg)](LICENSE)
+![zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
 
 Three ways to run it: paste into the [browser demo](https://munzzyy.github.io/unslop/), drop the CLI into a pre-commit hook or CI, or install it as a skill so your AI coding agent checks its own prose before handing it back to you.
 
