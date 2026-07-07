@@ -119,7 +119,7 @@ With [pre-commit](https://pre-commit.com):
 ```yaml
 repos:
   - repo: https://github.com/munzzyy/unslop
-    rev: v0.3.0
+    rev: v0.4.0
     hooks:
       - id: unslop
 ```
@@ -129,7 +129,7 @@ That runs on the markdown, text, and rst files in each commit.
 As a GitHub Action, no pre-commit framework required:
 
 ```yaml
-- uses: munzzyy/unslop@v0.3.0
+- uses: munzzyy/unslop@v0.4.0
   with:
     paths: "docs/*.md README.md"
 ```
