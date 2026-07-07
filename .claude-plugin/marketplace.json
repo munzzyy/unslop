@@ -1,0 +1,14 @@
+{
+  "name": "unslop",
+  "owner": {
+    "name": "Munzzyy"
+  },
+  "description": "Flag the AI tells in a piece of writing before you ship it.",
+  "plugins": [
+    {
+      "name": "unslop",
+      "source": "./",
+      "description": "Flag the AI tells in a piece of writing before you ship it. Stdlib Python, no network access."
+    }
+  ]
+}

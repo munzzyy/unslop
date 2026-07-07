@@ -1,0 +1,12 @@
+{
+  "name": "unslop",
+  "description": "Flag the AI tells in a piece of writing before you ship it. Stdlib Python, no network access.",
+  "version": "0.3.0",
+  "author": {
+    "name": "Munzzyy"
+  },
+  "homepage": "https://github.com/munzzyy/unslop",
+  "repository": "https://github.com/munzzyy/unslop",
+  "license": "Prosperity Public License 3.0.0",
+  "keywords": ["writing", "ai", "llm", "linter", "prose", "editing"]
+}

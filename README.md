@@ -2,11 +2,28 @@
 
 **See what makes your writing sound like a robot, then fix it before you hit send.** unslop flags the patterns that read as chatbot prose: stock phrases, overused buzzwords, the `not just X, but Y` frame, em-dash pileups, emoji, sentences that all run the same length. It shows you what it found and where, and gives you a score. Fixing the words is your job.
 
+Three ways to run it: paste into the [browser demo](https://munzzyy.github.io/unslop/), drop the CLI into a pre-commit hook or CI, or install it as a skill so your AI coding agent checks its own prose before handing it back to you.
+
 **[Try it in your browser](https://munzzyy.github.io/unslop/).** Paste a draft and watch the tells light up. It all runs client-side, so nothing you paste is uploaded, stored, or sent anywhere.
 
 [![unslop analyzing a slop-heavy paragraph, every AI tell underlined in place](docs/media/app-dark.png)](https://munzzyy.github.io/unslop/)
 
 Prefer the terminal? It's also one Python file with no dependencies that drops into a pre-commit hook or CI. Same scoring engine either way, and either way it runs locally and deterministically with no network access.
+
+## As an agent skill
+
+Point your coding agent at unslop and it'll lint its own writing before handing a PR description, commit message, or doc back to you. Two install paths, pick whichever your agent supports:
+
+```bash
+# Claude Code
+/plugin marketplace add munzzyy/unslop
+/plugin install unslop@unslop
+
+# any agent using the open Agent Skills standard (Codex, Cursor, and others)
+npx skills add munzzyy/unslop
+```
+
+Either way, the agent gets [SKILL.md](skills/unslop/SKILL.md): what to run, how to read the score, and the rule that it flags but never rewrites - the rewrite stays the agent's job, same as it's always been yours. Ask the agent something like "check this PR description for AI tells before you post it" and it'll run `unslop.py --json` on the draft and act on what comes back.
 
 ## In your browser
 
