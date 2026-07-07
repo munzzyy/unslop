@@ -460,10 +460,14 @@ def test_clean_spanish_reads_human():
 
 
 def test_unknown_language_falls_back_honestly():
+    # Greek has no pack (see the drop rationale next to LANGUAGES) so it's a
+    # clean stand-in for "a real language this tool has never heard of" -
+    # disjoint script from every pack here, ordinary space-separated words.
     r = unslop.analyze(
-        "Вчера сломалась цепь на велосипеде по дороге на работу. Починил её "
-        "выжимкой, которую вожу с собой уже много лет и ни разу не использовал. "
-        "Потратил двадцать минут и приехал с чёрными от смазки руками."
+        "Χθες το βράδυ έσπασε η αλυσίδα του ποδηλάτου στον δρόμο για τη "
+        "δουλειά. Το επισκεύασα με το εργαλείο που κουβαλάω εδώ και χρόνια "
+        "αλλά δεν είχα ποτέ χρησιμοποιήσει. Μου πήρε είκοσι λεπτά και "
+        "έφτασα με τα χέρια μαύρα από το λάδι, αλλά στην ώρα μου."
     )
     assert r["language"] == "en"
     assert r["language_source"] == "fallback"
@@ -511,3 +515,214 @@ def test_lang_flag_forces_pack_via_cli():
 def test_curly_apostrophe_phrases_are_caught():
     r = unslop.analyze("It’s important to note that we should move on quickly.")
     assert any(p == "it's important to note" for p, _, _ in r["phrases"])
+
+
+# ---- nine more language packs: ru, uk, pl, cs, tr, sv, ro, hu, fi ----
+
+def test_russian_slop_is_detected_and_flagged():
+    r = unslop.analyze(
+        "В современном мире важно отметить, что наша комплексная платформа "
+        "использует передовые технологии, чтобы обеспечить поистине "
+        "бесшовный опыт. Давайте погрузимся в мир безграничных "
+        "возможностей, которые помогут раскрыть потенциал каждой команды. "
+        "Это не только инструмент, но и полноценная экосистема, которая "
+        "играет ключевую роль в трансформации бизнеса."
+    )
+    assert r["language"] == "ru"
+    assert r["language_source"] == "detected"
+    assert r["score_per_1k"] >= 25
+    assert any(w == "бесшовный" for w, _, _ in r["buzzwords"])
+    assert any(p == "важно отметить" for p, _, _ in r["phrases"])
+    assert any("не только" in label for label, _, _, _, _ in r["patterns"])
+
+
+def test_clean_russian_reads_human():
+    r = unslop.analyze(
+        "Вчера вечером сломался холодильник на кухне. Компрессор гудел все "
+        "громче, а потом затих совсем. Вызвал мастера, он приехал через два "
+        "часа и сказал, что дело в реле. Заменили деталь, обошлось в "
+        "полторы тысячи рублей."
+    )
+    assert r["language"] == "ru"
+    assert r["verdict"] == "looks human"
+
+
+def test_dialogue_dashes_not_flagged_in_russian():
+    # Cyrillic literary convention opens a line of dialogue with the dash -
+    # and also uses it as a zero-copula substitute - far more than English
+    # prose does, so Russian gets the same wide allowance as Spanish.
+    dialogue = (
+        "— Ты придёшь завтра на стройку? — спросила Анна от двери.\n"
+        "— Не знаю — сказал Пётр. — Поезд отправляется рано, а встреча с "
+        "банком в девять, но если закончу пораньше, заскочу посмотреть, как "
+        "там идут дела.\n"
+        "Она кивнула, ничего не сказала и медленно закрыла дверь."
+    )
+    r = unslop.analyze(dialogue)
+    assert r["language"] == "ru"
+    assert r["em_dashes"] == 5
+    assert r["em_dash_excess"] == 0
+    forced_en = unslop.analyze(dialogue, lang="en")
+    assert forced_en["em_dash_excess"] > 0
+
+
+def test_ukrainian_slop_is_detected_and_flagged():
+    r = unslop.analyze(
+        "У сучасному світі важливо зазначити, що наша комплексна платформа "
+        "використовує передові технології, щоб забезпечити по-справжньому "
+        "безшовний досвід. Давайте зануримося у світ, де на команди "
+        "чекають безмежні можливості, які допоможуть розкрити потенціал "
+        "кожного співробітника. Це не тільки інструмент, а й повноцінна "
+        "екосистема, яка відіграє ключову роль у трансформації бізнесу."
+    )
+    assert r["language"] == "uk"
+    assert r["language_source"] == "detected"
+    assert r["score_per_1k"] >= 25
+    assert any(w == "безмежні можливості" for w, _, _ in r["buzzwords"])
+    assert any(p == "важливо зазначити" for p, _, _ in r["phrases"])
+    assert any("не тільки" in label for label, _, _, _, _ in r["patterns"])
+
+
+def test_polish_slop_is_detected_and_flagged():
+    r = unslop.analyze(
+        "W dzisiejszym dynamicznie zmieniającym się świecie warto "
+        "zauważyć, że nasza platforma jest kompleksowa, solidna i "
+        "przełomowa. Zanurzmy się w świat możliwości i pomóżmy odblokować "
+        "potencjał każdego zespołu. To nie tylko narzędzie, ale i "
+        "prawdziwy kamień węgielny naszej strategii cyfrowej."
+    )
+    assert r["language"] == "pl"
+    assert r["language_source"] == "detected"
+    assert r["score_per_1k"] >= 25
+    assert any(w == "kamień węgielny" for w, _, _ in r["buzzwords"])
+    assert any(p == "warto zauważyć" for p, _, _ in r["phrases"])
+    assert any("nie tylko" in label for label, _, _, _, _ in r["patterns"])
+
+
+def test_clean_polish_reads_human():
+    r = unslop.analyze(
+        "Sąsiad w końcu naprawił płot, który krzywił się od tamtej burzy w "
+        "lutym. Zajęło mu to trzy soboty i musiał dwa razy kupować nowe "
+        "deski, bo źle zmierzył za pierwszym razem. Wczoraj płot stał już "
+        "prosto, a dziś rano na górze siedział kot."
+    )
+    assert r["language"] == "pl"
+    assert r["verdict"] == "looks human"
+
+
+def test_czech_slop_is_detected_and_flagged():
+    r = unslop.analyze(
+        "V dnešním uspěchaném světě je důležité poznamenat, že naše "
+        "platforma je komplexní, robustní a průlomová. Pojďme prozkoumat, "
+        "co digitální krajina plná možností nabízí, a pomozme odemknout "
+        "potenciál každého týmu. Nejen že šetří čas, ale i otevírá nové "
+        "možnosti pro celou firmu."
+    )
+    assert r["language"] == "cs"
+    assert r["language_source"] == "detected"
+    assert r["score_per_1k"] >= 25
+    assert any(w == "digitální krajina" for w, _, _ in r["buzzwords"])
+    assert any(p == "je důležité poznamenat" for p, _, _ in r["phrases"])
+    assert any("nejen" in label for label, _, _, _, _ in r["patterns"])
+
+
+def test_turkish_slop_is_detected_and_flagged():
+    r = unslop.analyze(
+        "Günümüzün hızlı dünyasında önemle belirtmek gerekir ki "
+        "platformumuz kapsamlı, sorunsuz ve bütünsel bir deneyim sunuyor. "
+        "Hadi dalalım ve potansiyelinizi ortaya çıkarın! Bu sadece bir "
+        "araç değil, aynı zamanda güçlü bir araç."
+    )
+    assert r["language"] == "tr"
+    assert r["language_source"] == "detected"
+    assert r["score_per_1k"] >= 25
+    assert any(w == "sorunsuz" for w, _, _ in r["buzzwords"])
+    assert any(p == "günümüzün hızlı dünyasında" for p, _, _ in r["phrases"])
+    assert any("sadece" in label for label, _, _, _, _ in r["patterns"])
+
+
+def test_turkish_suffix_hedge_is_caught():
+    # Turkish's "can/may" is the -ebilir/-abilir suffix, not a standalone
+    # word like English "may" - the hedge pattern matches the suffix itself
+    # rather than pretending Turkish has a separate modal word for it.
+    # lang="tr" is forced because this one short sentence isn't enough
+    # Turkish stop-word coverage to auto-detect on its own; the detection
+    # side is already covered by test_turkish_slop_is_detected_and_flagged.
+    r = unslop.analyze(
+        "Bu çözüm hızlıca uygulanabilir ve işe yarayabilir.", lang="tr"
+    )
+    labels = [p[0] for p in r["patterns"]]
+    assert any("ebilir" in label for label in labels)
+
+
+def test_swedish_slop_is_detected_and_flagged():
+    # "Det är viktigt att notera" opens the clause on purpose: fronting an
+    # adverbial like "i dagens värld" first would trigger Swedish V2 word
+    # order ("värld ÄR DET viktigt", subject-verb inverted) and the listed
+    # phrase - written in normal, non-inverted order - would silently miss.
+    r = unslop.analyze(
+        "Det är viktigt att notera att vår plattform, i dagens "
+        "snabbrörliga värld, är omfattande, robust och banbrytande. Dyk "
+        "djupare och frigör din potential! Detta är inte bara ett verktyg "
+        "utan också en hörnsten i er digitala strategi."
+    )
+    assert r["language"] == "sv"
+    assert r["language_source"] == "detected"
+    assert r["score_per_1k"] >= 25
+    assert any(w == "hörnsten" for w, _, _ in r["buzzwords"])
+    assert any(p == "det är viktigt att notera" for p, _, _ in r["phrases"])
+    assert any("inte bara" in label for label, _, _, _, _ in r["patterns"])
+
+
+def test_romanian_slop_is_detected_and_flagged():
+    r = unslop.analyze(
+        "În lumea de azi în ritm alert, este important de menționat că "
+        "platforma noastră este cuprinzătoare și revoluționară. "
+        "Scufundă-te în oceanul de posibilități nelimitate și "
+        "deblochează-ți potențialul! Nu doar că economisești timp, ci și "
+        "deschizi noi orizonturi pentru echipa ta."
+    )
+    assert r["language"] == "ro"
+    assert r["language_source"] == "detected"
+    assert r["score_per_1k"] >= 25
+    assert any(w == "posibilități nelimitate" for w, _, _ in r["buzzwords"])
+    assert any(p == "este important de menționat" for p, _, _ in r["phrases"])
+    assert any("nu doar" in label for label, _, _, _, _ in r["patterns"])
+
+
+def test_hungarian_slop_is_detected_and_flagged():
+    r = unslop.analyze(
+        "Napjaink rohanó világában fontos megjegyezni, hogy platformunk "
+        "átfogó, robusztus és forradalmi. Merülj el és szabadítsd fel a "
+        "benned rejlő potenciált! Ez nem csak egy eszköz, hanem valódi "
+        "mérföldkő a stratégiánkban."
+    )
+    assert r["language"] == "hu"
+    assert r["language_source"] == "detected"
+    assert r["score_per_1k"] >= 25
+    assert any(w == "mérföldkő" for w, _, _ in r["buzzwords"])
+    assert any(p == "fontos megjegyezni" for p, _, _ in r["phrases"])
+    assert any("nem csak" in label for label, _, _, _, _ in r["patterns"])
+
+
+def test_hungarian_ships_three_patterns_not_four():
+    # Hungarian doesn't split "not just X but Y" and "isn't X it's Y" into
+    # two separate idioms - both lean on "nem X, hanem Y" with csak/is as
+    # an optional intensifier, so a forced second flip pattern would just
+    # double-count the same sentence. See the comment on the hu pack.
+    assert len(unslop.LANGUAGES["hu"]["patterns"]) == 3
+
+
+def test_finnish_slop_is_detected_and_flagged():
+    r = unslop.analyze(
+        "Nykypäivän nopeatempoisessa maailmassa on tärkeää huomioida, että "
+        "alustamme on kattava, saumaton ja mullistava. Sukella syvemmälle "
+        "ja vapauta potentiaalisi! Tämä ei ole vain työkalu, vaan "
+        "korvaamaton kulmakivi strategiassamme."
+    )
+    assert r["language"] == "fi"
+    assert r["language_source"] == "detected"
+    assert r["score_per_1k"] >= 25
+    assert any(w == "korvaamaton" for w, _, _ in r["buzzwords"])
+    assert any(p == "on tärkeää huomioida" for p, _, _ in r["phrases"])
+    assert any("vaan" in label for label, _, _, _, _ in r["patterns"])

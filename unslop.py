@@ -128,6 +128,15 @@ EMOJI = re.compile(
 #                 Italian, and Portuguese use long dashes for dialogue, so an
 #                 allowance tuned for English prose would flag ordinary
 #                 dialogue punctuation. 1.0 keeps the English behavior.
+#                 Russian, Ukrainian, Polish, Turkish, and Romanian join that
+#                 dialogue-dash tier (2.5) for the same reason - each opens a
+#                 line of dialogue with the dash by literary convention, and
+#                 Russian/Ukrainian also use it as a zero-copula substitute
+#                 ("Это - хорошо"). Hungarian's gondolatjel sees real but
+#                 less totalizing dialogue use, so it gets German's partial
+#                 1.5 rather than the full allowance. Czech, Swedish, and
+#                 Finnish dialogue is conventionally quotation-mark-based, so
+#                 they keep the English 1.0.
 #
 # The weights (3 per buzzword/phrase hit, pattern weights, +8 uniformity) are
 # the same in every pack, so a 25+/1k verdict means the same thing in every
@@ -509,6 +518,478 @@ LANGUAGES = {
             "wordt", "uit", "bij", "dan", "te",
         )),
         "marks": "",
+        "em_dash_factor": 1.0,
+    },
+    "ru": {
+        "name": "Русский",
+        "buzzwords": [
+            "погрузиться", "погрузитесь", "погружение", "многогранный",
+            "многогранная", "бесшовный", "бесшовная", "бесшовно",
+            "целостный", "целостная", "синергия", "парадигма",
+            "смена парадигмы", "революционный", "революционная",
+            "инновационный", "инновационная", "преобразующий",
+            "преобразующая", "трансформационный", "раскрыть потенциал",
+            "раскройте свой потенциал", "экосистема", "ландшафт",
+            "передовой", "передовые", "ключевую роль", "широкий спектр",
+            "неотъемлемая часть", "мощный инструмент",
+            "гармонично сочетает", "безграничные возможности",
+            "на переднем крае", "краеугольный камень",
+            "по-настоящему уникальный",
+        ],
+        "phrases": [
+            "важно отметить", "стоит отметить", "следует отметить",
+            "нельзя не отметить", "в современном мире",
+            "в быстро меняющемся мире", "давайте погрузимся",
+            "давайте разберемся", "в заключение", "подводя итог",
+            "в двух словах", "как языковая модель",
+            "как искусственный интеллект", "надеюсь, это поможет",
+            "не стесняйтесь", "отличный вопрос", "когда речь заходит о",
+            "широкий спектр возможностей", "открывает новые горизонты",
+            "играет ключевую роль", "играет важную роль",
+            "хочу подчеркнуть",
+        ],
+        "patterns": [
+            ("конструкция 'не только X, но и Y'",
+             r"(?i)\bне только\b[^.?!\n]{1,70}?\bно и\b", 3,
+             "скажи прямо, без рамки контраста"),
+            # Russian doesn't repeat the copula the way English/Romance/
+            # German do ("это не X, это Y") - it drops straight into the
+            # contrastive "а" after a comma, so the flip is "это не X, а Y".
+            ("оборот 'это не X, а Y'",
+             r"(?i)\bэто не\b[^.?!\n]{1,45}?,\s*а\b", 2,
+             "просто скажи, что это"),
+            ("риторический вопрос-зачин",
+             r"(?im)^\s*(?:задумывались ли вы|а что если"
+             r"|представьте себе|представьте|вы когда-нибудь)\b", 2,
+             "начни с сути, а не с крючка"),
+            ("стопка оговорок (может/вероятно/обычно)",
+             r"(?i)\b(?:может|могут|можно|вероятно|как правило|обычно"
+             r"|зачастую|возможно|порой)\b", 0,
+             "столько оговорок звучит уклончиво - утверждай или убери"),
+        ],
+        "stopwords": frozenset((
+            "и", "в", "не", "на", "с", "что", "как", "это", "для", "но",
+            "к", "по", "из", "о", "же", "только", "все", "от", "за",
+            "тоже",
+        )),
+        "marks": "ыэъ",
+        "em_dash_factor": 2.5,
+    },
+    "uk": {
+        "name": "Українська",
+        "buzzwords": [
+            "занурмося", "зануртеся", "зануритися", "багатогранний",
+            "багатогранна", "безшовний", "безшовна", "цілісний",
+            "цілісна", "синергія", "парадигма", "зміна парадигми",
+            "революційний", "революційна", "інноваційний", "інноваційна",
+            "трансформаційний", "перетворювальний", "розкрити потенціал",
+            "розкрийте свій потенціал", "екосистема", "ландшафт",
+            "передовий", "передові", "ключову роль", "широкий спектр",
+            "невід'ємна частина", "потужний інструмент",
+            "гармонійно поєднує", "безмежні можливості",
+            "на передньому краї", "наріжний камінь",
+            "по-справжньому унікальний",
+        ],
+        "phrases": [
+            "важливо зазначити", "варто зазначити", "слід зазначити",
+            "у сучасному світі", "у швидкоплинному світі",
+            "давайте зануримося", "давайте розберемося", "підсумовуючи",
+            "на завершення", "у двох словах", "як мовна модель",
+            "як штучний інтелект", "сподіваюся, це допоможе",
+            "не соромтеся", "чудове запитання", "коли справа доходить до",
+            "широкий спектр можливостей", "відкриває нові горизонти",
+            "відіграє ключову роль", "відіграє важливу роль",
+            "хочу підкреслити",
+        ],
+        "patterns": [
+            ("конструкція 'не тільки X, а й Y'",
+             r"(?i)\bне (?:тільки|лише)\b[^.?!\n]{1,70}?"
+             r"\bа (?:й|також)\b", 3,
+             "скажи прямо, без рамки контрасту"),
+            # Same insight as Russian: no repeated copula, just the
+            # contrastive "а" after a comma.
+            ("зворот 'це не X, а Y'",
+             r"(?i)\bце не\b[^.?!\n]{1,45}?,\s*а\b", 2,
+             "просто скажи, що це"),
+            ("риторичне питання-зачин",
+             r"(?im)^\s*(?:чи замислювались ви|чи замислювалися ви"
+             r"|а що якщо|уявіть собі|уявіть)\b", 2,
+             "почни із суті, а не з гачка"),
+            ("стос застережень (може/ймовірно/зазвичай)",
+             r"(?i)\b(?:може|можуть|можна|ймовірно|як правило|зазвичай"
+             r"|часто|можливо)\b", 0,
+             "стільки застережень звучить ухильно - стверджуй або "
+             "прибери"),
+        ],
+        "stopwords": frozenset((
+            "і", "це", "що", "як", "для", "з", "на", "не", "у", "до",
+            "або", "але", "який", "від", "вже", "теж", "зі", "лише",
+            "також", "тільки", "за",
+        )),
+        "marks": "іїєґ",
+        "em_dash_factor": 2.5,
+    },
+    "pl": {
+        "name": "Polski",
+        "buzzwords": [
+            "zanurz się", "zanurzmy się", "zagłębmy się",
+            "wielowymiarowy", "wielowymiarowa", "bezproblemowy",
+            "bezproblemowa", "płynne doświadczenie", "kompleksowy",
+            "kompleksowa", "solidny", "solidna", "innowacyjny",
+            "innowacyjna", "przełomowy", "przełomowa", "transformacyjny",
+            "transformacyjna", "holistyczny", "holistyczna", "synergia",
+            "paradygmat", "zmiana paradygmatu", "odblokować potencjał",
+            "odblokuj swój potencjał", "krajobraz cyfrowy",
+            "świat możliwości", "szeroka gama", "mnóstwo możliwości",
+            "wzmacniać", "na najwyższym poziomie", "nieoceniony",
+            "kamień węgielny", "wyjątkowy", "na czele",
+        ],
+        "phrases": [
+            "warto zauważyć", "warto podkreślić", "należy zauważyć",
+            "warto zaznaczyć", "w dzisiejszym świecie",
+            "w dzisiejszym dynamicznie zmieniającym się świecie",
+            "w erze cyfrowej", "zanurzmy się w", "zagłębmy się w",
+            "podsumowując", "reasumując", "na koniec dnia",
+            "mam nadzieję, że to pomoże", "nie wahaj się", "śmiało pytaj",
+            "świetne pytanie", "jako model językowy",
+            "jako sztuczna inteligencja", "kiedy przychodzi do",
+            "szeroki wachlarz", "otwiera nowe możliwości",
+            "więcej niż tylko", "niezależnie od tego, czy jesteś",
+        ],
+        "patterns": [
+            ("konstrukcja 'nie tylko X, ale i Y'",
+             r"(?i)\bnie tylko\b[^.?!\n]{1,70}?"
+             r"\bale (?:i|także|również)\b", 3,
+             "powiedz to wprost, bez ramy kontrastu"),
+            # Polish leans on "tylko" (rather) for the flip, not a repeated
+            # copula - "to nie X, tylko Y", closer to Russian's "а" than to
+            # the Romance/Germanic "it's" repeat.
+            ("zwrot 'to nie X, tylko Y'",
+             r"(?i)\bto nie\b[^.?!\n]{1,45}?\btylko\b", 2,
+             "powiedz wprost, czym to jest"),
+            ("retoryczne pytanie otwierające",
+             r"(?im)^\s*(?:czy zastanawiałeś się|czy zastanawiałaś się"
+             r"|a co jeśli|wyobraź sobie|wyobraźcie sobie)\b", 2,
+             "zacznij od sedna, nie od haczyka"),
+            ("stos zastrzeżeń (może/często/zazwyczaj)",
+             r"(?i)\b(?:może|mogą|często|zazwyczaj|zwykle"
+             r"|prawdopodobnie|ewentualnie|ogólnie)\b", 0,
+             "tyle zastrzeżeń brzmi wymijająco - stwierdź albo wytnij"),
+        ],
+        "stopwords": frozenset((
+            "i", "w", "na", "nie", "z", "do", "że", "się", "to", "jest",
+            "jak", "dla", "po", "ale", "czy", "o", "od", "za", "tak",
+            "przez",
+        )),
+        "marks": "łżą",
+        "em_dash_factor": 2.5,
+    },
+    "cs": {
+        "name": "Čeština",
+        "buzzwords": [
+            "ponořte se", "ponořme se", "mnohostranný", "mnohostranná",
+            "bezproblémový", "bezproblémová", "plynulý zážitek",
+            "komplexní", "robustní", "inovativní", "průlomový",
+            "průlomová", "převratný", "transformační", "holistický",
+            "holistická", "synergie", "paradigma", "změna paradigmatu",
+            "odemkněte svůj potenciál", "odemknout potenciál",
+            "ekosystém", "digitální krajina", "klíčovou roli",
+            "široká škála", "nekonečné možnosti", "neocenitelný",
+            "na další úroveň", "posunout na další úroveň",
+            "přelomový moment", "jedinečný", "na špici",
+        ],
+        "phrases": [
+            "je důležité poznamenat", "je důležité zmínit",
+            "stojí za zmínku", "stojí za povšimnutí", "v dnešním světě",
+            "v dnešním uspěchaném světě", "v digitální době",
+            "ponořme se do", "pojďme prozkoumat",
+            "doufám, že to pomůže", "neváhejte", "skvělá otázka",
+            "jako jazykový model", "jako umělá inteligence",
+            "když přijde na", "široká škála možností",
+            "otevírá nové možnosti", "hraje klíčovou roli",
+            "hraje zásadní roli", "víc než jen",
+        ],
+        "patterns": [
+            ("konstrukce 'nejen X, ale i Y'",
+             r"(?i)\bnejen\b[^.?!\n]{1,70}?\bale\s+(?:i|také)\b", 3,
+             "řekni to napřímo, bez rámce kontrastu"),
+            ("obrat 'není to X, je to Y'",
+             r"(?i)\bnení to\b[^.?!\n]{1,45}?\bje to\b", 2,
+             "řekni prostě, co to je"),
+            ("řečnická otázka na úvod",
+             r"(?im)^\s*(?:přemýšleli jste někdy|napadlo vás někdy"
+             r"|co kdyby|představte si)\b", 2,
+             "začni podstatou, ne návnadou"),
+            ("hromada výhrad (může/často/obvykle)",
+             r"(?i)\b(?:může|mohou|často|obvykle|obecně"
+             r"|pravděpodobně|možná)\b", 0,
+             "tolik výhrad zní vyhýbavě - tvrď, nebo škrtni"),
+        ],
+        "stopwords": frozenset((
+            "a", "v", "na", "je", "se", "to", "kde", "pro", "před",
+            "avšak", "co", "že", "od", "mezi", "také", "si", "už",
+            "když", "nebo", "jen",
+        )),
+        "marks": "řěů",
+        "em_dash_factor": 1.0,
+    },
+    "tr": {
+        "name": "Türkçe",
+        "buzzwords": [
+            "dalın", "dalalım", "kapsamlı", "sorunsuz", "bütünsel",
+            "sinerji", "paradigma", "paradigma değişimi", "yenilikçi",
+            "devrim niteliğinde", "çığır açan", "dönüştürücü",
+            "potansiyelinizi ortaya çıkarın",
+            "potansiyelinizi açığa çıkarın", "eşsiz", "vazgeçilmez",
+            "köşe taşı", "geniş bir yelpazesi",
+            "bir sonraki seviyeye taşıyın", "dijital dönüşüm",
+            "dijital dünya", "güçlü bir araç", "kilit rol oynar",
+            "hayati önem taşır", "sınırsız olanaklar", "öncü",
+            "çok yönlü", "kesintisiz deneyim", "güçlendirmek",
+            "potansiyeli ortaya çıkarmak", "çığır açıcı",
+            "eşi benzeri görülmemiş",
+        ],
+        "phrases": [
+            "önemle belirtmek gerekir ki", "belirtmek gerekir ki",
+            "unutulmamalıdır ki", "günümüzün hızlı dünyasında",
+            "günümüz dünyasında", "sonuç olarak", "kısacası", "özetle",
+            "bir yapay zeka olarak", "bir dil modeli olarak",
+            "harika bir soru", "mükemmel bir soru", "çekinmeyin",
+            "yardımcı olması umarım", "yardımcı olacağını umuyorum",
+            "hadi dalalım", "gelin inceleyelim",
+            "söz konusu olduğunda", "sadece bir araç değil",
+            "günün sonunda", "artık geride kaldı",
+        ],
+        "patterns": [
+            ("'sadece X değil, aynı zamanda Y' yapısı",
+             r"(?i)\bsadece\b[^.?!\n]{1,70}?\baynı zamanda\b", 3,
+             "çerçevelemeden doğrudan söyle"),
+            # The Turkish copula is a suffix (-dır/-dir/-dur/-dür, plus
+            # devoiced -tır/-tir/-tur/-tür after voiceless stems), not a
+            # separate word, so the flip is matched as "değil" followed
+            # by a word carrying that suffix rather than a repeated "is".
+            ("'X değil, Y'dır' dönüşü",
+             r"(?i)\bdeğil\b[^.?!\n]{1,45}?"
+             r"\w+(?:dır|dir|dur|dür|tır|tir|tur|tür)\b", 2,
+             "ne olduğunu doğrudan söyle"),
+            ("retorik açılış sorusu",
+             r"(?im)^\s*(?:hiç merak ettiniz mi|hiç düşündünüz mü"
+             r"|hayal edin|bir düşünün)\b", 2,
+             "kancayla değil, asıl noktayla aç"),
+            # "-ebilir/-abilir" (can/may) is also a suffix, not a
+            # standalone word, so it's matched the same way; the rest are
+            # ordinary hedge adverbs.
+            ("çekince yığını (-ebilir/genellikle/belki)",
+             r"(?i)\b(?:\w*(?:abilir|ebilir)|muhtemelen|genellikle"
+             r"|genelde|sıklıkla|belki|büyük ihtimalle)\b", 0,
+             "bu kadar çekince kaçamak gibi duruyor - ya net konuş ya "
+             "da çıkar"),
+        ],
+        "stopwords": frozenset((
+            "ve", "bir", "bu", "için", "ile", "gibi", "ama", "veya",
+            "çok", "daha", "olan", "her", "kadar", "sonra", "önce",
+            "şey", "ne", "en", "mi",
+        )),
+        "marks": "ışğ",
+        "em_dash_factor": 2.5,
+    },
+    "sv": {
+        "name": "Svenska",
+        "buzzwords": [
+            "dyk ner i", "dyk djupare", "sömlös", "sömlöst", "holistisk",
+            "holistiskt", "synergi", "synergieffekter", "paradigm",
+            "paradigmskifte", "banbrytande", "omfattande", "robust",
+            "frigör din potential", "frigöra potentialen", "oumbärlig",
+            "hörnsten", "innovativ", "revolutionerande", "transformativ",
+            "mångfacetterad", "till nästa nivå", "ett brett utbud",
+            "en uppsjö av", "digital transformation", "dynamisk",
+            "kraftfullt verktyg", "gränslösa möjligheter",
+            "banar väg för", "spetskompetens",
+        ],
+        "phrases": [
+            "det är viktigt att notera", "det är värt att notera",
+            "värt att nämna", "i dagens snabbrörliga värld",
+            "i dagens digitala värld", "sammanfattningsvis",
+            "i slutändan", "som en ai", "som en språkmodell",
+            "tveka inte", "bra fråga", "utmärkt fråga",
+            "när det kommer till", "ett brett utbud av",
+            "spelar en avgörande roll", "spelar en viktig roll",
+            "mer än bara ett verktyg", "jag hoppas att detta hjälper",
+            "tveka inte att höra av dig", "öppnar upp nya möjligheter",
+        ],
+        "patterns": [
+            ("konstruktionen 'inte bara X utan också Y'",
+             r"(?i)\binte bara\b[^.?!\n]{1,70}?\butan (?:också|även)\b",
+             3, "säg det rakt ut, utan kontrastramen"),
+            ("vändningen 'är inte X, det är Y'",
+             r"(?i)\bär inte\b[^.?!\n]{1,45}?\bdet är\b", 2,
+             "säg helt enkelt vad det är"),
+            ("retorisk inledningsfråga",
+             r"(?im)^\s*(?:har du någonsin undrat"
+             r"|har du någonsin funderat|tänk om|föreställ dig)\b", 2,
+             "öppna med poängen, inte med kroken"),
+            ("garderingsstapel (kan/ofta/vanligtvis)",
+             r"(?i)\b(?:kan|skulle kunna|ofta|vanligtvis|i allmänhet"
+             r"|möjligen|kanske)\b", 0,
+             "så mycket gardering läses undvikande - hävda eller stryk"),
+        ],
+        "stopwords": frozenset((
+            "och", "är", "inte", "att", "det", "som", "för", "med",
+            "jag", "du", "han", "hon", "vi", "ni", "de", "men", "också",
+            "mycket", "kan", "vara",
+        )),
+        "marks": "åäö",
+        "em_dash_factor": 1.0,
+    },
+    "ro": {
+        "name": "Română",
+        "buzzwords": [
+            "scufundă-te", "scufundă-te în", "cuprinzător",
+            "cuprinzătoare", "fără cusur", "impecabil", "holistic",
+            "holistică", "sinergie", "paradigmă", "schimbare de paradigmă",
+            "inovator", "inovatoare", "revoluționar", "revoluționară",
+            "transformator", "transformatoare",
+            "deblochează-ți potențialul", "multifațetat",
+            "o gamă largă de", "la următorul nivel", "de neprețuit",
+            "piatră de temelie", "remarcabil", "de neegalat",
+            "peisaj digital", "ecosistem", "rol esențial", "rol crucial",
+            "instrument puternic", "posibilități nelimitate", "de vârf",
+        ],
+        "phrases": [
+            "este important de menționat", "merită menționat",
+            "trebuie remarcat", "în lumea de azi în ritm alert",
+            "în era digitală", "pe scurt", "în concluzie",
+            "la sfârșitul zilei", "ca inteligență artificială",
+            "ca model lingvistic", "nu ezita să", "sper că te ajută",
+            "întrebare excelentă", "întrebare grozavă",
+            "atunci când vine vorba de", "joacă un rol esențial",
+            "joacă un rol crucial", "nu doar un instrument",
+            "o gamă largă de opțiuni", "deschide noi orizonturi",
+        ],
+        "patterns": [
+            ("construcția 'nu doar X, ci și Y'",
+             r"(?i)\bnu doar\b[^.?!\n]{1,70}?\b(?:ci și|dar și)\b", 3,
+             "spune-o direct, fără cadrul de contrast"),
+            ("răsturnarea 'nu este X, este Y'",
+             r"(?i)\bnu este\b[^.?!\n]{1,45}?\beste\b", 2,
+             "spune pur și simplu ce este"),
+            ("întrebare retorică de deschidere",
+             r"(?im)^\s*(?:te-ai întrebat vreodată"
+             r"|v-ați întrebat vreodată|ce-ar fi dacă|imaginează-ți"
+             r"|imaginați-vă)\b", 2,
+             "deschide cu ideea, nu cu cârligul"),
+            ("stivă de rezerve (poate/adesea/de obicei)",
+             r"(?i)\b(?:poate|ar putea|adesea|de obicei|în general"
+             r"|probabil|posibil)\b", 0,
+             "atâtea rezerve sună evaziv - afirmă sau taie"),
+        ],
+        "stopwords": frozenset((
+            "și", "în", "de", "un", "este", "cu", "care", "pentru",
+            "nu", "pe", "mai", "dar", "sau", "din", "ca", "se", "să",
+            "dacă", "foarte", "fără",
+        )),
+        "marks": "ăâîșț",
+        "em_dash_factor": 2.5,
+    },
+    "hu": {
+        "name": "Magyar",
+        "buzzwords": [
+            "merülj el", "merüljünk el", "zökkenőmentes", "holisztikus",
+            "szinergia", "paradigma", "paradigmaváltás", "innovatív",
+            "forradalmi", "korszakalkotó", "átalakító", "átfogó",
+            "robusztus", "rejlő potenciál", "kulcsszerepet játszik",
+            "széles skálája", "a következő szintre", "felbecsülhetetlen",
+            "sarokköve", "egyedülálló", "nélkülözhetetlen", "sokrétű",
+            "korlátlan lehetőségek", "úttörő", "digitális átalakulás",
+            "dinamikus", "hatékony eszköz", "mérföldkő",
+            "új szintre emeli",
+        ],
+        "phrases": [
+            "fontos megjegyezni", "érdemes megjegyezni",
+            "fontos kiemelni", "napjaink rohanó világában",
+            "a mai digitális világban", "összefoglalva", "végezetül",
+            "mesterséges intelligenciaként", "nyelvi modellként",
+            "ne habozz", "remélem, ez segít", "nagyszerű kérdés",
+            "kiváló kérdés", "amikor arról van szó",
+            "szabadítsd fel a benned rejlő potenciált",
+            "nem csak egy eszköz", "a nap végén", "új távlatokat nyit",
+            "kulcsfontosságú szerepet tölt be",
+        ],
+        # Hungarian doesn't split "not just X but Y" and "isn't X it's Y"
+        # into two separate idioms the way Indo-European languages do -
+        # both lean on the same "nem X, hanem Y" contrast frame, with
+        # "csak"/"is" as an optional intensifier rather than a different
+        # construction. Forcing a second, separate flip pattern here would
+        # just double-count the same sentence, so this pack ships 3.
+        "patterns": [
+            ("'nem csak X, hanem Y is' szerkezet",
+             r"(?i)\bnem csak\b[^.?!\n]{1,70}?\bhanem\b", 3,
+             "mondd ki egyenesen, kontrasztkeret nélkül"),
+            ("retorikai nyitókérdés",
+             r"(?im)^\s*(?:gondolkodtál már azon"
+             r"|elgondolkodtál már azon|mi lenne ha|képzeld el"
+             r"|képzeljük el)\b", 2,
+             "a lényeggel nyiss, ne a csalival"),
+            ("óvatoskodás-halom (lehet/gyakran/általában)",
+             r"(?i)\b(?:lehet|lehetnek|gyakran|általában"
+             r"|valószínűleg|esetleg)\b", 0,
+             "ennyi óvatoskodás kitérőnek hat - állítsd, vagy húzd ki"),
+        ],
+        "stopwords": frozenset((
+            "és", "a", "az", "nem", "hogy", "van", "egy", "is", "de",
+            "mint", "csak", "vagy", "ha", "meg", "már", "még", "kell",
+            "majd", "ez", "azt",
+        )),
+        "marks": "őű",
+        "em_dash_factor": 1.5,
+    },
+    "fi": {
+        "name": "Suomi",
+        "buzzwords": [
+            "sukella", "sukella syvemmälle", "kokonaisvaltainen",
+            "saumaton", "saumattomasti", "synergia", "paradigma",
+            "paradigman muutos", "innovatiivinen", "mullistava",
+            "vallankumouksellinen", "muutosvoimainen", "kattava",
+            "vapauta potentiaalisi", "piilevä potentiaali",
+            "avainasemassa", "laaja valikoima", "seuraavalle tasolle",
+            "korvaamaton", "kulmakivi", "ainutlaatuinen",
+            "välttämätön", "monipuolinen", "rajattomat mahdollisuudet",
+            "edelläkävijä", "digitaalinen murros", "dynaaminen",
+            "tehokas työkalu",
+        ],
+        "phrases": [
+            "on tärkeää huomioida", "kannattaa muistaa",
+            "on syytä mainita", "nykypäivän nopeatempoisessa maailmassa",
+            "tämän päivän digitaalisessa maailmassa", "yhteenvetona",
+            "loppujen lopuksi", "tekoälynä", "kielimallina",
+            "älä epäröi", "toivottavasti tästä on apua",
+            "loistava kysymys", "erinomainen kysymys", "kun kyse on",
+            "laaja valikoima vaihtoehtoja", "ei vain työkalu",
+            "avaa uusia mahdollisuuksia", "vie seuraavalle tasolle",
+        ],
+        "patterns": [
+            ("'ei ainoastaan X vaan myös Y' -rakenne",
+             r"(?i)\bei ainoastaan\b[^.?!\n]{1,70}?\bvaan myös\b", 3,
+             "sano se suoraan, ilman vastakkainasettelua"),
+            ("'ei ole X, vaan Y' -käänne",
+             r"(?i)\bei ole\b[^.?!\n]{1,45}?\bvaan\b", 2,
+             "sano suoraan mitä se on"),
+            ("retorinen avauskysymys",
+             r"(?im)^\s*(?:oletko koskaan miettinyt"
+             r"|oletko koskaan pohtinut|entä jos|kuvittele"
+             r"|kuvitellaan)\b", 2,
+             "avaa asialla, älä koukulla"),
+            ("varauksien kasa (voi/usein/yleensä)",
+             r"(?i)\b(?:voi|voivat|saattaa|usein|yleensä"
+             r"|tavallisesti|todennäköisesti)\b", 0,
+             "noin moni varaus lukee välttelevältä - väitä tai poista"),
+        ],
+        "stopwords": frozenset((
+            "ja", "on", "ei", "että", "se", "joka", "kuin", "tämä",
+            "myös", "mutta", "kanssa", "sekä", "vain", "vielä", "jo",
+            "kun", "jos", "niin", "hyvin", "tai",
+        )),
+        "marks": "äö",
         "em_dash_factor": 1.0,
     },
 }

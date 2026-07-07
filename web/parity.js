@@ -138,9 +138,51 @@ const FIXTURES = {
 
   "nl clean": "De buurman heeft eindelijk zijn schutting gerepareerd, die sinds die storm in februari scheef hing. Hij heeft er drie zaterdagen over gedaan en twee keer nieuwe planken moeten halen omdat hij verkeerd gemeten had. Gisteren stond het ding recht en vanmorgen zat er alweer een kat bovenop.",
 
-  "cyrillic fallback": "Вчера сломалась цепь на велосипеде по дороге на работу. Починил её выжимкой, которую вожу с собой уже много лет и ни разу не использовал. Потратил двадцать минут и приехал с чёрными от смазки руками, но приехал вовремя.",
+  // Greek has no pack (see the drop rationale in unslop.py's language notes)
+  // so it's a clean, honest stand-in for "a real language this tool has
+  // never heard of" - disjoint script from every pack here, ordinary
+  // space-separated words so the word count still comes out sane.
+  "greek fallback": "Χθες το βράδυ έσπασε η αλυσίδα του ποδηλάτου στον δρόμο για τη δουλειά. Το επισκεύασα με το εργαλείο που κουβαλάω εδώ και χρόνια αλλά δεν είχα ποτέ χρησιμοποιήσει. Μου πήρε είκοσι λεπτά και έφτασα με τα χέρια μαύρα από το λάδι, αλλά στην ώρα μου.",
 
   "french curly apostrophes": "Ce n’est pas seulement un outil, c’est un changement de paradigme. Il est important de noter que vous êtes entre de bonnes mains. N’hésitez pas à explorer toutes les options disponibles pour votre projet.",
+
+  // ---- nine more language packs: ru, uk, pl, cs, tr, sv, ro, hu, fi ----
+
+  "ru slop": "В современном мире важно отметить, что наша комплексная платформа использует передовые технологии, чтобы обеспечить поистине бесшовный опыт. Давайте погрузимся в мир безграничных возможностей, которые помогут раскрыть потенциал каждой команды. Это не только инструмент, но и полноценная экосистема, которая играет ключевую роль в трансформации бизнеса. Надеюсь, это поможет!",
+
+  "ru clean": "Вчера вечером сломался холодильник на кухне. Компрессор гудел все громче, а потом затих совсем. Вызвал мастера, он приехал через два часа и сказал, что дело в реле. Заменили деталь, обошлось в полторы тысячи рублей. Теперь молоко снова холодное, а то я уже начал переживать за продукты в морозилке.",
+
+  "uk slop": "У сучасному світі важливо зазначити, що наша комплексна платформа використовує передові технології, щоб забезпечити по-справжньому безшовний досвід. Давайте зануримося у світ, де на команди чекають безмежні можливості, які допоможуть розкрити потенціал кожного співробітника. Це не тільки інструмент, а й повноцінна екосистема, яка відіграє ключову роль у трансформації бізнесу. Сподіваюся, це допоможе!",
+
+  "uk clean": "Учора ввечері зламався холодильник на кухні. Компресор гудів усе голосніше, а потім затих зовсім. Викликав майстра, він приїхав за дві години і сказав, що справа в реле. Замінили деталь, вийшло десь на півтори тисячі гривень. Тепер молоко знову холодне, а то я вже почав хвилюватися за продукти в морозилці.",
+
+  "pl slop": "W dzisiejszym dynamicznie zmieniającym się świecie warto zauważyć, że nasza platforma jest kompleksowa, solidna i przełomowa. Zanurzmy się w świat możliwości i pomóżmy odblokować potencjał każdego zespołu. Szeroka gama nowych funkcji otwiera nowe możliwości dla każdego działu. To nie tylko narzędzie, ale i prawdziwy kamień węgielny naszej strategii cyfrowej. Dzięki temu jesteśmy na czele branży. Mam nadzieję, że to pomoże!",
+
+  "pl clean": "Sąsiad w końcu naprawił płot, który krzywił się od tamtej burzy w lutym. Zajęło mu to trzy soboty i musiał dwa razy kupować nowe deski, bo źle zmierzył za pierwszym razem. Wczoraj płot stał już prosto, a dziś rano na górze siedział kot.",
+
+  "cs slop": "V dnešním uspěchaném světě je důležité poznamenat, že naše platforma je komplexní, robustní a průlomová. Pojďme prozkoumat, co digitální krajina plná možností nabízí, a pomozme odemknout potenciál každého týmu. Nejen že šetří čas, ale i otevírá nové možnosti pro celou firmu. Hraje to klíčovou roli v naší strategii a nabízí nekonečné možnosti růstu. Doufám, že to pomůže!",
+
+  "cs clean": "Včera večer se mi na kole přetrhl řetěz cestou domů z práce. Opravil jsem ho sponou, kterou vozím v brašně už roky a nikdy jsem ji nepoužil. Trvalo to dvacet minut a domů jsem dorazil s rukama od mazadla, ale včas. Později jsem zjistil, že řetěz měl najeto přes pět tisíc kilometrů, takže jsem si rovnou koupil nový.",
+
+  "tr slop": "Günümüzün hızlı dünyasında önemle belirtmek gerekir ki platformumuz kapsamlı, sorunsuz ve bütünsel bir deneyim sunuyor. Hadi dalalım ve potansiyelinizi ortaya çıkarın! Bu sadece bir araç değil, aynı zamanda güçlü bir araç. Ekibinizi bir sonraki seviyeye taşıyın ve muhtemelen sonuçları hemen fark edeceksiniz. Yardımcı olması umarım!",
+
+  "tr clean": "Dün akşam işe giderken bisikletin zinciri koptu. Bu, yıllardır çantamda taşıdığım ama hiç kullanmadığım bir pensle tamir edilebilecek bir sorundu. Yirmi dakika kadar sürdü ve ellerim yağdan simsiyah bir halde ofise vardım, ama yine de zamanında yetiştim. Ustaya sorduğumda zincirin beş bin kilometreden fazla yol yaptığını söyledi, ben de hemen yenisini aldım.",
+
+  "sv slop": "Det är viktigt att notera att vår plattform, i dagens snabbrörliga värld, är omfattande, robust och banbrytande. Dyk djupare och frigör din potential! Detta är inte bara ett verktyg utan också en hörnsten i er digitala strategi. Det kan ofta kännas överväldigande, men det spelar en avgörande roll för att ta er till nästa nivå. Jag hoppas att detta hjälper!",
+
+  "sv clean": "Igår kväll gick cykelkedjan av på väg hem från jobbet. Jag lagade den med verktyget jag haft i väskan i flera år men aldrig använt. Det tog tjugo minuter och jag kom hem med händerna svarta av fett, men i tid. Cykelverkstaden sa efteråt att kedjan redan hade gått över fem tusen kilometer, så jag köpte en ny på en gång.",
+
+  "ro slop": "În lumea de azi în ritm alert, este important de menționat că platforma noastră este cuprinzătoare și revoluționară. Scufundă-te în oceanul de posibilități nelimitate și deblochează-ți potențialul! Nu doar că economisești timp, ci și deschizi noi orizonturi pentru echipa ta. O gamă largă de instrumente joacă un rol esențial în strategia noastră și reprezintă o piatră de temelie pentru viitor. Sper că te ajută!",
+
+  "ro clean": "Aseară mi s-a rupt lanțul de la bicicletă pe drum spre casă de la serviciu. L-am reparat cu scula pe care o car de ani de zile și n-am folosit-o niciodată. Mi-a luat douăzeci de minute și am ajuns acasă cu mâinile negre de unsoare, dar la timp. Mecanicul mi-a spus apoi că lanțul avea deja peste cinci mii de kilometri, așa că mi-am cumpărat unul nou pe loc.",
+
+  "hu slop": "Napjaink rohanó világában fontos megjegyezni, hogy platformunk átfogó, robusztus és forradalmi. Merülj el és szabadítsd fel a benned rejlő potenciált! Ez nem csak egy eszköz, hanem valódi mérföldkő a stratégiánkban. Kulcsszerepet játszik abban, hogy csapatod eljusson a következő szintre. Remélem, ez segít!",
+
+  "hu clean": "Tegnap este elszakadt a bicikli lánca hazafelé menet a munkából. Megjavítottam azzal a szerszámmal, amit évek óta magamnál hordok, de sosem használtam. Húsz percig tartott, és olajos kézzel érkeztem haza, de időben. A szerelő később elmondta, hogy a lánc már több mint ötezer kilométert futott, úgyhogy rögtön vettem egy újat.",
+
+  "fi slop": "Nykypäivän nopeatempoisessa maailmassa on tärkeää huomioida, että alustamme on kattava, saumaton ja mullistava. Sukella syvemmälle ja vapauta potentiaalisi! Tämä ei ole vain työkalu, vaan korvaamaton kulmakivi strategiassamme. Se on avainasemassa, kun viemme tiimisi seuraavalle tasolle. Toivottavasti tästä on apua!",
+
+  "fi clean": "Eilen illalla polkupyörän ketju katkesi matkalla kotiin töistä. Korjasin sen työkalulla, jota olen kantanut mukana vuosia mutta en ollut koskaan käyttänyt. Se kesti kaksikymmentä minuuttia, ja pääsin kotiin kädet mustana rasvasta, mutta ajoissa. Korjaaja kertoi myöhemmin, että ketju oli jo ajanut yli viisi tuhatta kilometriä, joten ostin heti uuden.",
 };
 
 // [text, lang] pairs: same diff, but with --lang forced on both sides.
