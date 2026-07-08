@@ -523,7 +523,12 @@ a:hover { color: var(--accent); }
 .page {
   max-width: 1120px;
   margin: 0 auto;
-  padding: 0 1.25rem;
+  /* max() with a plain rem floor: env(safe-area-inset-*) is 0 on a
+     non-notched device/browser, so this only ever ADDS padding, never
+     removes the usual margin. Matters mainly in landscape on a notched
+     phone, where the notch sits on one side rather than the top. */
+  padding-left: max(1.25rem, env(safe-area-inset-left));
+  padding-right: max(1.25rem, env(safe-area-inset-right));
 }
 
 .site-header {
@@ -608,7 +613,8 @@ a:hover { color: var(--accent); }
   background-color: transparent;
   color: var(--ink);
   font: inherit;
-  font-size: 0.85rem;
+  /* >=16px: below that, iOS Safari zooms the whole page in on focus. */
+  font-size: 1rem;
   font-weight: 500;
   height: 100%;
   max-width: 128px;
@@ -1237,7 +1243,7 @@ kbd {
 
 .site-footer {
   border-top: 1px solid var(--line);
-  padding: 1.75rem 0 3rem;
+  padding: 1.75rem 0 max(3rem, env(safe-area-inset-bottom));
   color: var(--ink-faint);
   font-size: 0.88rem;
   display: flex;
@@ -1278,7 +1284,10 @@ kbd {
 /* ---------- small screens ---------- */
 
 @media (max-width: 480px) {
-  .page { padding: 0 1rem; }
+  .page {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
   .editor-surface { padding: 1.1rem 1.1rem; font-size: 1.05rem; }
   .toolbar { gap: 0.45rem; }
   .btn { padding: 0.45rem 0.7rem; font-size: 0.85rem; }

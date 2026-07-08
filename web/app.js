@@ -340,14 +340,20 @@
   // language's own translation (keyed off Unslop.CATEGORY_META's category
   // ids); the per-mark `hint` text is whatever the matched TEXT-language
   // pack produced it in, and is never re-translated here.
+  //
+  // The plain (non-mark) runs are wrapped in their own aria-hidden span so
+  // that #editor-backdrop itself can stay OUT of aria-hidden (see below) -
+  // this exposes only the meaningful <mark> elements to a screen reader
+  // instead of either hiding everything (marks included) or double-announcing
+  // the same paragraph the textarea's own value already provides.
   function buildBackdropHtml(text, ranges) {
-    if (!ranges.length) return escapeHtml(text);
     var t = window.UnslopI18N.t;
+    if (!ranges.length) return '<span aria-hidden="true">' + escapeHtml(text) + "</span>";
     var out = [];
     var cursor = 0;
     for (var i = 0; i < ranges.length; i++) {
       var r = ranges[i];
-      if (r.start > cursor) out.push(escapeHtml(text.slice(cursor, r.start)));
+      if (r.start > cursor) out.push('<span aria-hidden="true">' + escapeHtml(text.slice(cursor, r.start)) + "</span>");
       var cls = CATEGORY_CLASS[r.category] || "m-buzzword";
       var label = t("category." + r.category);
       var title = label + (r.hint ? " — " + r.hint : "");
@@ -360,7 +366,7 @@
       );
       cursor = r.end;
     }
-    if (cursor < text.length) out.push(escapeHtml(text.slice(cursor)));
+    if (cursor < text.length) out.push('<span aria-hidden="true">' + escapeHtml(text.slice(cursor)) + "</span>");
     return out.join("");
   }
 
@@ -372,9 +378,12 @@
   }
   textarea.addEventListener("scroll", syncScroll, { passive: true });
 
-  // ---------- tooltip on hover/focus of a mark ----------
+  // ---------- tooltip on hover/focus/tap of a mark ----------
 
   var activeMark = null;
+  // The ranges from the most recent runAnalysis() call, so the tap handler
+  // below can map a tapped character offset back to the mark it landed in.
+  var currentRanges = [];
 
   function showTooltip(mark) {
     var label = mark.getAttribute("data-label") || "";
@@ -430,6 +439,66 @@
     hideTooltip();
   });
   window.addEventListener("scroll", hideTooltip, { passive: true, capture: true });
+
+  // ---------- tap-to-inspect a mark (mouse hover has no touch equivalent) ----------
+  // The backdrop's marks sit UNDER the textarea in stacking order (the
+  // textarea has to stay on top so typing/selecting/caret placement keeps
+  // working everywhere, not just the plain-text gaps between marks), which
+  // means the mouseover/focusin listeners above never actually receive a
+  // pointer event for a mark - there's nothing on top of them to intercept
+  // one. That's invisible on desktop UNLESS you go looking (hover silently
+  // does nothing), but on a touchscreen there's no hover at all, so without
+  // this, a finding's explanation is completely unreachable by touch.
+  //
+  // Fix: read where the NATIVE click already placed the caret
+  // (textarea.selectionStart) and look that offset up against the ranges
+  // from the last analysis. This works identically for a mouse click and a
+  // touch tap - both fire a normal "click" after positioning the caret - so
+  // it doesn't need any touch-specific event wiring.
+  function rangeIndexAt(pos) {
+    for (var i = 0; i < currentRanges.length; i++) {
+      if (pos >= currentRanges[i].start && pos < currentRanges[i].end) return i;
+    }
+    return -1;
+  }
+
+  textarea.addEventListener("click", function () {
+    // A drag-selection also ends with a click; only a plain tap (nothing
+    // selected) should surface a finding's tooltip.
+    if (textarea.selectionStart !== textarea.selectionEnd) return;
+    var pos = textarea.selectionStart;
+    // Deferred one frame on purpose: the SAME tap can itself make the
+    // textarea auto-scroll a little to keep the caret visible (this is what
+    // happens on a phone once the on-screen keyboard covers part of the
+    // box), and that incidental scroll fires the scroll-driven hideTooltip()
+    // above. Left synchronous, showing and hiding can race - whichever
+    // happens to run second wins, so it only shows on some taps. Waiting a
+    // frame guarantees this runs after that settles, so it always wins.
+    requestAnimationFrame(function () {
+      var idx = rangeIndexAt(pos);
+      if (idx === -1) {
+        activeMark = null;
+        hideTooltip();
+        return;
+      }
+      // buildBackdropHtml() emits exactly one <mark> per entry in `ranges`,
+      // in the same order, so the range's own index lines up with its
+      // element.
+      var mark = backdrop.querySelectorAll("mark")[idx];
+      if (mark) {
+        activeMark = mark;
+        showTooltip(mark);
+      }
+    });
+  });
+
+  // Tapping away to another control (a button, a picker) won't fire the
+  // focusout above (that only guards the mark-inside-backdrop case), so
+  // catch it here too - otherwise a tap-shown tooltip can outlive its mark.
+  textarea.addEventListener("blur", function () {
+    activeMark = null;
+    hideTooltip();
+  });
 
   // ---------- score animation (respects reduced motion) ----------
 
@@ -668,6 +737,14 @@
     var opts = { lang: forcedTextLang };
     var result = window.Unslop.analyze(text, opts);
     var ranges = window.Unslop.highlight(text, opts);
+
+    // Any rebuild replaces the <mark> elements themselves, so a tooltip
+    // anchored to the old ones (shown via a tap, which - unlike a focused
+    // mark - doesn't block the user from continuing to type) would otherwise
+    // be left pointing at a detached element.
+    currentRanges = ranges;
+    activeMark = null;
+    hideTooltip();
 
     backdrop.innerHTML = buildBackdropHtml(text, ranges);
     syncScroll();
