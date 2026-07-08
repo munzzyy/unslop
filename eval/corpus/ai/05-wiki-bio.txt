@@ -1,0 +1,31 @@
+# Kary Mullis (1944–2019)
+
+Kary Mullis was an American biochemist best known for his development of the polymerase chain reaction (PCR), a revolutionary technique that enabled exponential amplification of targeted DNA sequences. His invention transformed molecular biology and forensic science and contributed to breakthroughs in genomics, disease diagnosis, and genetic research. Mullis was awarded the Nobel Prize in Chemistry in 1993, shared with Michael Smith, for his work on PCR.
+
+## Early Life and Education
+
+Kary Mullis was born on December 28, 1944, in North Carolina. He earned a Bachelor of Science degree in chemistry from the Georgia Institute of Technology in 1966 and a doctorate in biochemistry from the University of California, Berkeley, in 1973. After completing postdoctoral research at the University of Kansas and the University of California, Berkeley, he joined Cetus Corporation in Emeryville, California, in 1979 as a DNA chemist.
+
+## Development of PCR
+
+In 1983, while working at Cetus Corporation, Mullis conceived of the polymerase chain reaction. The technique works by repeatedly cycling through three temperature-dependent steps: denaturation (separation of double-stranded DNA), annealing (binding of primers to target sequences), and extension (synthesis of new DNA strands by DNA polymerase). Each cycle doubles the amount of target DNA, allowing a single DNA molecule to be amplified to billions of copies in under two hours.
+
+The conceptual breakthrough occurred during a late-night drive through the mountains of California, though Mullis had been experimentally developing the technique for months. The innovation addressed a fundamental limitation in molecular biology: the scarcity of DNA samples available for analysis. PCR provided a rapid, inexpensive, and widely accessible method for DNA amplification.
+
+Cetus Corporation patented PCR in 1985. The patent was subsequently licensed to Hoffmann-La Roche, generating billions of dollars in revenue and establishing PCR as an indispensable tool in research, diagnostics, and forensic analysis. The technique was immediately adopted across biology and medicine.
+
+## Recognition and Career
+
+Mullis received the Nobel Prize in Chemistry in 1993 "for his invention of the polymerase chain reaction (PCR) method." He shared the prize with Michael Smith, who developed site-directed mutagenesis. Following the award, Mullis became an adjunct professor at the University of California, San Diego, and continued consulting and lecturing.
+
+Beyond PCR, Mullis published research on topics including alternative medicine, climate science, and molecular biology. His later career and public statements were controversial; he challenged scientific consensus on several topics, including the link between HIV and AIDS, and promoted unconventional ideas about environmental and health issues. His public advocacy diverged significantly from mainstream scientific opinion and diminished his influence in academic circles.
+
+## Later Life and Death
+
+Mullis continued writing and speaking until his death on August 7, 2019, at age 74. He died of pneumonia in Newport Beach, California.
+
+## Legacy
+
+PCR remains one of the most important discoveries in modern science and has been employed in diagnostics, forensics, evolutionary biology, and countless other fields. Its impact extended to the human genome project and more recent developments in genomic medicine and CRISPR gene-editing technology. The technique is taught as a fundamental method in every modern molecular biology course.
+
+Despite the controversy surrounding some of Mullis's later opinions and statements, the scientific community broadly recognizes PCR as transformative. The method's rapid adoption and global utility underscore its fundamental importance to biological research.

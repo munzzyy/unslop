@@ -1,0 +1,36 @@
+Dear Hiring Team,
+
+I'm writing to express my interest in the Senior Backend Engineer role at CloudScale. I found the position through a mutual connection who worked with your infrastructure team, and after reviewing your engineering blog and recent tech talks, I believe my experience aligns well with your priorities.
+
+Over the past five years, I've built and scaled backend systems handling millions of requests daily. Most recently at DataFlow, I led a team that redesigned our data pipeline to reduce latency by 60% and cut infrastructure costs by $2M annually. That project required solving problems across database optimization, distributed systems, and operational monitoring—the exact mix I see in your role description.
+
+I'm particularly interested in CloudScale because of your approach to tradeoffs. Your public work on engineering decisions (the blog post on eventual consistency vs. immediate consistency was especially well-reasoned) suggests a team that values precision over hype. That's the environment where I do my best work.
+
+## What I Bring
+
+**Architecture and systems design.** I've led the design of three major systems from scratch: a real-time analytics engine (processing 500K events/second), a multi-tenant API gateway (handling variable load across geographies), and a microservice migration that consolidated 18 monoliths. I can move quickly from problem statement to testable design, and I'm comfortable making irreversible decisions under uncertainty.
+
+**Operational responsibility.** I've built and managed production systems in healthcare and finance—sectors where downtime is not an option. I own the full stack: design, implementation, testing, deployment, monitoring, and incidents. I've reduced MTTR by 40% on systems I've owned through better observability and runbooks.
+
+**Team leadership and communication.** I've mentored junior engineers (four of whom were promoted), led incident response during high-stress production outages, and communicated technical complexity to non-technical stakeholders. I document my thinking in writing, not meetings.
+
+## Why I'm Interested
+
+CloudScale's infrastructure challenge is genuinely interesting. The scale (billions of requests, hundreds of petabytes) combined with the latency requirements creates constraints that most engineers never see. My previous experience in high-throughput systems gives me useful instincts here, but I'm also genuinely excited to work on problems that are still difficult.
+
+I also appreciate your team's culture based on what I know of it. Remote-friendly, focused on shipping, and low on process theater. That's where I'm most productive.
+
+## What I'm Looking For
+
+I'm at a point where I want to work on infrastructure problems that matter and with people I respect. I'm not interested in another startup scaling to 100 employees while treating tech debt as someone else's problem. CloudScale's maturity and investment in platform engineering appeal to me.
+
+I'm happy to discuss how my experience with distributed systems, team leadership, and operational reliability could contribute to your roadmap. I'm also prepared to talk through a coding problem or system design challenge if that's helpful in your evaluation process.
+
+Thank you for considering my application. I'd welcome a conversation at your convenience.
+
+Best regards,
+Alex Chen
+
+Available to start: 4 weeks notice from offer
+Work authorization: US citizen, no sponsorship needed
+Contact: alex.chen@email.com | (415) 555-1234 | LinkedIn profile link

@@ -1,0 +1,192 @@
+# Working with JSON in Python: A Practical Guide
+
+JSON (JavaScript Object Notation) is everywhere in modern software—APIs return it, configs store it, and you'll parse it constantly. Python makes working with JSON straightforward, but there are some traps that catch beginners.
+
+## The Basics: json Module
+
+Python's built-in `json` module handles the heavy lifting:
+
+```python
+import json
+
+# Parse JSON string to Python dictionary
+data = json.loads('{"name": "Alice", "age": 30}')
+print(data["name"])  # Alice
+
+# Convert Python dictionary to JSON string
+user = {"name": "Alice", "age": 30}
+json_string = json.dumps(user)
+print(json_string)  # {"name": "Alice", "age": 30}
+```
+
+The key distinction: `loads()` (load string) parses JSON text, while `dumps()` (dump string) serializes Python objects to JSON.
+
+For files, use `load()` and `dump()`:
+
+```python
+# Read JSON from file
+with open("data.json") as f:
+    data = json.load(f)
+
+# Write JSON to file
+with open("output.json", "w") as f:
+    json.dump(data, f)
+```
+
+## Handling Nested Structures
+
+JSON supports nesting. Python dictionaries handle this naturally:
+
+```python
+data = {
+    "user": {
+        "name": "Bob",
+        "email": "bob@example.com",
+        "posts": [
+            {"id": 1, "title": "First Post"},
+            {"id": 2, "title": "Second Post"}
+        ]
+    }
+}
+
+# Access nested values
+print(data["user"]["name"])  # Bob
+print(data["user"]["posts"][0]["title"])  # First Post
+```
+
+For deeply nested or unpredictable structures, use `.get()` with a default:
+
+```python
+# Avoid KeyError
+title = data.get("user", {}).get("posts", [{}])[0].get("title", "No title")
+```
+
+## Common Gotchas
+
+**Problem 1: Type Mismatches**
+
+JSON has only a few types: string, number, boolean, null, object (dict), array (list). Python has more:
+
+```python
+data = {
+    "date": datetime.now(),  # datetime is not JSON-serializable
+    "is_active": True
+}
+
+json.dumps(data)  # TypeError: Object of type datetime is not JSON serializable
+```
+
+Solution: convert to JSON-compatible types first:
+
+```python
+data = {
+    "date": datetime.now().isoformat(),  # Convert to ISO 8601 string
+    "is_active": True
+}
+
+json.dumps(data)  # Works
+```
+
+**Problem 2: Large Files**
+
+Loading a 1GB JSON file into memory as a single object will crash most systems. Use streaming:
+
+```python
+import ijson
+
+with open("huge.json") as f:
+    for item in ijson.items(f, "item"):
+        # Process one item at a time
+        print(item)
+```
+
+**Problem 3: Inconsistent Data**
+
+Real-world APIs often return inconsistent JSON—missing fields, type variations:
+
+```python
+response = [
+    {"name": "Alice", "age": 30},
+    {"name": "Bob"},  # age is missing
+    {"name": "Charlie", "age": "unknown"}  # age is a string, not int
+]
+
+for person in response:
+    age = person.get("age", 0)
+    if isinstance(age, str):
+        age = 0  # Default for non-numeric values
+    print(f"{person['name']}: {age}")
+```
+
+## Practical Example: Parsing an API Response
+
+Here's a real-world pattern:
+
+```python
+import json
+import requests
+
+def fetch_and_parse_github_user(username):
+    """Fetch a GitHub user's public info."""
+    response = requests.get(f"https://api.github.com/users/{username}")
+
+    if response.status_code != 200:
+        print(f"Error: {response.status_code}")
+        return None
+
+    data = response.json()  # requests.json() is shorthand for json.loads()
+
+    # Extract what we need, with sensible defaults
+    return {
+        "username": data.get("login"),
+        "followers": data.get("followers", 0),
+        "public_repos": data.get("public_repos", 0),
+        "bio": data.get("bio", "No bio")
+    }
+
+user = fetch_and_parse_github_user("torvalds")
+print(json.dumps(user, indent=2))
+```
+
+Output:
+```json
+{
+  "username": "torvalds",
+  "followers": 100000,
+  "public_repos": 50,
+  "bio": "Linux creator"
+}
+```
+
+## Tips for Clean Code
+
+1. **Use `indent` when writing JSON for humans:** `json.dump(data, f, indent=2)` is readable; no indent is compact.
+2. **Validate on arrival:** don't assume an API response has the shape you expect.
+3. **Use TypedDict for static analysis:** if you're using Python 3.8+, define a TypedDict to catch missing keys at lint time.
+
+```python
+from typing import TypedDict
+
+class User(TypedDict):
+    name: str
+    age: int
+
+def process_user(data: User) -> None:
+    print(data["name"])
+```
+
+4. **Consider dataclasses for complex objects:**
+
+```python
+from dataclasses import dataclass
+
+@dataclass
+class User:
+    name: str
+    age: int
+
+    def to_json(self):
+        return json.dumps({"name": self.name, "age": self.age})
+```
+
+That's the practical core of JSON in Python. The module is simple; the complexity is in handling the gaps between what the spec allows and what real data actually is.

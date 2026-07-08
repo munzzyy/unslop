@@ -1,0 +1,49 @@
+Subject: Your team is drowning in meetings. Here's what to do about it.
+
+---
+
+Hi Sarah,
+
+I checked your company's Slack and calendar. In the last month, your team spent 240 hours in meetings. That's the equivalent of six full weeks of work per person.
+
+I'm not here to tell you that all meetings are bad. Some are essential. But most aren't.
+
+We work with 150+ companies like yours, and the pattern is always the same: once a company grows past 15 people, meeting bloat becomes the default. Nobody intends it. It just happens—and suddenly your engineers are shipping less, your writers are thinking less, and everyone's drained by Thursday.
+
+Here's what we do differently.
+
+**Drift automatically catalogs every meeting you're in.** For each one, it asks: is this time-sensitive? Does it need everyone? Could this be async? Over 90 days, you get a clear view of which meetings actually matter and which are habits.
+
+Then we use that data to propose changes:
+- Consolidate recurring syncs (usually saves 8+ hours per week)
+- Move status updates async (saves another 6+)
+- Keep the decisions-and-alignment meetings that actually move work forward
+
+No mandates. No "no-meeting" Fridays that just get overridden. Just data about your actual time spend, plus recommendations your team can implement immediately.
+
+**The results:** Companies using Drift report recovering 10-15 hours per person per week. For a 20-person team, that's 200-300 hours monthly. At your burn rate, that's roughly $40K in reclaimed engineering time.
+
+And it gets better: when your team isn't exhausted by meetings, they produce better work. One customer told us: "We got fewer meetings, and our sprint velocity improved 12%."
+
+We're offering a 30-day free trial—no card required. You'll see the meeting audit within 48 hours.
+
+Want to give it a shot?
+
+[Start Your Audit]
+
+Questions? Reply to this email or book a 15-minute call here.
+
+Sarah, one more thing: I know you get a lot of these emails. Most of them are noise. If Drift isn't the right fit for your team, I won't bother you again—just let me know. But if you've felt the meetings creeping in, this is worth a look.
+
+The broken calendar probably isn't going to fix itself.
+
+Best,
+
+Marcus
+Head of Growth, Drift
+
+P.S. Need more info before committing? Here's a 2-minute primer on how meeting bloat stalls growth. And if you want to see the audit in action, I can share a sample report from a company in your space.
+
+---
+
+Drift. Reclaim your team's time.

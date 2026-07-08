@@ -1,0 +1,58 @@
+# What Is Bitcoin? A Beginner's Explanation
+
+Bitcoin is digital money. That's the simple version. Understanding why it works and why it matters requires a bit more depth, but not much.
+
+## The Problem Bitcoin Solves
+
+For most of history, money required a middleman. If I want to send you cash, I physically hand it over. If I want to send you money electronically, a bank has to verify that I have the funds, record the transaction, and confirm it to you. The bank takes a cut and has the ability to reverse transactions, freeze accounts, or decline a transfer. You have to trust the bank.
+
+Bitcoin removes the middleman by creating a public ledger that everyone can see and verify, without needing a central authority. I can send you Bitcoin directly, peer-to-peer, and neither of us needs permission from a bank. This ledger is called the blockchain.
+
+## How It Works: The Blockchain
+
+Think of a blockchain as a record book that everyone has a copy of. Every 10 minutes, a new page (called a "block") is added to the book. Each page lists recent transactions: "Alice sent Bob 0.5 Bitcoin," "Carol sent Dave 1 Bitcoin," etc.
+
+Here's the security part: each page includes a cryptographic hash of the previous page. This creates an unbreakable chain. If someone tries to change an old transaction, the hash changes, which breaks the chain and anyone can immediately see the tampering. Trying to forge past transactions would require rewriting most of the blockchain on your computer faster than the entire network adds new blocks—computationally impossible.
+
+The network is distributed: thousands of computers (called "nodes") each keep a complete copy of the blockchain. When I send you Bitcoin, I broadcast that transaction to all these nodes. They check that I actually have the Bitcoin to send, that I haven't already sent it to someone else. Once enough nodes agree, the transaction is bundled into the next block and becomes permanent.
+
+## Mining and New Bitcoin
+
+New Bitcoin isn't printed—it's created through "mining." Miners are network participants who compete to solve a difficult mathematical puzzle. The first one to solve it gets to add the next block to the blockchain and receives newly created Bitcoin as a reward. This process takes roughly 10 minutes per block.
+
+The puzzle is hard on purpose. Bitcoin adjusts the difficulty every two weeks so that no matter how much computing power is thrown at the network, a new block is added every 10 minutes. More miners join? The puzzle gets harder. Miners leave? It gets easier. This keeps the rate constant.
+
+Why is this useful? It creates an incentive for people to run nodes and secure the network. It also controls the rate at which new Bitcoin enters circulation. There will only ever be 21 million Bitcoin. The rate halves every four years, which is why early Bitcoin was easier to mine—fewer total Bitcoin have ever been created than will exist.
+
+## What Gives Bitcoin Value?
+
+Bitcoin has value because:
+
+1. **Scarcity.** There will only ever be 21 million. No more can be created.
+2. **Utility.** You can use it to transfer value across borders without a bank, quickly and relatively cheaply.
+3. **Security.** The network has never been hacked despite existing for 15+ years.
+4. **Adoption.** Enough people and organizations accept it that it's useful to own.
+
+Bitcoin's price fluctuates wildly because its value is partially subjective—there's no company backing it, no earnings, no cash flows. The price is primarily determined by what people are willing to pay.
+
+## Wallet and Keys
+
+Your Bitcoin isn't stored in one place. Instead, you hold a "private key"—a long random number that proves you own your Bitcoin. If I know your private key, I can send your Bitcoin anywhere. So private keys are kept secret, usually encrypted and stored in a digital wallet (an app on your phone or computer).
+
+The blockchain doesn't know who "you" are. It only knows addresses—public keys. So Bitcoin is pseudonymous: your address is visible on the blockchain, but your identity isn't attached to it (unless you link them yourself by buying Bitcoin with a credit card or exchanging it for traditional currency through regulated channels).
+
+## Limitations and Tradeoffs
+
+Bitcoin is slow by modern standards: about 7 transactions per second. Visa handles thousands. Bitcoin intentionally trades speed for security and decentralization. This is by design, not a flaw that will be fixed.
+
+Bitcoin is irreversible. If you send Bitcoin to the wrong address, it's gone. There's no "undo" button.
+
+Mining uses significant electricity. The network consumes as much power as a mid-sized country. Whether this is acceptable depends on your view of what Bitcoin is worth and whether electricity could be used better.
+
+## Why It Matters
+
+Bitcoin proved that you can create trustless digital money—money whose value doesn't depend on trusting any central authority. This idea has spawned thousands of other cryptocurrencies and enabled new financial systems (DeFi, smart contracts, etc.).
+
+Whether Bitcoin itself becomes mainstream currency or remains a niche asset is an open question. But the underlying technology—the blockchain—is now used far beyond cryptocurrency: in supply-chain tracking, legal documents, medical records, and more.
+
+Bitcoin is the most important thing many people have never used. Understanding it means understanding the technology that might reshape how we think about trust, money, and institutions.

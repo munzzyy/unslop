@@ -1,0 +1,29 @@
+Building in public is terrifying. Also the best decision I've made this year.
+
+Three months ago, I shipped the first version of a tool I'd been sitting on for two years. It was rough. Incomplete. Definitely not "LinkedIn launch" ready. I almost waited another six months.
+
+Then I realized: waiting for perfect is just procrastination dressed up in a professional sweater.
+
+I posted it on a Thursday. Expected crickets. Instead, 200+ people signed up in the first week. Most feedback was on *exactly* the stuff I knew was broken. Some users found use cases I'd never considered. Two people are now actively collaborating on features.
+
+Here's what changed my mind: shipping a 70% solution beats shipping 0%. Real users catch things you can't catch alone—not because they're smarter, but because they use the product differently. The learning velocity is incomparable.
+
+Three principles that made this work:
+
+**1. Show your work, not your polish.** I didn't wait for a slick landing page or a perfect brand story. I just explained what the tool does and why I built it. Honest beats impressive.
+
+**2. Ask for specific feedback.** "What do you think?" gets fluff. "Does the import workflow make sense?" gets actionable answers. I made a short survey and got 40 responses in two days.
+
+**3. Commit to iteration, not perfection.** I shipped a v1.1 with top feedback three weeks later. People who tried it early now feel invested—they see their suggestions land. That loyalty is hard to manufacture.
+
+The scariest part was hitting publish. The second scariest part was reading the first piece of critical feedback. But both of those things made the tool better.
+
+If you're sitting on something—a project, a side hustle, a different direction—ask yourself: what am I actually waiting for? Usually it's not more time or better features. It's permission. You don't need it.
+
+Ship it. Let people break it. Fix it together.
+
+That's how things that matter get built.
+
+What did you ship before you thought it was ready? I'd love to hear what happened.
+
+#Startups #SoftwareDevelopment #BuildingPublic

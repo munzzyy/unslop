@@ -1,0 +1,67 @@
+# Zenith Acquires Meridian Analytics for $285 Million
+
+**Technology and talent accelerate Zenith's enterprise data platform roadmap**
+
+SAN FRANCISCO, July 8, 2024 – Zenith, a provider of cloud-native data infrastructure, announced today that it has acquired Meridian Analytics, a leading provider of real-time analytics and business intelligence tools. The transaction values Meridian at $285 million, combining Zenith's data warehouse capabilities with Meridian's analytics and visualization platform.
+
+The acquisition significantly strengthens Zenith's position in the enterprise analytics market and accelerates the company's roadmap for integrated data products. Meridian's technology will enable Zenith customers to query, analyze, and visualize their data without switching between platforms—addressing a key workflow inefficiency in modern data teams.
+
+"This acquisition represents a strategic step forward for Zenith," said Sarah Chen, CEO and co-founder of Zenith. "Meridian has built an exceptional product and team. Their expertise in real-time analytics complements our warehouse infrastructure perfectly. More importantly, their focus on ease of use aligns with our belief that data tools should empower analysts, not frustrate them."
+
+Meridian was founded in 2019 by James Liu and Priya Patel. The company has grown to serve over 200 enterprises and was recently valued at $150 million in a Series B funding round. Meridian's customers include companies across healthcare, fintech, and e-commerce verticals.
+
+"We founded Meridian to make analytics accessible to every analyst, regardless of SQL expertise," said James Liu, CEO and co-founder of Meridian. "Joining Zenith allows us to reach a much broader market. Our customers have asked for deeper integration with data warehouses, and now we can deliver that seamlessly."
+
+## Key Benefits to Zenith Customers
+
+**Integrated Analytics Workflow.** Customers will be able to access Meridian's analytics and visualization capabilities directly within Zenith's platform, eliminating data movement and tool switching.
+
+**Enhanced Real-Time Capabilities.** Zenith will incorporate Meridian's real-time analytics engine into its warehouse, enabling lower-latency queries on streaming data.
+
+**Expanded Team and Expertise.** Meridian's 75-person team will join Zenith, adding significant capabilities in product design, analytics, and customer success.
+
+## Transaction Details
+
+Zenith acquired Meridian for $285 million in cash and equity. Meridian's existing Series B investors participated in the transaction. The acquisition is expected to close in Q4 2024, subject to customary closing conditions. Financial terms were not disclosed.
+
+Goldman Sachs acted as financial advisor to Zenith. Meridian was represented by Wilson Sonsini Goodrich & Rosati.
+
+## Integration Timeline
+
+Following close of the transaction, Meridian will operate as a wholly-owned subsidiary of Zenith during an initial integration phase. The company expects to complete full platform integration within 12 months. During the integration period, Meridian will continue to serve its existing customer base independently.
+
+Zenith has committed to maintaining Meridian's product team in its current location (San Francisco) and will retain Meridian's engineering and product leadership in expanded roles within Zenith.
+
+## Market Context
+
+The enterprise analytics market has consolidated significantly over the past two years. The combination of cloud data warehousing growth and increasing demand for analytics has driven consolidation among point solutions. This transaction reflects strong customer demand for integrated, end-to-end analytics platforms.
+
+According to Gartner, the global analytics and business intelligence market is projected to grow at 12.5% CAGR through 2027. The shift toward cloud-native infrastructure and the need for real-time analytics have been primary growth drivers.
+
+## About Zenith
+
+Zenith provides cloud-native data warehouse infrastructure designed for modern analytics workflows. The company's platform processes over 500 exabytes of data annually across Fortune 500 companies. Founded in 2016, Zenith is based in San Francisco and backed by leading investors including Sequoia Capital, Insight Partners, and Google Ventures. The company is led by CEO Sarah Chen and operates globally with offices in San Francisco, London, and Singapore.
+
+For more information, visit zenith.io.
+
+## About Meridian Analytics
+
+Meridian is a provider of real-time analytics and business intelligence tools designed for enterprise data teams. The platform enables analysts to query, explore, and visualize data in real time without requiring SQL expertise. Since its founding in 2019, Meridian has grown to serve over 200 enterprise customers across multiple verticals. The company is based in San Francisco. For more information, visit meridian.io.
+
+## Forward-Looking Statements
+
+This press release contains forward-looking statements that involve risks and uncertainties. These statements relate to future events or our future financial performance. Actual results may differ materially from those expressed or implied by forward-looking statements. Important factors that could cause actual results to differ from our expectations include general economic conditions, competitive pressures, and the company's ability to successfully integrate acquired businesses. For additional information regarding risks and uncertainties that could cause actual results to differ materially, please refer to Zenith's quarterly and annual filings with the Securities and Exchange Commission.
+
+---
+
+**Media Contact:**
+Jennifer Martinez
+Zenith Communications
+press@zenith.io
+(415) 555-0147
+
+**Investor Contact:**
+Michael Johnson
+Zenith Investor Relations
+investors@zenith.io
+(415) 555-0148

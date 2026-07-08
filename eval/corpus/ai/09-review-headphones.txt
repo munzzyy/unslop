@@ -1,0 +1,73 @@
+# Technics EAH-AZ80 Review: Flagship Earbuds That (Mostly) Deliver
+
+**The bottom line:** If you want the most technically competent wireless earbuds on the market and don't mind paying for it, these are worth considering. If you want the most comfortable earbuds or the best value, look elsewhere.
+
+## What You Get
+
+The Technics EAH-AZ80 are a high-end refresh of the AZ70 line. They're positioned as "flagship" earbuds, priced at $299. That's $100 more than the Sony WF-1000XM5 and $150 more than the Bose QC Ultra. So they'd better be exceptional. Are they?
+
+**The package is minimal but complete.** You get the earbuds, a charging case, USB-C cable, and three sizes of silicone tips. No extra adapters or audio cable. The build feels solid—the case is metal, the stems are metal-ringed, and the charging contacts are robust.
+
+## Fit and Comfort
+
+This is where the EAH-AZ80 reveal their first limitation. They're about as comfortable as high-end earbuds get, but they're still earbuds inserted into your ear canal. The stems are shorter than the AZ70, which helps, but after two hours they will start feeling like plastic in your ears. If you plan to wear them all day, you might want to take breaks.
+
+The fit is stable. They don't fall out during workouts or head turns. Technics includes an ear-fitting assistant in the app to find the right tip size, which helps. Once you get the fit right, they stay put.
+
+For reference: the Sony WF-1000XM5 are more comfortable. The Bose QC Ultra are less comfortable. These split the difference.
+
+## Sound Quality
+
+This is Technics's strength. The tuning is reference-level neutral—a rare trait in consumer earbuds. Most brands boost the bass or add a presence peak to sound "fun." Technics doesn't do that here.
+
+What you get is clarity. Instruments have distinct space. Vocals don't blur into the mix. The bass is present and tight, not bloated. If you're used to consumer-tuned earbuds, you might find these initially "thin" until your ear adjusts. They're not—they're just accurate.
+
+Testing with a range of music: jazz recordings sound three-dimensional. Electronic music has precise separation. Podcasts are crystal clear. Acoustic guitar has natural sustain instead of muffled resonance.
+
+The weakness: these aren't particularly "fun" out of the box. If you like bass, Technics provides an EQ in the app, but it's minimal and the tuning philosophy is "don't alter what the artist intended." This is a feature to some, a drawback to others.
+
+## Active Noise Cancellation
+
+The ANC is competent but not exceptional. It blocks about 85% of constant ambient noise—flights, trains, coffee shops. Compared to the Sony WF-1000XM5 (which block about 90%), there's a noticeable difference on long flights.
+
+Passthrough mode works well—you can hear ambient sound without removing the earbuds. Useful for conversations or checking traffic.
+
+One quirk: the ANC is tied to the fit. If the seal isn't perfect, the ANC drops noticeably. This is true for all earbuds, but Technics seems more sensitive to it than Sony's offering.
+
+## Battery and Connectivity
+
+Battery life: 8 hours of playback per charge, 32 hours total with the case. That's good but not best-in-class. The Sony WF-1000XM5 get 12 hours; the Bose QC Ultra get 6. Technics lands in the middle.
+
+Bluetooth connectivity is solid across devices—phone, laptop, tablet. Pairing is immediate and reconnection is reliable. No dropouts in normal conditions.
+
+The app works, though it's not as polished as Sony's or Bose's. You can adjust EQ, check battery, and customize touch controls. It's functional without being elegant.
+
+## Call Quality
+
+This is a mixed bag. The earbuds have four microphones for noise cancellation during calls. In a quiet room, call quality is fine—the other person hears you clearly. In a noisy coffee shop, the microphones struggle. They're better than earbuds a tier below, but worse than dedicated call earpieces or over-ear headphones.
+
+For occasional calls: fine. For frequent calls from variable environments: not ideal.
+
+## Durability and Warranty
+
+Technics includes a two-year warranty covering defects. The earbuds are IPX4 water-resistant (splash-proof, not submersible). They should survive gym sweat and light rain without issue.
+
+No word on whether replacement batteries are available if the earbuds lose capacity after a few years. That's a question worth asking before buying.
+
+## Verdict
+
+**Who should buy these?**
+- Audiophiles who want accuracy over bass boost
+- People who already use Technics gear and want ecosystem integration
+- Anyone willing to pay premium price for reference-level sound
+
+**Who should consider alternatives?**
+- People prioritizing comfort for all-day wear (try Sony WF-1000XM5)
+- Budget-conscious listeners ($150 earbuds often sound 85% as good)
+- Anyone who wants "fun" tuning out of the box (try Bose QC Ultra)
+
+The Technics EAH-AZ80 are excellent earbuds. They're also expensive and not best-in-class for comfort or ANC. They're a specific product for specific preferences: if you value sound accuracy and don't mind paying for it, they're worth auditioning. If you're hedging your bets, the Sony WF-1000XM5 are a safer bet across more use cases.
+
+**Rating: 8.5/10**
+
+Worth the money? If sound quality matters most to you, yes. If you're looking for the best all-around earbuds, there are better options at lower prices.
