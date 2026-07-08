@@ -34,6 +34,19 @@ jobs:
           python-version: "3.11"
       - run: python unslop.py --no-config README.md
 
+  # Detection quality, measured against the labeled corpus in eval/. Fails
+  # if AUC, recall at the "worth a pass" threshold, or the false-positive
+  # ceilings regress past the floors in eval/run_eval.py - so a change can't
+  # buy recall by flagging human prose, and can't quietly lose recall either.
+  eval-floors:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "3.11"
+      - run: python eval/run_eval.py --check
+
   # The browser UI (web/) ships its own copy of the scorer in web/detector.js.
   # This proves it stays byte-for-byte in agreement with unslop.py, so the web
   # app can never quietly disagree with the CLI.
