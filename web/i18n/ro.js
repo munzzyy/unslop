@@ -6,10 +6,10 @@
 // 20+ is written directly into the "other" strings below (e.g. "{count} de
 // cuvinte"), not left for the runtime to add.
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs.ro = {
-  "meta.title": "unslop — găsește ce trădează AI-ul în textul tău",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs.ro = {
+  "meta.title": "noslop — găsește ce trădează AI-ul în textul tău",
   "meta.description": "Lipește textul și vezi ce îl face să sune ca un robot, ca să-l corectezi înainte să-l trimiți. Totul rulează în browser — nimic nu se încarcă nicăieri.",
 
   "skipToEditor": "Sari la editor",
@@ -18,7 +18,7 @@ window.UnslopI18N.catalogs.ro = {
   "uilang.switcherLabel": "Limbă",
 
   "hero.heading": "Vezi ce face textul tău să sune ca un robot.",
-  "hero.tagline": "Lipește o ciornă mai jos. unslop arată exact cuvintele și obiceiurile care îl trădează, ca să le corectezi înainte să-l trimiți.",
+  "hero.tagline": "Lipește o ciornă mai jos. noslop arată exact cuvintele și obiceiurile care îl trădează, ca să le corectezi înainte să-l trimiți.",
   "privacy.strong": "Totul rulează în browserul tău.",
   "privacy.rest": "Nimic din ce lipești nu este încărcat, salvat sau trimis nicăieri.",
 
@@ -41,7 +41,7 @@ window.UnslopI18N.catalogs.ro = {
 
   "editor.textareaLabel": "Textul tău — lipește sau scrie aici ca să verifici dacă sună ca un AI",
   "editor.placeholder": "Lipește sau scrie textul tău aici...",
-  "editor.hintMarks": "Marcajele arată ce a găsit unslop. Treci cu mouse-ul sau ajungi cu Tab la un marcaj pentru detalii.",
+  "editor.hintMarks": "Marcajele arată ce a găsit noslop. Treci cu mouse-ul sau ajungi cu Tab la un marcaj pentru detalii.",
   "editor.hintTabbing": "Apasă {tab} ca să intri în text, apoi din nou {tab} ca să te deplasezi între marcaje.",
 
   "results.ariaLabel": "Rezultate",
@@ -73,7 +73,7 @@ window.UnslopI18N.catalogs.ro = {
   "breakdown.rhythmSurface": "Ritm și trăsături de suprafață",
   "breakdown.clean.heading": "Se citește curat.",
   "breakdown.clean.notEnoughText": "Încă e prea puțin text de evaluat. Lipește ceva mai mult pentru un rezultat de încredere.",
-  "breakdown.clean.noneFired": "Nicio verificare unslop nu s-a declanșat pe acest text.",
+  "breakdown.clean.noneFired": "Nicio verificare noslop nu s-a declanșat pe acest text.",
   "finding.hitCount.one": "{count} dată",
   "finding.hitCount.few": "{count} ori",
   "finding.hitCount.other": "{count} de ori",

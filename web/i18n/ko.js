@@ -5,10 +5,10 @@
 // Intl.PluralRules("ko").resolvedOptions().pluralCategories -> only
 // "other" is ever reported; "one" is kept identical for robustness).
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs.ko = {
-  "meta.title": "unslop — 글에서 AI 티가 나는 부분을 찾아드립니다",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs.ko = {
+  "meta.title": "noslop — 글에서 AI 티가 나는 부분을 찾아드립니다",
   "meta.description": "글을 붙여넣으면 로봇처럼 들리게 만드는 요소를 보여드립니다. 보내기 전에 고쳐보세요. 모든 처리는 브라우저 안에서만 이루어지며 아무것도 업로드되지 않습니다.",
 
   "skipToEditor": "편집기로 건너뛰기",
@@ -17,7 +17,7 @@ window.UnslopI18N.catalogs.ko = {
   "uilang.switcherLabel": "언어",
 
   "hero.heading": "글이 로봇처럼 들리게 만드는 요소를 확인해보세요.",
-  "hero.tagline": "아래에 초안을 붙여넣어 보세요. unslop이 그 원인이 되는 단어와 습관을 정확히 짚어드리니, 보내기 전에 고칠 수 있습니다.",
+  "hero.tagline": "아래에 초안을 붙여넣어 보세요. noslop이 그 원인이 되는 단어와 습관을 정확히 짚어드리니, 보내기 전에 고칠 수 있습니다.",
   "privacy.strong": "모든 처리는 브라우저 안에서 이루어집니다.",
   "privacy.rest": "붙여넣은 내용은 업로드되거나 저장되거나 어디로도 전송되지 않습니다.",
 
@@ -39,7 +39,7 @@ window.UnslopI18N.catalogs.ko = {
 
   "editor.textareaLabel": "당신의 글 — AI처럼 들리는지 확인하려면 여기에 붙여넣거나 입력하세요",
   "editor.placeholder": "여기에 글을 붙여넣거나 입력하세요...",
-  "editor.hintMarks": "표시는 unslop이 찾아낸 부분을 보여줍니다. 마우스를 올리거나 Tab으로 이동하면 자세한 내용을 볼 수 있습니다.",
+  "editor.hintMarks": "표시는 noslop이 찾아낸 부분을 보여줍니다. 마우스를 올리거나 Tab으로 이동하면 자세한 내용을 볼 수 있습니다.",
   "editor.hintTabbing": "{tab} 키를 눌러 텍스트로 들어간 다음, 다시 {tab} 키를 눌러 표시 사이를 이동하세요.",
 
   "results.ariaLabel": "결과",
@@ -71,7 +71,7 @@ window.UnslopI18N.catalogs.ko = {
   "breakdown.rhythmSurface": "리듬 및 표면적 특징",
   "breakdown.clean.heading": "깔끔하게 읽힙니다.",
   "breakdown.clean.notEnoughText": "판단하기에는 아직 텍스트가 부족합니다. 더 붙여넣으면 신뢰할 수 있는 결과를 얻을 수 있습니다.",
-  "breakdown.clean.noneFired": "이 텍스트에서는 unslop의 검사 항목이 하나도 감지되지 않았습니다.",
+  "breakdown.clean.noneFired": "이 텍스트에서는 noslop의 검사 항목이 하나도 감지되지 않았습니다.",
   "finding.hitCount.one": "{count}회",
   "finding.hitCount.other": "{count}회",
   "finding.linesLabel": "{lines}번째 줄",

@@ -3,10 +3,10 @@
 // Plural categories used here: one, other (verified via
 // Intl.PluralRules("da").resolvedOptions().pluralCategories).
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs.da = {
-  "meta.title": "unslop — find det, der afslører AI i din tekst",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs.da = {
+  "meta.title": "noslop — find det, der afslører AI i din tekst",
   "meta.description": "Indsæt din tekst, og se hvad der får den til at lyde som en robot, så du kan rette det, før du sender. Kører helt i din browser — intet bliver uploadet.",
 
   "skipToEditor": "Gå til redigeringsfeltet",
@@ -15,7 +15,7 @@ window.UnslopI18N.catalogs.da = {
   "uilang.switcherLabel": "Sprog",
 
   "hero.heading": "Se hvad der får din tekst til at lyde som en robot.",
-  "hero.tagline": "Indsæt et udkast nedenfor. unslop peger på præcis de ord og vaner, der afslører det, så du kan rette dem, før du sender.",
+  "hero.tagline": "Indsæt et udkast nedenfor. noslop peger på præcis de ord og vaner, der afslører det, så du kan rette dem, før du sender.",
   "privacy.strong": "Alt kører i din browser.",
   "privacy.rest": "Intet af det, du indsætter, bliver uploadet, gemt eller sendt nogen steder hen.",
 
@@ -37,7 +37,7 @@ window.UnslopI18N.catalogs.da = {
 
   "editor.textareaLabel": "Din tekst — indsæt eller skriv her for at tjekke, om den lyder som AI",
   "editor.placeholder": "Indsæt eller skriv din tekst her...",
-  "editor.hintMarks": "Markeringerne viser, hvad unslop har fundet. Hold musen over eller brug Tab til en markering for detaljer.",
+  "editor.hintMarks": "Markeringerne viser, hvad noslop har fundet. Hold musen over eller brug Tab til en markering for detaljer.",
   "editor.hintTabbing": "Tryk på {tab} for at komme ind i teksten, og derefter {tab} igen for at flytte mellem markeringerne.",
 
   "results.ariaLabel": "Resultater",
@@ -69,7 +69,7 @@ window.UnslopI18N.catalogs.da = {
   "breakdown.rhythmSurface": "Rytme og overflade",
   "breakdown.clean.heading": "Læser rent.",
   "breakdown.clean.notEnoughText": "Stadig for lidt tekst til at bedømme. Indsæt lidt mere for et pålideligt resultat.",
-  "breakdown.clean.noneFired": "Ingen af unslops tjek slog til på denne tekst.",
+  "breakdown.clean.noneFired": "Ingen af noslops tjek slog til på denne tekst.",
   "finding.hitCount.one": "{count} gang",
   "finding.hitCount.other": "{count} gange",
   "finding.linesLabel": "linje {lines}",

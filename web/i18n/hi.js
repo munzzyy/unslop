@@ -3,10 +3,10 @@
 // Plural categories used here: one, other (verified via
 // Intl.PluralRules("hi").resolvedOptions().pluralCategories).
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs.hi = {
-  "meta.title": "unslop — पता करें कि आपकी लिखावट में AI की झलक कहाँ है",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs.hi = {
+  "meta.title": "noslop — पता करें कि आपकी लिखावट में AI की झलक कहाँ है",
   "meta.description": "अपनी लिखावट पेस्ट करें और देखें कि उसे रोबोट जैसा क्या बनाता है, ताकि भेजने से पहले उसे ठीक कर सकें। यह पूरी तरह आपके ब्राउज़र में चलता है — कुछ भी कहीं अपलोड नहीं होता।",
 
   "skipToEditor": "एडिटर पर जाएँ",
@@ -15,7 +15,7 @@ window.UnslopI18N.catalogs.hi = {
   "uilang.switcherLabel": "भाषा",
 
   "hero.heading": "देखें कि आपकी लिखावट को रोबोट जैसा क्या बनाता है।",
-  "hero.tagline": "नीचे कोई ड्राफ़्ट पेस्ट करें। unslop बिल्कुल उन शब्दों और आदतों की ओर इशारा करता है जो इसे उजागर करते हैं, ताकि आप भेजने से पहले उन्हें ठीक कर सकें।",
+  "hero.tagline": "नीचे कोई ड्राफ़्ट पेस्ट करें। noslop बिल्कुल उन शब्दों और आदतों की ओर इशारा करता है जो इसे उजागर करते हैं, ताकि आप भेजने से पहले उन्हें ठीक कर सकें।",
   "privacy.strong": "सब कुछ आपके ब्राउज़र में ही चलता है।",
   "privacy.rest": "आप जो भी पेस्ट करते हैं, वह कहीं अपलोड, सेव या भेजा नहीं जाता।",
 
@@ -37,7 +37,7 @@ window.UnslopI18N.catalogs.hi = {
 
   "editor.textareaLabel": "आपकी लिखावट — यह जाँचने के लिए यहाँ पेस्ट करें या टाइप करें कि यह AI जैसी लगती है या नहीं",
   "editor.placeholder": "अपनी लिखावट यहाँ पेस्ट करें या टाइप करें...",
-  "editor.hintMarks": "निशान दिखाते हैं कि unslop ने क्या पाया। विवरण के लिए किसी निशान पर माउस ले जाएँ या Tab से पहुँचें।",
+  "editor.hintMarks": "निशान दिखाते हैं कि noslop ने क्या पाया। विवरण के लिए किसी निशान पर माउस ले जाएँ या Tab से पहुँचें।",
   "editor.hintTabbing": "टेक्स्ट में जाने के लिए {tab} दबाएँ, फिर निशानों के बीच जाने के लिए दोबारा {tab} दबाएँ।",
 
   "results.ariaLabel": "नतीजे",
@@ -69,7 +69,7 @@ window.UnslopI18N.catalogs.hi = {
   "breakdown.rhythmSurface": "लय और सतही विशेषताएँ",
   "breakdown.clean.heading": "साफ़-सुथरा लगता है।",
   "breakdown.clean.notEnoughText": "आँकने के लिए अभी बहुत कम टेक्स्ट है। भरोसेमंद नतीजे के लिए थोड़ा और पेस्ट करें।",
-  "breakdown.clean.noneFired": "इस टेक्स्ट पर unslop की कोई भी जाँच सक्रिय नहीं हुई।",
+  "breakdown.clean.noneFired": "इस टेक्स्ट पर noslop की कोई भी जाँच सक्रिय नहीं हुई।",
   "finding.hitCount.one": "{count} बार",
   "finding.hitCount.other": "{count} बार",
   "finding.linesLabel": "पंक्ति {lines}",

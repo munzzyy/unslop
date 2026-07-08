@@ -3,10 +3,10 @@
 // Plural categories used here: one, other (verified via
 // Intl.PluralRules("nl").resolvedOptions().pluralCategories).
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs.nl = {
-  "meta.title": "unslop — ontdek wat je tekst verraadt als AI",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs.nl = {
+  "meta.title": "noslop — ontdek wat je tekst verraadt als AI",
   "meta.description": "Plak je tekst en zie wat hem als een robot laat klinken, zodat je het kunt verbeteren voordat je verzendt. Draait volledig in je browser — er wordt niets geüpload.",
 
   "skipToEditor": "Naar de editor",
@@ -15,7 +15,7 @@ window.UnslopI18N.catalogs.nl = {
   "uilang.switcherLabel": "Taal",
 
   "hero.heading": "Zie wat je tekst als een robot laat klinken.",
-  "hero.tagline": "Plak hieronder een concept. unslop wijst precies de woorden en gewoontes aan die het verraden, zodat je ze kunt verbeteren voordat je verzendt.",
+  "hero.tagline": "Plak hieronder een concept. noslop wijst precies de woorden en gewoontes aan die het verraden, zodat je ze kunt verbeteren voordat je verzendt.",
   "privacy.strong": "Alles draait in je browser.",
   "privacy.rest": "Niets van wat je plakt wordt geüpload, opgeslagen of ergens naartoe gestuurd.",
 
@@ -37,7 +37,7 @@ window.UnslopI18N.catalogs.nl = {
 
   "editor.textareaLabel": "Jouw tekst — plak of typ hier om te controleren op AI-kenmerken",
   "editor.placeholder": "Plak of typ hier je tekst...",
-  "editor.hintMarks": "Markeringen tonen wat unslop heeft gevonden. Beweeg de muis erover of gebruik Tab voor details.",
+  "editor.hintMarks": "Markeringen tonen wat noslop heeft gevonden. Beweeg de muis erover of gebruik Tab voor details.",
   "editor.hintTabbing": "Druk op {tab} om de tekst in te gaan, en dan opnieuw op {tab} om tussen de markeringen te bewegen.",
 
   "results.ariaLabel": "Resultaten",
@@ -69,7 +69,7 @@ window.UnslopI18N.catalogs.nl = {
   "breakdown.rhythmSurface": "Ritme & oppervlakte",
   "breakdown.clean.heading": "Leest schoon.",
   "breakdown.clean.notEnoughText": "Nog te weinig tekst om te beoordelen. Plak wat meer voor een betrouwbaar resultaat.",
-  "breakdown.clean.noneFired": "Geen van de controles van unslop sloeg aan op deze tekst.",
+  "breakdown.clean.noneFired": "Geen van de controles van noslop sloeg aan op deze tekst.",
   "finding.hitCount.one": "{count} keer",
   "finding.hitCount.other": "{count} keer",
   "finding.linesLabel": "regel {lines}",

@@ -1,4 +1,4 @@
-# Contributing to unslop
+# Contributing to noslop
 
 Thanks for looking at this. It's a small, single-maintainer project, so here's
 what actually helps.
@@ -17,7 +17,7 @@ what actually helps.
   one scoped out.
 
 Things like a full rewrite engine or an LLM-calling mode are out of scope.
-unslop's whole point is that it's local, deterministic, and has zero
+noslop's whole point is that it's local, deterministic, and has zero
 network access. A PR that adds a network call or an API key requirement
 won't be merged, no matter how good the feature is.
 
@@ -26,8 +26,8 @@ won't be merged, no matter how good the feature is.
 Clone it, no install needed:
 
 ```bash
-git clone https://github.com/munzzyy/unslop
-cd unslop
+git clone https://github.com/munzzyy/noslop
+cd noslop
 python -m pytest tests/ -q
 ```
 
@@ -39,22 +39,22 @@ matrix covers 3.8, 3.11, and 3.14 on both Ubuntu and Windows, check
 To try your change against a real file:
 
 ```bash
-python unslop.py some-file.md
-python unslop.py --json some-file.md
+python noslop.py some-file.md
+python noslop.py --json some-file.md
 ```
 
 ## Making a change
 
-- `unslop.py` is the whole tool. The lists you'll touch most:
+- `noslop.py` is the whole tool. The lists you'll touch most:
   - `BUZZWORDS` - single words and short fixed phrases
   - `PHRASES` - whole-phrase tics, matched case-insensitively
   - `PATTERNS` - regex-based constructions with a label, weight, and hint
 - The browser build in `web/` ships its own copy of the scorer as
-  `web/detector.js`. If you change a list or the scoring math in `unslop.py`,
+  `web/detector.js`. If you change a list or the scoring math in `noslop.py`,
   update `web/detector.js` to match; `node web/parity.js` (and CI) checks that
   the two agree on a batch of fixtures.
-- Add a test in `tests/test_unslop.py` for anything you change. Tests call
-  `unslop.analyze()` directly on a text string in most cases, look at the
+- Add a test in `tests/test_noslop.py` for anything you change. Tests call
+  `noslop.analyze()` directly on a text string in most cases, look at the
   existing tests for the pattern, it's usually a 3-4 line addition.
 - If you're adding a new buzzword or phrase, a one-line test asserting it
   gets caught (and, if there's a plausible false-positive shape, one
@@ -86,7 +86,7 @@ report actionable (exact input, exact output, what you expected).
 
 ## License of contributions
 
-unslop is under the [Prosperity Public License](LICENSE): free for noncommercial
+noslop is under the [Prosperity Public License](LICENSE): free for noncommercial
 use, commercial use by paid license. So the project stays maintainable under one
 owner, contributions are taken under the [Blue Oak Model License 1.0.0](https://blueoakcouncil.org/license/1.0.0),
 a simple permissive license. Opening a PR means you're offering your change under

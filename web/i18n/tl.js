@@ -3,10 +3,10 @@
 // Plural categories used here: one, other (verified via
 // Intl.PluralRules("tl").resolvedOptions().pluralCategories).
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs.tl = {
-  "meta.title": "unslop — hanapin kung ano ang nagbubunyag ng AI sa sinulat mo",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs.tl = {
+  "meta.title": "noslop — hanapin kung ano ang nagbubunyag ng AI sa sinulat mo",
   "meta.description": "I-paste ang sinulat mo at tingnan kung ano ang nagpapabango nito na parang robot, para maayos mo bago mo ipadala. Gumagana nang buo sa browser mo — walang ina-upload kahit saan.",
 
   "skipToEditor": "Pumunta sa editor",
@@ -15,7 +15,7 @@ window.UnslopI18N.catalogs.tl = {
   "uilang.switcherLabel": "Wika",
 
   "hero.heading": "Tingnan kung ano ang nagpapabango sa sinulat mo na parang robot.",
-  "hero.tagline": "Mag-paste ng draft sa ibaba. Itinuturo ng unslop ang eksaktong mga salita at ugali na nagbubunyag nito, para maayos mo bago mo ipadala.",
+  "hero.tagline": "Mag-paste ng draft sa ibaba. Itinuturo ng noslop ang eksaktong mga salita at ugali na nagbubunyag nito, para maayos mo bago mo ipadala.",
   "privacy.strong": "Lahat ay gumagana sa browser mo.",
   "privacy.rest": "Wala sa i-paste mo ang ina-upload, ini-imbak, o ipinapadala kahit saan.",
 
@@ -37,7 +37,7 @@ window.UnslopI18N.catalogs.tl = {
 
   "editor.textareaLabel": "Ang sinulat mo — i-paste o i-type dito para suriin kung parang AI ang tunog",
   "editor.placeholder": "I-paste o i-type ang sinulat mo dito...",
-  "editor.hintMarks": "Ipinapakita ng mga marka kung ano ang nakita ng unslop. I-hover o Tab papunta sa isang marka para sa detalye.",
+  "editor.hintMarks": "Ipinapakita ng mga marka kung ano ang nakita ng noslop. I-hover o Tab papunta sa isang marka para sa detalye.",
   "editor.hintTabbing": "Pindutin ang {tab} para pumasok sa teksto, tapos {tab} ulit para lumipat sa pagitan ng mga marka.",
 
   "results.ariaLabel": "Mga resulta",
@@ -69,7 +69,7 @@ window.UnslopI18N.catalogs.tl = {
   "breakdown.rhythmSurface": "Ritmo at panlabas na katangian",
   "breakdown.clean.heading": "Malinis ang basa.",
   "breakdown.clean.notEnoughText": "Kulang pa ang teksto para husgahan. Mag-paste pa ng kaunti para sa mapagkakatiwalaang resulta.",
-  "breakdown.clean.noneFired": "Walang na-trigger na check ng unslop sa tekstong ito.",
+  "breakdown.clean.noneFired": "Walang na-trigger na check ng noslop sa tekstong ito.",
   "finding.hitCount.one": "{count} beses",
   "finding.hitCount.other": "{count} beses",
   "finding.linesLabel": "linya {lines}",

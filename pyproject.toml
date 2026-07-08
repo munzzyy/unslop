@@ -3,8 +3,8 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "unslop"
-version = "0.7.0"
+name = "noslop"
+version = "0.8.0"
 description = "Flag the AI tells in a piece of writing, so you can rewrite them before you ship."
 readme = "README.md"
 requires-python = ">=3.8"
@@ -21,11 +21,11 @@ classifiers = [
 ]
 
 [project.scripts]
-unslop = "unslop:main"
+noslop = "noslop:main"
 
 [project.urls]
-Homepage = "https://github.com/munzzyy/unslop"
-Issues = "https://github.com/munzzyy/unslop/issues"
+Homepage = "https://github.com/munzzyy/noslop"
+Issues = "https://github.com/munzzyy/noslop/issues"
 
 [tool.setuptools]
-py-modules = ["unslop"]
+py-modules = ["noslop"]

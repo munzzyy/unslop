@@ -5,20 +5,20 @@ import os
 import sys
 import tempfile
 
-import unslop
+import noslop
 
 
 def run_cli(argv):
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
-        code = unslop.main(argv)
+        code = noslop.main(argv)
     return code, buf.getvalue()
 
 
 def run_cli_err(argv):
     out, err = io.StringIO(), io.StringIO()
     with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
-        code = unslop.main(argv)
+        code = noslop.main(argv)
     return code, out.getvalue(), err.getvalue()
 
 
@@ -27,7 +27,7 @@ def test_ai_sample_flags_high():
           "solution seamlessly leverages a comprehensive approach. This isn't just a "
           "tool, it's a testament to innovation. Let's dive into the myriad ways it "
           "can elevate your workflow and unlock a rich tapestry of possibilities.")
-    r = unslop.analyze(ai)
+    r = noslop.analyze(ai)
     assert r["score_per_1k"] >= 25
     assert "AI" in r["verdict"]
 
@@ -36,37 +36,37 @@ def test_clean_prose_reads_human():
     clean = ("The buffer gets swapped twice, so the saved file ends up backwards. I "
              "moved the swap onto a copy. On-screen output doesn't change, and the "
              "file is correct now. I tested it against a full dump and it round-trips.")
-    r = unslop.analyze(clean)
+    r = noslop.analyze(clean)
     assert r["score_per_1k"] < 10
     assert r["verdict"] == "looks human"
 
 
 def test_check_marks_are_not_emoji():
     # check/cross marks belong in tables and must not be flagged as emoji
-    r = unslop.analyze("Result: pass ✓ or fail ✗, marked in the column.")
+    r = noslop.analyze("Result: pass ✓ or fail ✗, marked in the column.")
     assert r["emoji"] == 0
 
 
 def test_emoji_variation_sequence_counts_once():
     # a heart written as base + U+FE0F is one emoji, not two
-    r = unslop.analyze("I ❤️ this")
+    r = noslop.analyze("I ❤️ this")
     assert r["emoji"] == 1
 
 
 def test_flag_counts_once():
     # a flag is a pair of regional indicators; one flag, one emoji
-    r = unslop.analyze("Go team \U0001f1fa\U0001f1f8")
+    r = noslop.analyze("Go team \U0001f1fa\U0001f1f8")
     assert r["emoji"] == 1
 
 
 def test_vs16_forces_emoji_presentation():
     # bare warning sign is a plain glyph; with U+FE0F it's an emoji
-    assert unslop.analyze("⚠ careful here")["emoji"] == 0
-    assert unslop.analyze("⚠️ careful here")["emoji"] == 1
+    assert noslop.analyze("⚠ careful here")["emoji"] == 0
+    assert noslop.analyze("⚠️ careful here")["emoji"] == 1
 
 
 def test_not_just_but_is_flagged():
-    r = unslop.analyze("This is not just fast, but also cheap and simple to run.")
+    r = noslop.analyze("This is not just fast, but also cheap and simple to run.")
     labels = [p[0] for p in r["patterns"]]
     assert any("not just" in label for label in labels)
 
@@ -74,7 +74,7 @@ def test_not_just_but_is_flagged():
 def test_overlapping_hits_count_once():
     # "let's dive into" is one act of diving, and "rich tapestry"
     # shouldn't also count as "tapestry"
-    r = unslop.analyze("Let's dive into the rich tapestry of options.")
+    r = noslop.analyze("Let's dive into the rich tapestry of options.")
     assert sum(n for _, n, _ in r["phrases"]) == 1
     assert sum(n for _, n, _ in r["buzzwords"]) == 1
 
@@ -83,41 +83,41 @@ def test_bold_label_bullets_are_flagged():
     # both forms of the "**Term:** explanation" list tell
     inside = "- **Speed:** fast\n- **Safety:** safe\n- **Scale:** grows\n- **Cost:** cheap\n"
     after = "- **Speed**: fast\n- **Safety**: safe\n- **Scale**: grows\n"
-    assert unslop.analyze(inside)["bold_label_bullets"] == 4
-    assert unslop.analyze(after)["bold_label_bullets"] == 3
+    assert noslop.analyze(inside)["bold_label_bullets"] == 4
+    assert noslop.analyze(after)["bold_label_bullets"] == 3
 
 
 def test_plain_bold_bullets_are_not_flagged():
     # a bullet that just bolds a word (no colon) is fine, not the label tell
-    r = unslop.analyze("- **Note** the thing runs fast\n- another normal bullet here\n")
+    r = noslop.analyze("- **Note** the thing runs fast\n- another normal bullet here\n")
     assert r["bold_label_bullets"] == 0
 
 
 def test_empty_input_is_safe():
-    r = unslop.analyze("")
+    r = noslop.analyze("")
     assert r["words"] == 1
     assert r["verdict"] == "looks human"
 
 
 def test_strip_markdown_code_blanks_fences_and_inline():
     text = "intro line\n```\ndelve into the robust tapestry\n```\nuse `leverage` here\n"
-    stripped = unslop.strip_markdown_code(text)
+    stripped = noslop.strip_markdown_code(text)
     # same number of lines, code content gone
     assert stripped.count("\n") == text.count("\n")
-    r = unslop.analyze(stripped)
+    r = noslop.analyze(stripped)
     assert r["buzzwords"] == []
     assert r["phrases"] == []
 
 
 def test_strip_markdown_code_keeps_line_numbers():
     text = "```\ncode\ncode\n```\nwe delve here\n"
-    r = unslop.analyze(unslop.strip_markdown_code(text))
+    r = noslop.analyze(noslop.strip_markdown_code(text))
     assert r["buzzwords"][0][2] == [5]
 
 
 def test_unclosed_fence_blanks_to_end():
-    stripped = unslop.strip_markdown_code("ok\n```\ndelve\nrobust\n")
-    assert unslop.analyze(stripped)["buzzwords"] == []
+    stripped = noslop.strip_markdown_code("ok\n```\ndelve\nrobust\n")
+    assert noslop.analyze(stripped)["buzzwords"] == []
 
 
 def test_markdown_files_skip_code_automatically():
@@ -175,34 +175,34 @@ def test_threshold_flag():
 def test_word_boundary_avoids_substring_false_positives():
     # "as an ai" must not match inside "aide", "deep dive" must not match
     # inside "deep diver" - raw substring matching used to flag both
-    r = unslop.analyze("He served as an aide to the senator for six years.")
+    r = noslop.analyze("He served as an aide to the senator for six years.")
     assert r["phrases"] == []
     assert r["verdict"] == "looks human"
-    r = unslop.analyze("A deep diver explores caves most people never see.")
+    r = noslop.analyze("A deep diver explores caves most people never see.")
     assert r["buzzwords"] == []
 
 
 def test_wrapped_phrase_is_still_caught():
     # git wraps commit bodies around 72 cols, so a phrase can be split
     # across a hard-wrapped line and should still be flagged
-    r = unslop.analyze("It is important to\nnote that this changes the default.")
+    r = noslop.analyze("It is important to\nnote that this changes the default.")
     assert any(p == "it is important to note" for p, _, _ in r["phrases"])
 
 
 def test_isnt_flip_does_not_match_possessive_its():
     # "is not stored in its own file" is ordinary prose, not the
     # "it isn't X, it's Y" contrast flip
-    r = unslop.analyze("The config is not stored in its own file anymore, it "
+    r = noslop.analyze("The config is not stored in its own file anymore, it "
                         "moved to environment variables during setup.")
     assert r["patterns"] == []
     assert r["verdict"] == "looks human"
 
 
 def test_isnt_flip_still_fires_on_real_contrast():
-    r = unslop.analyze("This isn't a gimmick, it's the core feature of the release.")
+    r = noslop.analyze("This isn't a gimmick, it's the core feature of the release.")
     labels = [p[0] for p in r["patterns"]]
     assert any("it isn't X" in label for label in labels)
-    r = unslop.analyze("This isn't a gimmick, it is the core feature of the release.")
+    r = noslop.analyze("This isn't a gimmick, it is the core feature of the release.")
     labels = [p[0] for p in r["patterns"]]
     assert any("it isn't X" in label for label in labels)
 
@@ -211,7 +211,7 @@ def test_numbered_bold_label_bullets_are_flagged():
     # the numbered "1. **Term:** ..." list is the same formatting tell as
     # the dash-bulleted one and should be caught the same way
     text = "1. **Speed:** fast\n2. **Safety:** safe\n3. **Scale:** grows\n4. **Cost:** cheap\n"
-    r = unslop.analyze(text)
+    r = noslop.analyze(text)
     assert r["bold_label_bullets"] == 4
     assert r["score_per_1k"] > 0
 
@@ -224,10 +224,10 @@ def test_stdin_decodes_as_utf8_regardless_of_console_encoding():
     old_stdin = sys.stdin
     sys.stdin = fake_stdin
     try:
-        text = unslop.load_text("-")
+        text = noslop.load_text("-")
     finally:
         sys.stdin = old_stdin
-    r = unslop.analyze(text)
+    r = noslop.analyze(text)
     assert r["em_dashes"] == 1
     assert r["emoji"] == 1
 
@@ -237,7 +237,7 @@ def test_stdin_without_buffer_falls_back_to_text_read():
     old_stdin = sys.stdin
     sys.stdin = io.StringIO("plain text with no special encoding needs")
     try:
-        text = unslop.load_text("-")
+        text = noslop.load_text("-")
     finally:
         sys.stdin = old_stdin
     assert text == "plain text with no special encoding needs"
@@ -263,7 +263,7 @@ def test_missing_file_exits_cleanly_with_no_traceback():
 
 
 def test_glob_argument_is_expanded():
-    # PowerShell and cmd.exe never expand wildcards, so "unslop docs/*.md"
+    # PowerShell and cmd.exe never expand wildcards, so "noslop docs/*.md"
     # needs to work even when the shell hands us the literal glob
     with tempfile.TemporaryDirectory() as d:
         a = os.path.join(d, "a.md")
@@ -303,16 +303,16 @@ def run_cli_err_in(d, argv):
 
 
 def test_json_output_has_stable_key_set():
-    # analyze()'s return dict is unslop's only machine-readable contract;
+    # analyze()'s return dict is noslop's only machine-readable contract;
     # a future rename of a key should fail this test as a reminder to bump
     # the version and note it, not slip out silently
-    r = unslop.analyze("Plain sentence with nothing notable in it at all.")
-    assert set(r.keys()) == unslop.JSON_SCHEMA_KEYS
+    r = noslop.analyze("Plain sentence with nothing notable in it at all.")
+    assert set(r.keys()) == noslop.JSON_SCHEMA_KEYS
 
 
 def test_config_file_ignores_words_and_phrases():
     with tempfile.TemporaryDirectory() as d:
-        with open(os.path.join(d, ".unslop.json"), "w", encoding="utf-8") as fh:
+        with open(os.path.join(d, ".noslop.json"), "w", encoding="utf-8") as fh:
             json.dump({"ignore_words": ["robust"], "ignore_phrases": ["dive into"]}, fh)
         p = os.path.join(d, "a.md")
         with open(p, "w", encoding="utf-8") as fh:
@@ -325,7 +325,7 @@ def test_config_file_ignores_words_and_phrases():
 
 def test_config_file_adds_extra_words():
     with tempfile.TemporaryDirectory() as d:
-        with open(os.path.join(d, ".unslop.json"), "w", encoding="utf-8") as fh:
+        with open(os.path.join(d, ".noslop.json"), "w", encoding="utf-8") as fh:
             json.dump({"extra_words": ["frobnicate"]}, fh)
         p = os.path.join(d, "a.md")
         with open(p, "w", encoding="utf-8") as fh:
@@ -336,7 +336,7 @@ def test_config_file_adds_extra_words():
 
 def test_no_config_flag_bypasses_config_file():
     with tempfile.TemporaryDirectory() as d:
-        with open(os.path.join(d, ".unslop.json"), "w", encoding="utf-8") as fh:
+        with open(os.path.join(d, ".noslop.json"), "w", encoding="utf-8") as fh:
             json.dump({"ignore_words": ["robust"]}, fh)
         p = os.path.join(d, "a.md")
         with open(p, "w", encoding="utf-8") as fh:
@@ -357,7 +357,7 @@ def test_explicit_config_path_missing_errors_cleanly():
 
 def test_invalid_config_json_errors_cleanly():
     with tempfile.TemporaryDirectory() as d:
-        with open(os.path.join(d, ".unslop.json"), "w", encoding="utf-8") as fh:
+        with open(os.path.join(d, ".noslop.json"), "w", encoding="utf-8") as fh:
             fh.write("not json")
         p = os.path.join(d, "a.md")
         with open(p, "w", encoding="utf-8") as fh:
@@ -380,7 +380,7 @@ def test_exclude_flag_skips_matching_files():
         assert "robust" not in out
 
 
-def test_unslopignore_file_skips_matching_files():
+def test_noslopignore_file_skips_matching_files():
     with tempfile.TemporaryDirectory() as d:
         slop = os.path.join(d, "slop.md")
         clean = os.path.join(d, "clean.md")
@@ -388,7 +388,7 @@ def test_unslopignore_file_skips_matching_files():
             fh.write("This is robust, comprehensive, and cutting-edge.")
         with open(clean, "w", encoding="utf-8") as fh:
             fh.write("Plain text with nothing notable going on here.")
-        with open(os.path.join(d, ".unslopignore"), "w", encoding="utf-8") as fh:
+        with open(os.path.join(d, ".noslopignore"), "w", encoding="utf-8") as fh:
             fh.write("slop.md\n")
         code, out = run_cli_in(d, ["--no-config", "slop.md", "clean.md"])
         assert code == 0
@@ -396,8 +396,8 @@ def test_unslopignore_file_skips_matching_files():
 
 
 def test_rdjson_emits_one_json_object_per_line():
-    r = unslop.analyze("This is robust and comprehensive stuff here today.")
-    lines = unslop.to_rdjsonl("a.md", r)
+    r = noslop.analyze("This is robust and comprehensive stuff here today.")
+    lines = noslop.to_rdjsonl("a.md", r)
     assert len(lines) >= 2
     for line in lines:
         obj = json.loads(line)
@@ -421,7 +421,7 @@ def test_rdjson_cli_flag_outputs_valid_jsonlines():
 # ---- language packs ----
 
 def test_spanish_slop_is_detected_and_flagged():
-    r = unslop.analyze(
+    r = noslop.analyze(
         "En el vasto mundo del desarrollo, es importante destacar que nuestra "
         "plataforma integral ofrece una experiencia fluida y sin fisuras. "
         "Sumérgete en un rico tapiz de posibilidades que te permitirá "
@@ -435,7 +435,7 @@ def test_spanish_slop_is_detected_and_flagged():
 
 
 def test_german_slop_is_detected_and_flagged():
-    r = unslop.analyze(
+    r = noslop.analyze(
         "In der heutigen schnelllebigen Welt ist es wichtig zu beachten, dass "
         "unsere nahtlose Plattform bahnbrechende Synergien nutzt, um ein "
         "ganzheitliches Erlebnis zu bieten und Ihr volles Potenzial zu "
@@ -449,7 +449,7 @@ def test_german_slop_is_detected_and_flagged():
 
 
 def test_clean_spanish_reads_human():
-    r = unslop.analyze(
+    r = noslop.analyze(
         "Ayer se me rompió la cadena de la bici camino al trabajo. La arreglé "
         "con la herramienta que llevo años cargando sin usar. Tardé veinte "
         "minutos y llegué con las manos llenas de grasa, pero llegué a tiempo "
@@ -463,7 +463,7 @@ def test_unknown_language_falls_back_honestly():
     # Greek has no pack (see the drop rationale next to LANGUAGES) so it's a
     # clean stand-in for "a real language this tool has never heard of" -
     # disjoint script from every pack here, ordinary space-separated words.
-    r = unslop.analyze(
+    r = noslop.analyze(
         "Χθες το βράδυ έσπασε η αλυσίδα του ποδηλάτου στον δρόμο για τη "
         "δουλειά. Το επισκεύασα με το εργαλείο που κουβαλάω εδώ και χρόνια "
         "αλλά δεν είχα ποτέ χρησιμοποιήσει. Μου πήρε είκοσι λεπτά και "
@@ -476,7 +476,7 @@ def test_unknown_language_falls_back_honestly():
 
 
 def test_forced_lang_overrides_detection():
-    r = unslop.analyze(
+    r = noslop.analyze(
         "The quick brown fox jumps over the lazy dog again and again today.",
         lang="es",
     )
@@ -492,12 +492,12 @@ def test_dialogue_dashes_not_flagged_in_spanish():
         "allí para ver cómo va todo aquello.\n"
         "Ella asintió sin decir nada y cerró la puerta despacio."
     )
-    r = unslop.analyze(dialogue)
+    r = noslop.analyze(dialogue)
     assert r["language"] == "es"
     # five dialogue dashes: over the English allowance, inside the Spanish one
     assert r["em_dashes"] == 5
     assert r["em_dash_excess"] == 0
-    forced_en = unslop.analyze(dialogue, lang="en")
+    forced_en = noslop.analyze(dialogue, lang="en")
     assert forced_en["em_dash_excess"] > 0
 
 
@@ -513,14 +513,14 @@ def test_lang_flag_forces_pack_via_cli():
 
 
 def test_curly_apostrophe_phrases_are_caught():
-    r = unslop.analyze("It’s important to note that we should move on quickly.")
+    r = noslop.analyze("It’s important to note that we should move on quickly.")
     assert any(p == "it's important to note" for p, _, _ in r["phrases"])
 
 
 # ---- nine more language packs: ru, uk, pl, cs, tr, sv, ro, hu, fi ----
 
 def test_russian_slop_is_detected_and_flagged():
-    r = unslop.analyze(
+    r = noslop.analyze(
         "В современном мире важно отметить, что наша комплексная платформа "
         "использует передовые технологии, чтобы обеспечить поистине "
         "бесшовный опыт. Давайте погрузимся в мир безграничных "
@@ -537,7 +537,7 @@ def test_russian_slop_is_detected_and_flagged():
 
 
 def test_clean_russian_reads_human():
-    r = unslop.analyze(
+    r = noslop.analyze(
         "Вчера вечером сломался холодильник на кухне. Компрессор гудел все "
         "громче, а потом затих совсем. Вызвал мастера, он приехал через два "
         "часа и сказал, что дело в реле. Заменили деталь, обошлось в "
@@ -558,16 +558,16 @@ def test_dialogue_dashes_not_flagged_in_russian():
         "там идут дела.\n"
         "Она кивнула, ничего не сказала и медленно закрыла дверь."
     )
-    r = unslop.analyze(dialogue)
+    r = noslop.analyze(dialogue)
     assert r["language"] == "ru"
     assert r["em_dashes"] == 5
     assert r["em_dash_excess"] == 0
-    forced_en = unslop.analyze(dialogue, lang="en")
+    forced_en = noslop.analyze(dialogue, lang="en")
     assert forced_en["em_dash_excess"] > 0
 
 
 def test_ukrainian_slop_is_detected_and_flagged():
-    r = unslop.analyze(
+    r = noslop.analyze(
         "У сучасному світі важливо зазначити, що наша комплексна платформа "
         "використовує передові технології, щоб забезпечити по-справжньому "
         "безшовний досвід. Давайте зануримося у світ, де на команди "
@@ -584,7 +584,7 @@ def test_ukrainian_slop_is_detected_and_flagged():
 
 
 def test_polish_slop_is_detected_and_flagged():
-    r = unslop.analyze(
+    r = noslop.analyze(
         "W dzisiejszym dynamicznie zmieniającym się świecie warto "
         "zauważyć, że nasza platforma jest kompleksowa, solidna i "
         "przełomowa. Zanurzmy się w świat możliwości i pomóżmy odblokować "
@@ -600,7 +600,7 @@ def test_polish_slop_is_detected_and_flagged():
 
 
 def test_clean_polish_reads_human():
-    r = unslop.analyze(
+    r = noslop.analyze(
         "Sąsiad w końcu naprawił płot, który krzywił się od tamtej burzy w "
         "lutym. Zajęło mu to trzy soboty i musiał dwa razy kupować nowe "
         "deski, bo źle zmierzył za pierwszym razem. Wczoraj płot stał już "
@@ -611,7 +611,7 @@ def test_clean_polish_reads_human():
 
 
 def test_czech_slop_is_detected_and_flagged():
-    r = unslop.analyze(
+    r = noslop.analyze(
         "V dnešním uspěchaném světě je důležité poznamenat, že naše "
         "platforma je komplexní, robustní a průlomová. Pojďme prozkoumat, "
         "co digitální krajina plná možností nabízí, a pomozme odemknout "
@@ -627,7 +627,7 @@ def test_czech_slop_is_detected_and_flagged():
 
 
 def test_turkish_slop_is_detected_and_flagged():
-    r = unslop.analyze(
+    r = noslop.analyze(
         "Günümüzün hızlı dünyasında önemle belirtmek gerekir ki "
         "platformumuz kapsamlı, sorunsuz ve bütünsel bir deneyim sunuyor. "
         "Hadi dalalım ve potansiyelinizi ortaya çıkarın! Bu sadece bir "
@@ -648,7 +648,7 @@ def test_turkish_suffix_hedge_is_caught():
     # lang="tr" is forced because this one short sentence isn't enough
     # Turkish stop-word coverage to auto-detect on its own; the detection
     # side is already covered by test_turkish_slop_is_detected_and_flagged.
-    r = unslop.analyze(
+    r = noslop.analyze(
         "Bu çözüm hızlıca uygulanabilir ve işe yarayabilir.", lang="tr"
     )
     labels = [p[0] for p in r["patterns"]]
@@ -660,7 +660,7 @@ def test_swedish_slop_is_detected_and_flagged():
     # adverbial like "i dagens värld" first would trigger Swedish V2 word
     # order ("värld ÄR DET viktigt", subject-verb inverted) and the listed
     # phrase - written in normal, non-inverted order - would silently miss.
-    r = unslop.analyze(
+    r = noslop.analyze(
         "Det är viktigt att notera att vår plattform, i dagens "
         "snabbrörliga värld, är omfattande, robust och banbrytande. Dyk "
         "djupare och frigör din potential! Detta är inte bara ett verktyg "
@@ -675,7 +675,7 @@ def test_swedish_slop_is_detected_and_flagged():
 
 
 def test_romanian_slop_is_detected_and_flagged():
-    r = unslop.analyze(
+    r = noslop.analyze(
         "În lumea de azi în ritm alert, este important de menționat că "
         "platforma noastră este cuprinzătoare și revoluționară. "
         "Scufundă-te în oceanul de posibilități nelimitate și "
@@ -691,7 +691,7 @@ def test_romanian_slop_is_detected_and_flagged():
 
 
 def test_hungarian_slop_is_detected_and_flagged():
-    r = unslop.analyze(
+    r = noslop.analyze(
         "Napjaink rohanó világában fontos megjegyezni, hogy platformunk "
         "átfogó, robusztus és forradalmi. Merülj el és szabadítsd fel a "
         "benned rejlő potenciált! Ez nem csak egy eszköz, hanem valódi "
@@ -710,11 +710,11 @@ def test_hungarian_ships_three_patterns_not_four():
     # two separate idioms - both lean on "nem X, hanem Y" with csak/is as
     # an optional intensifier, so a forced second flip pattern would just
     # double-count the same sentence. See the comment on the hu pack.
-    assert len(unslop.LANGUAGES["hu"]["patterns"]) == 3
+    assert len(noslop.LANGUAGES["hu"]["patterns"]) == 3
 
 
 def test_finnish_slop_is_detected_and_flagged():
-    r = unslop.analyze(
+    r = noslop.analyze(
         "Nykypäivän nopeatempoisessa maailmassa on tärkeää huomioida, että "
         "alustamme on kattava, saumaton ja mullistava. Sukella syvemmälle "
         "ja vapauta potentiaalisi! Tämä ei ole vain työkalu, vaan "
@@ -737,32 +737,32 @@ def test_oaicite_artifact_forces_hard_verdict():
         ":contentReference[oaicite:0]{index=0}. Everything else about this "
         "paragraph is deliberately plain so nothing but the artifact fires. "
     ) * 8  # long text: per-1k dilution would otherwise bury the artifact
-    r = unslop.analyze(text)
+    r = noslop.analyze(text)
     assert r["ai_artifacts"]
     assert r["score_per_1k"] >= 25
     assert "AI" in r["verdict"]
 
 
 def test_contentreference_block_counts_once_not_twice():
-    r = unslop.analyze("Sales rose :contentReference[oaicite:3]{index=3} again.")
+    r = noslop.analyze("Sales rose :contentReference[oaicite:3]{index=3} again.")
     assert sum(n for _, n, _ in r["ai_artifacts"]) == 1
 
 
 def test_chatgpt_tracking_param_is_an_artifact():
-    r = unslop.analyze("See https://example.com/a?utm_source=chatgpt.com for more.")
+    r = noslop.analyze("See https://example.com/a?utm_source=chatgpt.com for more.")
     assert r["ai_artifacts"]
     assert "AI" in r["verdict"]
 
 
 def test_plain_urls_are_not_artifacts():
-    r = unslop.analyze("See https://example.com/a?utm_source=newsletter for more. "
+    r = noslop.analyze("See https://example.com/a?utm_source=newsletter for more. "
                        "The site tracks campaigns like most marketing sites do.")
     assert r["ai_artifacts"] == []
 
 
 def test_artifact_at_offset_zero_still_counts():
     # Regression: the merge sentinel used to swallow a span at offset 0.
-    r = unslop.analyze("oaicite residue opens this very text and the rest "
+    r = noslop.analyze("oaicite residue opens this very text and the rest "
                        "of the passage is deliberately plain filler prose.")
     assert sum(n for _, n, _ in r["ai_artifacts"]) == 1
     assert "AI" in r["verdict"]
@@ -770,19 +770,19 @@ def test_artifact_at_offset_zero_still_counts():
 
 def test_template_placeholders_are_not_artifacts():
     # Humans write mail-merge placeholders on purpose.
-    r = unslop.analyze("Dear [Insert Name], thank you for applying. Reply "
+    r = noslop.analyze("Dear [Insert Name], thank you for applying. Reply "
                        "to [insert your email] with two references, please.")
     assert r["ai_artifacts"] == []
 
 
 def test_curly_apostrophe_split_flip_is_caught():
-    r = unslop.analyze("The problem isn’t the tooling. It’s the culture "
+    r = noslop.analyze("The problem isn’t the tooling. It’s the culture "
                        "around the tooling that nobody wants to name.")
     assert any("split flip" in label for label, _, _, _, _ in r["patterns"])
 
 
 def test_single_split_flip_reports_but_does_not_score():
-    r = unslop.analyze("The county says it is a staffing problem. It isn't "
+    r = noslop.analyze("The county says it is a staffing problem. It isn't "
                        "a staffing problem. It's a software problem that "
                        "nobody budgeted for, and everyone in the building "
                        "knows it by now.")
@@ -791,7 +791,7 @@ def test_single_split_flip_reports_but_does_not_score():
 
 
 def test_single_ing_closer_reports_but_does_not_score():
-    r = unslop.analyze("The bridge opened in 1932, reflecting the city's "
+    r = noslop.analyze("The bridge opened in 1932, reflecting the city's "
                        "ambitions at the time. Repairs began within a "
                        "decade and never really stopped after that.")
     assert any("closer" in label for label, _, _, _, _ in r["patterns"])
@@ -800,14 +800,14 @@ def test_single_ing_closer_reports_but_does_not_score():
 
 def test_ing_closer_does_not_double_count_buzzword_verbs():
     # ", underscoring X." scores once as a buzzword, not again as a closer.
-    r = unslop.analyze("Attendance doubled that year, underscoring the "
+    r = noslop.analyze("Attendance doubled that year, underscoring the "
                        "festival's growing pull across the region.")
     assert any(w == "underscoring" for w, _, _ in r["buzzwords"])
     assert not any("closer" in label for label, _, _, _, _ in r["patterns"])
 
 
 def test_connective_bump_is_capped():
-    heavy = unslop.analyze("Moreover, results held. Furthermore, costs "
+    heavy = noslop.analyze("Moreover, results held. Furthermore, costs "
                            "fell. Additionally, the team grew. Notably, "
                            "retention improved. Ultimately, we shipped. "
                            "Overall, a fine quarter by any measure.")
@@ -818,52 +818,52 @@ def test_connective_bump_is_capped():
 # ---- 0.7.0: new construction patterns ----
 
 def test_dangling_ing_closer_is_flagged():
-    r = unslop.analyze("The bridge opened in 1932, highlighting the city's ambition.")
+    r = noslop.analyze("The bridge opened in 1932, highlighting the city's ambition.")
     assert any("closer" in label for label, _, _, _, _ in r["patterns"])
 
 
 def test_ensuring_clause_is_not_flagged_as_closer():
     # ", ensuring ..." is ordinary technical prose, deliberately excluded.
-    r = unslop.analyze("The lock is released in a finally block, ensuring the "
+    r = noslop.analyze("The lock is released in a finally block, ensuring the "
                        "file handle is closed even on error.")
     assert not any("closer" in label for label, _, _, _, _ in r["patterns"])
 
 
 def test_split_sentence_flip_is_flagged():
-    r = unslop.analyze("The problem isn't a lack of tools. It's that nobody "
+    r = noslop.analyze("The problem isn't a lack of tools. It's that nobody "
                        "reads the documentation we already have.")
     assert any("split flip" in label for label, _, _, _, _ in r["patterns"])
 
 
 def test_single_anaphora_triad_reports_but_does_not_score():
-    r = unslop.analyze("It works where trust exists, where budgets allow, "
+    r = noslop.analyze("It works where trust exists, where budgets allow, "
                        "where teams commit.")
     assert any("triad" in label for label, _, _, _, _ in r["patterns"])
     assert r["score_per_1k"] == 0.0
 
 
 def test_repeated_anaphora_triads_do_score():
-    r = unslop.analyze(
+    r = noslop.analyze(
         "It works where trust exists, where budgets allow, where teams commit. "
         "We came for the food, for the music, and for the company.")
     assert r["score_per_1k"] > 0
 
 
 def test_fragment_hook_is_flagged():
-    r = unslop.analyze("We cut the budget in half. The result? Nothing broke.")
+    r = noslop.analyze("We cut the budget in half. The result? Nothing broke.")
     assert any("fragment hook" in label for label, _, _, _, _ in r["patterns"])
 
 
 def test_sycophantic_opener_only_fires_line_initial():
-    hit = unslop.analyze("Great question! The answer is in the config.")
-    miss = unslop.analyze("She said it was a great question, and moved on.")
+    hit = noslop.analyze("Great question! The answer is in the config.")
+    miss = noslop.analyze("She said it was a great question, and moved on.")
     assert any("sycophantic" in label for label, _, _, _, _ in hit["patterns"])
     assert not any("sycophantic" in label for label, _, _, _, _ in miss["patterns"])
 
 
 def test_tada_opener_only_fires_line_initial():
-    hit = unslop.analyze("Here's why this matters. The pump was never the issue.")
-    miss = unslop.analyze("I asked him twice, and here's what he said about it.")
+    hit = noslop.analyze("Here's why this matters. The pump was never the issue.")
+    miss = noslop.analyze("I asked him twice, and here's what he said about it.")
     assert any("ta-da" in label for label, _, _, _, _ in hit["patterns"])
     assert not any("ta-da" in label for label, _, _, _, _ in miss["patterns"])
 
@@ -873,7 +873,7 @@ def test_tada_opener_only_fires_line_initial():
 def test_single_staccato_run_reports_but_does_not_score():
     # Terse fragments are a legitimate human style once - the first run is
     # free and only repetition of the cadence scores.
-    r = unslop.analyze("We tried it. It broke. We fixed it. It broke again. "
+    r = noslop.analyze("We tried it. It broke. We fixed it. It broke again. "
                        "Nobody panicked. The second attempt held through the "
                        "weekend and nobody had to think about it again.")
     assert r["staccato_runs"] == 1
@@ -881,7 +881,7 @@ def test_single_staccato_run_reports_but_does_not_score():
 
 
 def test_repeated_staccato_runs_do_score():
-    r = unslop.analyze("We tried it. It broke. We fixed it. Then the plan "
+    r = noslop.analyze("We tried it. It broke. We fixed it. Then the plan "
                        "changed for the better part of a week while we "
                        "watched. No fluff. No filler. Just results. That "
                        "was the whole pitch they gave us on the call.")
@@ -890,7 +890,7 @@ def test_repeated_staccato_runs_do_score():
 
 
 def test_normal_prose_has_no_staccato_runs():
-    r = unslop.analyze("The pump broke on Tuesday morning. I drove over after "
+    r = noslop.analyze("The pump broke on Tuesday morning. I drove over after "
                        "lunch and pulled the housing apart. The seal had a "
                        "visible crack along the top edge. A new one cost nine "
                        "dollars at the counter. It has run fine since then.")
@@ -898,22 +898,22 @@ def test_normal_prose_has_no_staccato_runs():
 
 
 def test_header_emoji_scores_extra():
-    plain = unslop.analyze("Shipping went fine ✅ and everyone went home.")
-    decorated = unslop.analyze("# ✅ Shipping Update\n\nEverything went "
+    plain = noslop.analyze("Shipping went fine ✅ and everyone went home.")
+    decorated = noslop.analyze("# ✅ Shipping Update\n\nEverything went "
                                "fine and everyone went home on time.")
     assert plain["header_emoji"] == 0
     assert decorated["header_emoji"] == 1
 
 
 def test_bold_inline_spray_has_an_allowance():
-    two = unslop.analyze("The **first point** stands. The **second point** "
+    two = noslop.analyze("The **first point** stands. The **second point** "
                          "does not, and the rest of the paragraph explains "
                          "why at a length that keeps the density plausible.")
     assert two["bold_inline_excess"] == 0
 
 
 def test_bold_paragraph_leads_count_as_label_bullets():
-    r = unslop.analyze("**Speed.** We go fast.\n\n**Quality.** We stay sharp."
+    r = noslop.analyze("**Speed.** We go fast.\n\n**Quality.** We stay sharp."
                        "\n\n**Trust.** We deliver.\n\n**Scale.** We grow.")
     assert r["bold_label_bullets"] == 4
     assert r["score_per_1k"] > 0
@@ -922,7 +922,7 @@ def test_bold_paragraph_leads_count_as_label_bullets():
 def test_quote_mixing_flags_same_kind_paste_boundary():
     # Curly and straight apostrophes both used as apostrophes - the paste
     # boundary the check exists for.
-    mixed = unslop.analyze("It’s the vendor’s call and they’ve made it. "
+    mixed = noslop.analyze("It’s the vendor’s call and they’ve made it. "
                            "But it's our contract, it's our data, and it's "
                            "our name on the front page when this breaks.")
     assert mixed["quote_mix"] == 1
@@ -931,32 +931,32 @@ def test_quote_mixing_flags_same_kind_paste_boundary():
 def test_quoting_a_curly_source_does_not_flag():
     # A straight-apostrophe author quoting a curly-quoted excerpt is how
     # humans cite sources, not paste evidence.
-    r = unslop.analyze('The report says “the committee’s decision is '
+    r = noslop.analyze('The report says “the committee’s decision is '
                        'final” in section two. That\'s the whole basis '
                        'for the town\'s appeal, and it isn\'t much.')
     assert r["quote_mix"] == 0
 
 
 def test_consistent_quotes_do_not_flag():
-    straight = unslop.analyze('He said "fine" and then "not fine" and then '
+    straight = noslop.analyze('He said "fine" and then "not fine" and then '
                               '"we will see" within a single minute.')
     assert straight["quote_mix"] == 0
 
 
 def test_question_hooks_have_an_allowance_of_one():
-    one = unslop.analyze("We doubled the cache. The gain? Four percent, "
+    one = noslop.analyze("We doubled the cache. The gain? Four percent, "
                          "which nobody considered worth the added memory.")
-    two = unslop.analyze("We doubled the cache. The gain? Four percent. We "
+    two = noslop.analyze("We doubled the cache. The gain? Four percent. We "
                          "tripled it after. The cost? Memory pressure.")
     assert one["question_hook_excess"] == 0
     assert two["question_hook_excess"] == 1
 
 
 def test_connective_openers_score_on_density_only():
-    light = unslop.analyze("Moreover, the results held. The rest of the "
+    light = noslop.analyze("Moreover, the results held. The rest of the "
                            "report was unremarkable in every direction. The "
                            "team moved on to other work within the week.")
-    heavy = unslop.analyze("Moreover, results held. Furthermore, costs fell. "
+    heavy = noslop.analyze("Moreover, results held. Furthermore, costs fell. "
                            "Additionally, the team grew. Notably, retention "
                            "improved. Ultimately, the quarter closed strong.")
     assert light["connective_excess"] == 0
@@ -967,7 +967,7 @@ def test_paragraph_uniformity_reported_when_five_paragraphs():
     text = "\n\n".join(
         "This paragraph runs to roughly twenty words when you count it all "
         "the way through to the very end okay." for _ in range(5))
-    r = unslop.analyze(text)
+    r = noslop.analyze(text)
     assert r["paragraph_uniformity_cv"] is not None
     assert r["paragraph_uniformity_cv"] < 0.25
 
@@ -976,16 +976,16 @@ def test_opener_share_is_reported_not_scored():
     text = ("The server restarted. The logs were clean. The disk held. "
             "The network stayed up. The backup ran. The monitors slept. "
             "The morning was quiet. The ticket was closed.")
-    r = unslop.analyze(text)
+    r = noslop.analyze(text)
     assert r["opener_top_share"] is not None
     assert r["opener_top_share"] >= 0.9
 
 
 def test_new_buzzwords_are_word_bounded():
-    r = unslop.analyze("The realignments were subtle.")  # not "aligns"
+    r = noslop.analyze("The realignments were subtle.")  # not "aligns"
     assert not any(w == "aligns" for w, _, _ in r["buzzwords"])
 
 
 def test_json_schema_keys_match_analyze_output():
-    r = unslop.analyze("Plain text.")
-    assert set(r) == unslop.JSON_SCHEMA_KEYS
+    r = noslop.analyze("Plain text.")
+    assert set(r) == noslop.JSON_SCHEMA_KEYS

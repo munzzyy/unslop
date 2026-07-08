@@ -7,10 +7,10 @@
 // plural noun spelling here by design, not by omission).
 // dir="rtl" is applied automatically by i18n/registry.js's RTL_LOCALES set.
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs.he = {
-  "meta.title": "unslop — גלה מה מסגיר בינה מלאכותית בכתיבה שלך",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs.he = {
+  "meta.title": "noslop — גלה מה מסגיר בינה מלאכותית בכתיבה שלך",
   "meta.description": "הדבק את הטקסט שלך ותראה מה גורם לו להישמע כמו רובוט, כדי לתקן לפני שאתה שולח. הכול פועל בתוך הדפדפן שלך — שום דבר לא מועלה לשום מקום.",
 
   "skipToEditor": "דלג לעורך",
@@ -19,7 +19,7 @@ window.UnslopI18N.catalogs.he = {
   "uilang.switcherLabel": "שפה",
 
   "hero.heading": "תראה מה גורם לכתיבה שלך להישמע כמו רובוט.",
-  "hero.tagline": "הדבק טיוטה למטה. unslop מצביע בדיוק על המילים וההרגלים שמסגירים את זה, כדי שתוכל לתקן אותם לפני שאתה שולח.",
+  "hero.tagline": "הדבק טיוטה למטה. noslop מצביע בדיוק על המילים וההרגלים שמסגירים את זה, כדי שתוכל לתקן אותם לפני שאתה שולח.",
   "privacy.strong": "הכול פועל בתוך הדפדפן שלך.",
   "privacy.rest": "שום דבר שאתה מדביק לא מועלה, נשמר או נשלח לשום מקום.",
 
@@ -42,7 +42,7 @@ window.UnslopI18N.catalogs.he = {
 
   "editor.textareaLabel": "הכתיבה שלך — הדבק או הקלד כאן כדי לבדוק אם היא נשמעת כמו בינה מלאכותית",
   "editor.placeholder": "הדבק או הקלד את הטקסט שלך כאן...",
-  "editor.hintMarks": "הסימונים מראים מה unslop מצא. העבר עכבר או עבור עם Tab לסימון כדי לראות פרטים.",
+  "editor.hintMarks": "הסימונים מראים מה noslop מצא. העבר עכבר או עבור עם Tab לסימון כדי לראות פרטים.",
   "editor.hintTabbing": "לחץ על {tab} כדי להיכנס לטקסט, ואז שוב על {tab} כדי לנוע בין הסימונים.",
 
   "results.ariaLabel": "תוצאות",
@@ -74,7 +74,7 @@ window.UnslopI18N.catalogs.he = {
   "breakdown.rhythmSurface": "קצב ומאפיינים חיצוניים",
   "breakdown.clean.heading": "נקרא נקי.",
   "breakdown.clean.notEnoughText": "עדיין יש מעט מדי טקסט כדי לשפוט. הדבק עוד קצת לתוצאה אמינה.",
-  "breakdown.clean.noneFired": "אף אחת מהבדיקות של unslop לא הופעלה בטקסט הזה.",
+  "breakdown.clean.noneFired": "אף אחת מהבדיקות של noslop לא הופעלה בטקסט הזה.",
   "finding.hitCount.one": "פעם {count}",
   "finding.hitCount.two": "{count} פעמים",
   "finding.hitCount.other": "{count} פעמים",

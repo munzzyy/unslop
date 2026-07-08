@@ -4,10 +4,10 @@
 // Intl.PluralRules("fa").resolvedOptions().pluralCategories).
 // dir="rtl" is applied automatically by i18n/registry.js's RTL_LOCALES set.
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs.fa = {
-  "meta.title": "unslop — پیدا کن چه چیزی هوش مصنوعی را در نوشته‌ات لو می‌دهد",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs.fa = {
+  "meta.title": "noslop — پیدا کن چه چیزی هوش مصنوعی را در نوشته‌ات لو می‌دهد",
   "meta.description": "متنت را جای‌گذاری کن و ببین چه چیزی آن را شبیه ربات می‌کند، تا پیش از فرستادن درستش کنی. همه‌چیز کاملاً در مرورگر تو اجرا می‌شود — هیچ‌چیز جایی بارگذاری نمی‌شود.",
 
   "skipToEditor": "رفتن به ویرایشگر",
@@ -16,7 +16,7 @@ window.UnslopI18N.catalogs.fa = {
   "uilang.switcherLabel": "زبان",
 
   "hero.heading": "ببین چه چیزی نوشته‌ات را شبیه ربات می‌کند.",
-  "hero.tagline": "پیش‌نویسی را پایین جای‌گذاری کن. unslop دقیقاً همان کلمه‌ها و عادت‌هایی را نشان می‌دهد که آن را لو می‌دهند، تا پیش از فرستادن درستشان کنی.",
+  "hero.tagline": "پیش‌نویسی را پایین جای‌گذاری کن. noslop دقیقاً همان کلمه‌ها و عادت‌هایی را نشان می‌دهد که آن را لو می‌دهند، تا پیش از فرستادن درستشان کنی.",
   "privacy.strong": "همه‌چیز در مرورگر تو اجرا می‌شود.",
   "privacy.rest": "هیچ‌چیزی که جای‌گذاری می‌کنی بارگذاری، ذخیره یا جایی فرستاده نمی‌شود.",
 
@@ -38,7 +38,7 @@ window.UnslopI18N.catalogs.fa = {
 
   "editor.textareaLabel": "نوشته‌ات — اینجا جای‌گذاری یا تایپ کن تا بررسی شود که شبیه هوش مصنوعی است یا نه",
   "editor.placeholder": "متنت را اینجا جای‌گذاری یا تایپ کن...",
-  "editor.hintMarks": "نشانه‌ها چیزی را نشان می‌دهند که unslop پیدا کرده. برای دیدن جزئیات، ماوس را روی یک نشانه ببر یا با Tab به آن برو.",
+  "editor.hintMarks": "نشانه‌ها چیزی را نشان می‌دهند که noslop پیدا کرده. برای دیدن جزئیات، ماوس را روی یک نشانه ببر یا با Tab به آن برو.",
   "editor.hintTabbing": "{tab} را بزن تا وارد متن شوی، سپس دوباره {tab} را بزن تا بین نشانه‌ها جابه‌جا شوی.",
 
   "results.ariaLabel": "نتیجه‌ها",
@@ -70,7 +70,7 @@ window.UnslopI18N.catalogs.fa = {
   "breakdown.rhythmSurface": "ریتم و ویژگی‌های ظاهری",
   "breakdown.clean.heading": "پاک و تمیز به نظر می‌رسد.",
   "breakdown.clean.notEnoughText": "هنوز متن برای قضاوت کم است. برای نتیجه‌ای قابل اعتماد کمی بیشتر جای‌گذاری کن.",
-  "breakdown.clean.noneFired": "هیچ‌کدام از بررسی‌های unslop روی این متن فعال نشد.",
+  "breakdown.clean.noneFired": "هیچ‌کدام از بررسی‌های noslop روی این متن فعال نشد.",
   "finding.hitCount.one": "{count} بار",
   "finding.hitCount.other": "{count} بار",
   "finding.linesLabel": "خط {lines}",

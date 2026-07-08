@@ -4,10 +4,10 @@
 // Intl.PluralRules("pl").resolvedOptions().pluralCategories - one=1,
 // few=2-4, many=0/5-21/25+, other=fractional, essentially never hit here).
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs.pl = {
-  "meta.title": "unslop — sprawdź, co zdradza AI w twoim tekście",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs.pl = {
+  "meta.title": "noslop — sprawdź, co zdradza AI w twoim tekście",
   "meta.description": "Wklej swój tekst i zobacz, co sprawia, że brzmi jak robot, żeby to poprawić przed wysłaniem. Działa całkowicie w przeglądarce — nic nie jest nigdzie wysyłane.",
 
   "skipToEditor": "Przejdź do edytora",
@@ -16,7 +16,7 @@ window.UnslopI18N.catalogs.pl = {
   "uilang.switcherLabel": "Język",
 
   "hero.heading": "Zobacz, co sprawia, że twój tekst brzmi jak robot.",
-  "hero.tagline": "Wklej szkic poniżej. unslop wskazuje dokładnie te słowa i nawyki, które go zdradzają, żebyś mógł je poprawić przed wysłaniem.",
+  "hero.tagline": "Wklej szkic poniżej. noslop wskazuje dokładnie te słowa i nawyki, które go zdradzają, żebyś mógł je poprawić przed wysłaniem.",
   "privacy.strong": "Wszystko działa w twojej przeglądarce.",
   "privacy.rest": "Nic z tego, co wklejasz, nie jest wysyłane, zapisywane ani przekazywane nigdzie indziej.",
 
@@ -40,7 +40,7 @@ window.UnslopI18N.catalogs.pl = {
 
   "editor.textareaLabel": "Twój tekst — wklej lub wpisz tutaj, żeby sprawdzić, czy brzmi jak AI",
   "editor.placeholder": "Wklej lub wpisz tutaj swój tekst...",
-  "editor.hintMarks": "Zaznaczenia pokazują, co wykrył unslop. Najedź kursorem lub użyj Tab, żeby zobaczyć szczegóły.",
+  "editor.hintMarks": "Zaznaczenia pokazują, co wykrył noslop. Najedź kursorem lub użyj Tab, żeby zobaczyć szczegóły.",
   "editor.hintTabbing": "Naciśnij {tab}, żeby wejść w tekst, a potem {tab} ponownie, żeby przechodzić między zaznaczeniami.",
 
   "results.ariaLabel": "Wyniki",
@@ -72,7 +72,7 @@ window.UnslopI18N.catalogs.pl = {
   "breakdown.rhythmSurface": "Rytm i cechy powierzchniowe",
   "breakdown.clean.heading": "Brzmi czysto.",
   "breakdown.clean.notEnoughText": "Wciąż za mało tekstu, żeby ocenić. Wklej trochę więcej dla wiarygodnego wyniku.",
-  "breakdown.clean.noneFired": "Żadna z kontroli unslop nie zadziałała na tym tekście.",
+  "breakdown.clean.noneFired": "Żadna z kontroli noslop nie zadziałała na tym tekście.",
   "finding.hitCount.one": "{count} raz",
   "finding.hitCount.few": "{count} razy",
   "finding.hitCount.many": "{count} razy",

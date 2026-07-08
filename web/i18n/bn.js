@@ -3,10 +3,10 @@
 // Plural categories used here: one, other (verified via
 // Intl.PluralRules("bn").resolvedOptions().pluralCategories).
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs.bn = {
-  "meta.title": "unslop — তোমার লেখায় AI-র চিহ্ন কোথায় খুঁজে বের করো",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs.bn = {
+  "meta.title": "noslop — তোমার লেখায় AI-র চিহ্ন কোথায় খুঁজে বের করো",
   "meta.description": "তোমার লেখা পেস্ট করো আর দেখো কী কারণে সেটা রোবটের মতো শোনাচ্ছে, যাতে পাঠানোর আগেই ঠিক করে নিতে পারো। এটা পুরোপুরি তোমার ব্রাউজারে চলে — কিছুই কোথাও আপলোড হয় না।",
 
   "skipToEditor": "এডিটরে যাও",
@@ -15,7 +15,7 @@ window.UnslopI18N.catalogs.bn = {
   "uilang.switcherLabel": "ভাষা",
 
   "hero.heading": "দেখো তোমার লেখাকে কী রোবটের মতো শোনাচ্ছে।",
-  "hero.tagline": "নিচে একটা খসড়া পেস্ট করো। unslop ঠিক সেই শব্দ আর অভ্যাসগুলো দেখিয়ে দেয় যেগুলো এটাকে ধরিয়ে দেয়, যাতে পাঠানোর আগেই সেগুলো ঠিক করে নিতে পারো।",
+  "hero.tagline": "নিচে একটা খসড়া পেস্ট করো। noslop ঠিক সেই শব্দ আর অভ্যাসগুলো দেখিয়ে দেয় যেগুলো এটাকে ধরিয়ে দেয়, যাতে পাঠানোর আগেই সেগুলো ঠিক করে নিতে পারো।",
   "privacy.strong": "সব কিছু তোমার ব্রাউজারেই চলে।",
   "privacy.rest": "তুমি যা পেস্ট করো তার কিছুই আপলোড, সংরক্ষণ বা কোথাও পাঠানো হয় না।",
 
@@ -37,7 +37,7 @@ window.UnslopI18N.catalogs.bn = {
 
   "editor.textareaLabel": "তোমার লেখা — AI-র মতো শোনাচ্ছে কিনা যাচাই করতে এখানে পেস্ট করো বা টাইপ করো",
   "editor.placeholder": "এখানে তোমার লেখা পেস্ট করো বা টাইপ করো...",
-  "editor.hintMarks": "চিহ্নগুলো দেখায় unslop কী খুঁজে পেয়েছে। বিস্তারিত জানতে কোনো চিহ্নের ওপর মাউস নিয়ে যাও বা Tab দিয়ে যাও।",
+  "editor.hintMarks": "চিহ্নগুলো দেখায় noslop কী খুঁজে পেয়েছে। বিস্তারিত জানতে কোনো চিহ্নের ওপর মাউস নিয়ে যাও বা Tab দিয়ে যাও।",
   "editor.hintTabbing": "লেখায় ঢুকতে {tab} চাপো, তারপর চিহ্নগুলোর মধ্যে যেতে আবার {tab} চাপো।",
 
   "results.ariaLabel": "ফলাফল",
@@ -69,7 +69,7 @@ window.UnslopI18N.catalogs.bn = {
   "breakdown.rhythmSurface": "ছন্দ ও উপরিভাগের বৈশিষ্ট্য",
   "breakdown.clean.heading": "পরিষ্কার লাগছে।",
   "breakdown.clean.notEnoughText": "এখনও বিচার করার মতো যথেষ্ট লেখা নেই। নির্ভরযোগ্য ফলাফলের জন্য আরেকটু পেস্ট করো।",
-  "breakdown.clean.noneFired": "এই টেক্সটে unslop-এর কোনো পরীক্ষাই সক্রিয় হয়নি।",
+  "breakdown.clean.noneFired": "এই টেক্সটে noslop-এর কোনো পরীক্ষাই সক্রিয় হয়নি।",
   "finding.hitCount.one": "{count} বার",
   "finding.hitCount.other": "{count} বার",
   "finding.linesLabel": "লাইন {lines}",

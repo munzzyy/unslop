@@ -7,10 +7,10 @@
 // grammar, not a simplification), other=everything else).
 // dir="rtl" is applied automatically by i18n/registry.js's RTL_LOCALES set.
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs.ar = {
-  "meta.title": "unslop — اعثر على ما يفضح الذكاء الاصطناعي في كتابتك",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs.ar = {
+  "meta.title": "noslop — اعثر على ما يفضح الذكاء الاصطناعي في كتابتك",
   "meta.description": "الصق نصك وشاهد ما الذي يجعله يبدو وكأنه مكتوب بواسطة روبوت، لتصلحه قبل أن ترسله. يعمل بالكامل داخل متصفحك — لا يُرفع أي شيء إلى أي مكان.",
 
   "skipToEditor": "الانتقال إلى المحرر",
@@ -19,7 +19,7 @@ window.UnslopI18N.catalogs.ar = {
   "uilang.switcherLabel": "اللغة",
 
   "hero.heading": "شاهد ما الذي يجعل كتابتك تبدو وكأنها روبوت.",
-  "hero.tagline": "الصق مسودة أدناه. يشير unslop بالضبط إلى الكلمات والعادات التي تفضحها، لتصلحها قبل أن ترسلها.",
+  "hero.tagline": "الصق مسودة أدناه. يشير noslop بالضبط إلى الكلمات والعادات التي تفضحها، لتصلحها قبل أن ترسلها.",
   "privacy.strong": "كل شيء يعمل داخل متصفحك.",
   "privacy.rest": "لا شيء مما تلصقه يُرفع أو يُحفظ أو يُرسل إلى أي مكان.",
 
@@ -45,7 +45,7 @@ window.UnslopI18N.catalogs.ar = {
 
   "editor.textareaLabel": "كتابتك — الصق أو اكتب هنا للتحقق مما إذا كانت تبدو كأنها من ذكاء اصطناعي",
   "editor.placeholder": "الصق أو اكتب نصك هنا...",
-  "editor.hintMarks": "تُظهر العلامات ما رصده unslop. مرّر المؤشر أو انتقل بمفتاح Tab إلى علامة لرؤية التفاصيل.",
+  "editor.hintMarks": "تُظهر العلامات ما رصده noslop. مرّر المؤشر أو انتقل بمفتاح Tab إلى علامة لرؤية التفاصيل.",
   "editor.hintTabbing": "اضغط {tab} للدخول إلى النص، ثم {tab} مرة أخرى للتنقل بين العلامات.",
 
   "results.ariaLabel": "النتائج",
@@ -77,7 +77,7 @@ window.UnslopI18N.catalogs.ar = {
   "breakdown.rhythmSurface": "الإيقاع والسمات السطحية",
   "breakdown.clean.heading": "يبدو نظيفًا.",
   "breakdown.clean.notEnoughText": "النص قليل جدًا حتى الآن للحكم عليه. الصق المزيد للحصول على نتيجة موثوقة.",
-  "breakdown.clean.noneFired": "لم يُفعَّل أي من فحوصات unslop على هذا النص.",
+  "breakdown.clean.noneFired": "لم يُفعَّل أي من فحوصات noslop على هذا النص.",
   "finding.hitCount.zero": "{count} مرة",
   "finding.hitCount.one": "{count} مرة",
   "finding.hitCount.two": "{count} مرتان",

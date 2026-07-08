@@ -6,7 +6,7 @@ body:
     id: problem
     attributes:
       label: What's missing
-      description: What can't you do today, or what AI tell does unslop miss?
+      description: What can't you do today, or what AI tell does noslop miss?
     validations:
       required: true
   - type: textarea

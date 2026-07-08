@@ -5,10 +5,10 @@
 // Intl.PluralRules("zh-Hans").resolvedOptions().pluralCategories -> only
 // "other" is ever reported; "one" is kept identical for robustness).
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs["zh-Hans"] = {
-  "meta.title": "unslop —找出文字里暴露 AI 痕迹的地方",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs["zh-Hans"] = {
+  "meta.title": "noslop —找出文字里暴露 AI 痕迹的地方",
   "meta.description": "粘贴你的文字,看看是什么让它听起来像机器人写的,发送前先改一改。全部在浏览器里运行——什么都不会上传。",
 
   "skipToEditor": "跳到编辑区",
@@ -17,7 +17,7 @@ window.UnslopI18N.catalogs["zh-Hans"] = {
   "uilang.switcherLabel": "语言",
 
   "hero.heading": "看看是什么让你的文字听起来像机器人。",
-  "hero.tagline": "把草稿粘贴到下面。unslop 会准确指出暴露痕迹的那些词语和习惯,方便你在发送前改掉。",
+  "hero.tagline": "把草稿粘贴到下面。noslop 会准确指出暴露痕迹的那些词语和习惯,方便你在发送前改掉。",
   "privacy.strong": "一切都在你的浏览器里运行。",
   "privacy.rest": "你粘贴的任何内容都不会被上传、保存或发送到任何地方。",
 
@@ -39,7 +39,7 @@ window.UnslopI18N.catalogs["zh-Hans"] = {
 
   "editor.textareaLabel": "你的文字 — 粘贴或输入到这里,检查是否听起来像 AI",
   "editor.placeholder": "在这里粘贴或输入你的文字...",
-  "editor.hintMarks": "标记显示 unslop 发现的问题。悬停鼠标或用 Tab 键切换到标记查看详情。",
+  "editor.hintMarks": "标记显示 noslop 发现的问题。悬停鼠标或用 Tab 键切换到标记查看详情。",
   "editor.hintTabbing": "按 {tab} 进入文本区,再按一次 {tab} 可以在各个标记之间移动。",
 
   "results.ariaLabel": "结果",
@@ -71,7 +71,7 @@ window.UnslopI18N.catalogs["zh-Hans"] = {
   "breakdown.rhythmSurface": "节奏与表面特征",
   "breakdown.clean.heading": "读起来很干净。",
   "breakdown.clean.notEnoughText": "文字还太少,不足以判断。多粘贴一些以获得可靠的结果。",
-  "breakdown.clean.noneFired": "这段文字没有触发 unslop 的任何检查项。",
+  "breakdown.clean.noneFired": "这段文字没有触发 noslop 的任何检查项。",
   "finding.hitCount.one": "{count} 次",
   "finding.hitCount.other": "{count} 次",
   "finding.linesLabel": "第 {lines} 行",

@@ -5,10 +5,10 @@
 // (not 11), few=ends in 2-4 (not 12-14), many=ends in 0/5-9/11-14,
 // other=fractional).
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs.ru = {
-  "meta.title": "unslop — найди, что выдаёт ИИ в твоём тексте",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs.ru = {
+  "meta.title": "noslop — найди, что выдаёт ИИ в твоём тексте",
   "meta.description": "Вставь свой текст и посмотри, что делает его похожим на робота, чтобы исправить это до отправки. Всё работает прямо в браузере — ничего никуда не загружается.",
 
   "skipToEditor": "Перейти к редактору",
@@ -17,7 +17,7 @@ window.UnslopI18N.catalogs.ru = {
   "uilang.switcherLabel": "Язык",
 
   "hero.heading": "Посмотри, что делает твой текст похожим на робота.",
-  "hero.tagline": "Вставь черновик ниже. unslop указывает именно на те слова и привычки, которые его выдают, чтобы ты мог исправить их до отправки.",
+  "hero.tagline": "Вставь черновик ниже. noslop указывает именно на те слова и привычки, которые его выдают, чтобы ты мог исправить их до отправки.",
   "privacy.strong": "Всё работает прямо в твоём браузере.",
   "privacy.rest": "Ничего из того, что ты вставляешь, не загружается, не сохраняется и никуда не отправляется.",
 
@@ -41,7 +41,7 @@ window.UnslopI18N.catalogs.ru = {
 
   "editor.textareaLabel": "Твой текст — вставь или напиши здесь, чтобы проверить, похож ли он на текст ИИ",
   "editor.placeholder": "Вставь или напиши свой текст здесь...",
-  "editor.hintMarks": "Отметки показывают, что нашёл unslop. Наведи курсор или перейди Tab к отметке, чтобы увидеть подробности.",
+  "editor.hintMarks": "Отметки показывают, что нашёл noslop. Наведи курсор или перейди Tab к отметке, чтобы увидеть подробности.",
   "editor.hintTabbing": "Нажми {tab}, чтобы войти в текст, а затем снова {tab}, чтобы переключаться между отметками.",
 
   "results.ariaLabel": "Результаты",
@@ -73,7 +73,7 @@ window.UnslopI18N.catalogs.ru = {
   "breakdown.rhythmSurface": "Ритм и поверхностные признаки",
   "breakdown.clean.heading": "Читается чисто.",
   "breakdown.clean.notEnoughText": "Пока слишком мало текста для оценки. Вставь ещё немного для надёжного результата.",
-  "breakdown.clean.noneFired": "Ни одна из проверок unslop не сработала на этом тексте.",
+  "breakdown.clean.noneFired": "Ни одна из проверок noslop не сработала на этом тексте.",
   "finding.hitCount.one": "{count} раз",
   "finding.hitCount.few": "{count} раза",
   "finding.hitCount.many": "{count} раз",

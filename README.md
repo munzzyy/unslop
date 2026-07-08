@@ -1,33 +1,33 @@
-# unslop
+# noslop
 
 **The AI-writing linter. See the exact words that make your writing sound like a robot — in sixteen languages, on your own machine — and fix them before anyone else reads a word.**
 
-[![CI](https://github.com/munzzyy/unslop/actions/workflows/test.yml/badge.svg)](https://github.com/munzzyy/unslop/actions/workflows/test.yml)
+[![CI](https://github.com/munzzyy/noslop/actions/workflows/test.yml/badge.svg)](https://github.com/munzzyy/noslop/actions/workflows/test.yml)
 [![License: Prosperity 3.0.0](https://img.shields.io/badge/license-Prosperity--3.0.0-blue.svg)](LICENSE)
 ![zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
 ![scores 0.0 on itself](https://img.shields.io/badge/own%20README-0.0%2F1k-brightgreen)
 ![16 languages](https://img.shields.io/badge/languages-16-blue)
-[![try it in your browser](https://img.shields.io/badge/try%20it-in%20your%20browser-orange)](https://munzzyy.github.io/unslop/)
+[![try it in your browser](https://img.shields.io/badge/try%20it-in%20your%20browser-orange)](https://munzzyy.github.io/noslop/)
 
-AI detectors hand you a verdict-shaped guess. unslop hands you the exact words to change:
+AI detectors hand you a verdict-shaped guess. noslop hands you the exact words to change:
 every buzzword, filler phrase, contrast-frame cliché, stray em dash, and flat-rhythm
 paragraph, underlined where it sits, with a line number and a reason. Deterministic, so
 the same text gets the same score every time. Local, so your unpublished draft never
 touches anyone's server.
 
-> **The proof is the product: this README scores 0.0/1k on unslop itself, and CI fails the build the day that stops being true.**
+> **The proof is the product: this README scores 0.0/1k on noslop itself, and CI fails the build the day that stops being true.**
 
-Four ways to run it: paste into the [browser app](https://munzzyy.github.io/unslop/), drop the CLI into a pre-commit hook or CI, wire it into [reviewdog](#hooks) for inline PR comments, or install it as a skill so your AI coding agent checks its own prose before handing it back to you.
+Four ways to run it: paste into the [browser app](https://munzzyy.github.io/noslop/), drop the CLI into a pre-commit hook or CI, wire it into [reviewdog](#hooks) for inline PR comments, or install it as a skill so your AI coding agent checks its own prose before handing it back to you.
 
-**[Try it in your browser](https://munzzyy.github.io/unslop/).** Paste a draft and watch the tells light up. It all runs client-side, so nothing you paste is uploaded, stored, or sent anywhere.
+**[Try it in your browser](https://munzzyy.github.io/noslop/).** Paste a draft and watch the tells light up. It all runs client-side, so nothing you paste is uploaded, stored, or sent anywhere.
 
-[![unslop analyzing a slop-heavy paragraph, every AI tell underlined in place](docs/media/app-dark.png)](https://munzzyy.github.io/unslop/)
+[![noslop analyzing a slop-heavy paragraph, every AI tell underlined in place](docs/media/app-dark.png)](https://munzzyy.github.io/noslop/)
 
 Prefer the terminal? It's also one Python file with no dependencies that drops into a pre-commit hook or CI. Same scoring engine either way, and either way it runs locally and deterministically with no network access.
 
 ## Why this and not a detector
 
-| | unslop | AI detectors (SaaS) | Vale + ai-tells |
+| | noslop | AI detectors (SaaS) | Vale + ai-tells |
 |---|---|---|---|
 | Tells you *what to fix*, word by word | yes — line numbers and hints | no — one probability score | vocabulary and phrasing |
 | Sentence-rhythm and formatting tells | yes | opaque | no ([their own docs name the gap](#vs-vale--vale-ai-tells)) |
@@ -43,33 +43,33 @@ catch what's catchable, show the work, leave the verdict-guessing to tools that 
 
 ## As an agent skill
 
-Point your coding agent at unslop and it'll lint its own writing before handing a PR description, commit message, or doc back to you. Two install paths, pick whichever your agent supports:
+Point your coding agent at noslop and it'll lint its own writing before handing a PR description, commit message, or doc back to you. Two install paths, pick whichever your agent supports:
 
 ```bash
 # Claude Code
-/plugin marketplace add munzzyy/unslop
-/plugin install unslop@unslop
+/plugin marketplace add munzzyy/noslop
+/plugin install noslop@noslop
 
 # any agent using the open Agent Skills standard (Codex, Cursor, and others)
-npx skills add munzzyy/unslop
+npx skills add munzzyy/noslop
 ```
 
-Either way, the agent gets [SKILL.md](skills/unslop/SKILL.md): what to run, how to read the score, and the rule that it flags but never rewrites - the rewrite stays the agent's job, same as it's always been yours. Ask the agent something like "check this PR description for AI tells before you post it" and it'll run `unslop.py --json` on the draft and act on what comes back.
+Either way, the agent gets [SKILL.md](skills/noslop/SKILL.md): what to run, how to read the score, and the rule that it flags but never rewrites - the rewrite stays the agent's job, same as it's always been yours. Ask the agent something like "check this PR description for AI tells before you post it" and it'll run `noslop.py --json` on the draft and act on what comes back.
 
 ## In your browser
 
-[munzzyy.github.io/unslop](https://munzzyy.github.io/unslop/) is the whole tool as a single page. Paste or type, and every buzzword, filler phrase, construction, stray em dash, and emoji gets underlined in place, with a live score and a breakdown of exactly what tripped it. No build step, no account, no server: the page loads the same scorer the CLI uses and runs it on your machine. You can save the page and use it offline.
+[munzzyy.github.io/noslop](https://munzzyy.github.io/noslop/) is the whole tool as a single page. Paste or type, and every buzzword, filler phrase, construction, stray em dash, and emoji gets underlined in place, with a live score and a breakdown of exactly what tripped it. No build step, no account, no server: the page loads the same scorer the CLI uses and runs it on your machine. You can save the page and use it offline.
 
 Nine themes from the header - Paper and Ink, plus Terminal, Sepia, Newsprint, Midnight, both Solarized variants, and a high-contrast mode. Auto follows your system by default; your pick is remembered and applied before the page paints.
 
-[![the light theme, showing the score and the per-finding breakdown](docs/media/app-full-light.png)](https://munzzyy.github.io/unslop/)
+[![the light theme, showing the score and the per-finding breakdown](docs/media/app-full-light.png)](https://munzzyy.github.io/noslop/)
 
-> Looking for a package literally named `unslop` on PyPI or npm? Those are different projects - an LLM-based rewriter and an old code-quality tool. This one's git-only for now; see [Install](#install).
+> Looking for a package literally named `noslop` on PyPI or npm? Those are different projects - an LLM-based rewriter and an old code-quality tool. This one's git-only for now; see [Install](#install).
 
 ## Example
 
 ```
-$ unslop pr.txt
+$ noslop pr.txt
 words: 41   AI-tell score: 658.5/1k   -> reads as AI - needs a real rewrite
 
 LLM buzzwords:
@@ -107,8 +107,8 @@ per pack - Spanish dialogue dashes don't get flagged as em-dash spray. Force a l
 with `--lang` when you know better:
 
 ```bash
-unslop --lang de entwurf.md
-unslop informe.md            # auto-detected per file
+noslop --lang de entwurf.md
+noslop informe.md            # auto-detected per file
 ```
 
 Text the sniffer can't confidently place falls back to the English lists plus the
@@ -129,37 +129,37 @@ paste.
 ## Install
 
 ```bash
-pipx install git+https://github.com/munzzyy/unslop
+pipx install git+https://github.com/munzzyy/noslop
 ```
 
 Or skip the install entirely, since it's a single file with no dependencies:
 
 ```bash
-curl -LO https://raw.githubusercontent.com/munzzyy/unslop/main/unslop.py
-python unslop.py --help
+curl -LO https://raw.githubusercontent.com/munzzyy/noslop/main/noslop.py
+python noslop.py --help
 ```
 
 ## Usage
 
 ```bash
-unslop draft.md                     # one file
-unslop docs/*.md                    # several files
-git log -1 --format=%B | unslop     # or stdin
-unslop --quiet draft.md             # verdict line only
-unslop --json draft.md              # results as JSON
-unslop --exclude CHANGELOG.md docs/*.md   # skip a file in a glob run
-unslop --lang es informe.md         # force a language pack (default: auto-detect)
+noslop draft.md                     # one file
+noslop docs/*.md                    # several files
+git log -1 --format=%B | noslop     # or stdin
+noslop --quiet draft.md             # verdict line only
+noslop --json draft.md              # results as JSON
+noslop --exclude CHANGELOG.md docs/*.md   # skip a file in a glob run
+noslop --lang es informe.md         # force a language pack (default: auto-detect)
 ```
 
 The exit code is 0 when every input scores under the threshold, 1 when something scores over it, and 2 if a path couldn't be read at all - so a crash and a lint finding never look the same to a script. The default threshold is 10; change it with `--threshold`. `docs/*.md` works even on Windows shells that don't expand the glob themselves.
 
 In markdown files, fenced code blocks and inline code are not scored, since code samples aren't prose. Pass `--markdown` to get the same treatment for stdin or other file extensions.
 
-To skip files in a glob or directory run without listing them all on the command line, drop a `.unslopignore` next to them (one glob per line, `#` comments allowed) or repeat `--exclude PATTERN`.
+To skip files in a glob or directory run without listing them all on the command line, drop a `.noslopignore` next to them (one glob per line, `#` comments allowed) or repeat `--exclude PATTERN`.
 
 ## Config
 
-Editing `unslop.py` directly to change the word lists works, but it doesn't survive a `pipx` upgrade. For anything that needs to persist, drop a `.unslop.json` in your repo root (unslop walks up from the current directory looking for one, stopping at the first `.git` it finds):
+Editing `noslop.py` directly to change the word lists works, but it doesn't survive a `pipx` upgrade. For anything that needs to persist, drop a `.noslop.json` in your repo root (noslop walks up from the current directory looking for one, stopping at the first `.git` it finds):
 
 ```json
 {
@@ -178,7 +178,7 @@ As a plain git hook:
 
 ```bash
 # .git/hooks/commit-msg
-unslop --quiet "$1" || echo "that commit message reads a bit AI"
+noslop --quiet "$1" || echo "that commit message reads a bit AI"
 ```
 
 Written like that it only warns. Drop the `|| echo` part if you want it to actually reject the commit.
@@ -187,10 +187,10 @@ With [pre-commit](https://pre-commit.com):
 
 ```yaml
 repos:
-  - repo: https://github.com/munzzyy/unslop
+  - repo: https://github.com/munzzyy/noslop
     rev: v0.6.0
     hooks:
-      - id: unslop
+      - id: noslop
 ```
 
 That runs on the markdown, text, and rst files in each commit.
@@ -198,7 +198,7 @@ That runs on the markdown, text, and rst files in each commit.
 As a GitHub Action, no pre-commit framework required:
 
 ```yaml
-- uses: munzzyy/unslop@v0.6.0
+- uses: munzzyy/noslop@v0.6.0
   with:
     paths: "docs/*.md README.md"
 ```
@@ -206,19 +206,19 @@ As a GitHub Action, no pre-commit framework required:
 For inline PR review comments instead of a plain CI log, pipe `--rdjson` output into [reviewdog](https://github.com/reviewdog/reviewdog):
 
 ```bash
-python unslop.py --rdjson docs/*.md | reviewdog -f=rdjsonl -name=unslop -reporter=github-pr-review
+python noslop.py --rdjson docs/*.md | reviewdog -f=rdjsonl -name=noslop -reporter=github-pr-review
 ```
 
-`--rdjson` prints one JSON object per finding (message, file, line, severity) instead of the normal report, and pairs with `--exclude`/`.unslopignore` the same way `--json` does.
+`--rdjson` prints one JSON object per finding (message, file, line, severity) instead of the normal report, and pairs with `--exclude`/`.noslopignore` the same way `--json` does.
 
 ## What it checks
 
-The word and phrase lists live at the top of [unslop.py](unslop.py); edit them directly if you're hacking on unslop itself, or use a [config file](#config) if you just want to adjust the lists for your own project. Roughly:
+The word and phrase lists live at the top of [noslop.py](noslop.py); edit them directly if you're hacking on noslop itself, or use a [config file](#config) if you just want to adjust the lists for your own project. Roughly:
 
 - **chat-UI residue** - leftover citation markup (`oaicite`, `oai_citation`, `grok_card`)
   and `utm_source=chatgpt.com` links. Nobody types these by hand, so one hit scores the
   hard verdict on its own. (Writing *about* these markers trips it too - quote them in
-  code formatting, or skip the file with `.unslopignore`.)
+  code formatting, or skip the file with `.noslopignore`.)
 - words LLMs lean on far more than people do (`delve`, `robust`, `leverage`, `tapestry` -
   plus the words two 2025 word-frequency studies measured at 3x-67x their pre-LLM baseline:
   `groundbreaking`, `surpassing`, `garnered`, `emphasizing`, and friends)
@@ -249,7 +249,7 @@ The `--json` field names (`words`, `score_per_1k`, `verdict`, `language`, `langu
 
 ## vs. Vale / vale-ai-tells
 
-If you're already running [Vale](https://vale.sh), [vale-ai-tells](https://github.com/tbhb/vale-ai-tells) covers a lot of the same ground with Vale's own style-rule format. The gap it names in its own docs is sentence-length uniformity and paragraph rhythm - it checks vocabulary and phrasing, not cadence. unslop's `sentence_uniformity_cv` check is exactly that: a coefficient-of-variation measure that catches the suspiciously even sentence lengths LLMs tend to produce even when the vocabulary itself passes. And unslop doesn't need a Vale install or a `.vale.ini` to get there - it's one file, stdlib only.
+If you're already running [Vale](https://vale.sh), [vale-ai-tells](https://github.com/tbhb/vale-ai-tells) covers a lot of the same ground with Vale's own style-rule format. The gap it names in its own docs is sentence-length uniformity and paragraph rhythm - it checks vocabulary and phrasing, not cadence. noslop's `sentence_uniformity_cv` check is exactly that: a coefficient-of-variation measure that catches the suspiciously even sentence lengths LLMs tend to produce even when the vocabulary itself passes. And noslop doesn't need a Vale install or a `.vale.ini` to get there - it's one file, stdlib only.
 
 ## Measured, not vibes
 
@@ -266,7 +266,7 @@ shipping quietly.
 
 - It matches surface patterns, not intent. A document that quotes slop in running prose gets flagged for it, quotation marks or not. Code formatting is the only escape hatch it understands.
 - The lists are one person's research-informed opinion, sixteen languages deep. If `robust` is a term of art in your field, edit the list or raise the threshold.
-- The sentence-uniformity check shares a mechanism with the burstiness signal that a Stanford study ([Liang et al. 2023](https://www.sciencedirect.com/science/article/pii/S2666389923001307)) showed flags non-native English writers far more than native ones. That's why it adds a small fixed bump instead of a verdict, why its weight didn't go up in 0.7.0, and why no rhythm check alone can push clean text past the hard threshold. If you write in a second language and unslop nags you about rhythm, that's the check to ignore.
+- The sentence-uniformity check shares a mechanism with the burstiness signal that a Stanford study ([Liang et al. 2023](https://www.sciencedirect.com/science/article/pii/S2666389923001307)) showed flags non-native English writers far more than native ones. That's why it adds a small fixed bump instead of a verdict, why its weight didn't go up in 0.7.0, and why no rhythm check alone can push clean text past the hard threshold. If you write in a second language and noslop nags you about rhythm, that's the check to ignore.
 - A clean score doesn't mean the writing is good, and it doesn't prove a human wrote it. It means none of these particular tells showed up. A careful writer can trip it, and lazy slop can slip past it.
 
 ## Contributing

@@ -5,10 +5,10 @@
 // Italian's rare large-round-number category; word/hit counts never
 // realistically reach it here, so its string mirrors "other".
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs.it = {
-  "meta.title": "unslop — scopri cosa tradisce l'IA nel tuo testo",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs.it = {
+  "meta.title": "noslop — scopri cosa tradisce l'IA nel tuo testo",
   "meta.description": "Incolla il tuo testo e scopri cosa lo fa suonare come un robot, così lo correggi prima di inviarlo. Tutto avviene nel tuo browser — niente viene caricato altrove.",
 
   "skipToEditor": "Vai all'editor",
@@ -17,7 +17,7 @@ window.UnslopI18N.catalogs.it = {
   "uilang.switcherLabel": "Lingua",
 
   "hero.heading": "Scopri cosa fa suonare il tuo testo come un robot.",
-  "hero.tagline": "Incolla una bozza qui sotto. unslop indica le parole e le abitudini esatte che lo tradiscono, così le correggi prima di inviarlo.",
+  "hero.tagline": "Incolla una bozza qui sotto. noslop indica le parole e le abitudini esatte che lo tradiscono, così le correggi prima di inviarlo.",
   "privacy.strong": "Tutto avviene nel tuo browser.",
   "privacy.rest": "Niente di quello che incolli viene caricato, salvato o inviato da nessuna parte.",
 
@@ -40,7 +40,7 @@ window.UnslopI18N.catalogs.it = {
 
   "editor.textareaLabel": "Il tuo testo — incollalo o scrivilo qui per controllare se suona come un'IA",
   "editor.placeholder": "Incolla o scrivi qui il tuo testo...",
-  "editor.hintMarks": "I segni mostrano cosa ha rilevato unslop. Passa il mouse o usa Tab su un segno per vedere il dettaglio.",
+  "editor.hintMarks": "I segni mostrano cosa ha rilevato noslop. Passa il mouse o usa Tab su un segno per vedere il dettaglio.",
   "editor.hintTabbing": "Premi {tab} per entrare nel testo, poi {tab} di nuovo per spostarti tra i segni.",
 
   "results.ariaLabel": "Risultati",
@@ -72,7 +72,7 @@ window.UnslopI18N.catalogs.it = {
   "breakdown.rhythmSurface": "Ritmo e superficie",
   "breakdown.clean.heading": "Sembra pulito.",
   "breakdown.clean.notEnoughText": "C'è ancora poco testo da valutare. Incollane un po' di più per un risultato affidabile.",
-  "breakdown.clean.noneFired": "Nessuno dei controlli di unslop si è attivato su questo testo.",
+  "breakdown.clean.noneFired": "Nessuno dei controlli di noslop si è attivato su questo testo.",
   "finding.hitCount.one": "{count} volta",
   "finding.hitCount.many": "{count} volte",
   "finding.hitCount.other": "{count} volte",

@@ -3,10 +3,10 @@
 // Plural categories used here: one, other (verified via
 // Intl.PluralRules("el").resolvedOptions().pluralCategories).
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs.el = {
-  "meta.title": "unslop — βρες τι προδίδει την τεχνητή νοημοσύνη στο κείμενό σου",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs.el = {
+  "meta.title": "noslop — βρες τι προδίδει την τεχνητή νοημοσύνη στο κείμενό σου",
   "meta.description": "Επικόλλησε το κείμενό σου και δες τι το κάνει να ακούγεται σαν ρομπότ, ώστε να το διορθώσεις πριν το στείλεις. Τρέχει εξ ολοκλήρου στον browser σου — τίποτα δεν ανεβαίνει πουθενά.",
 
   "skipToEditor": "Μετάβαση στον επεξεργαστή",
@@ -15,7 +15,7 @@ window.UnslopI18N.catalogs.el = {
   "uilang.switcherLabel": "Γλώσσα",
 
   "hero.heading": "Δες τι κάνει το κείμενό σου να ακούγεται σαν ρομπότ.",
-  "hero.tagline": "Επικόλλησε ένα προσχέδιο παρακάτω. Το unslop εντοπίζει ακριβώς τις λέξεις και τις συνήθειες που το προδίδουν, ώστε να τις διορθώσεις πριν το στείλεις.",
+  "hero.tagline": "Επικόλλησε ένα προσχέδιο παρακάτω. Το noslop εντοπίζει ακριβώς τις λέξεις και τις συνήθειες που το προδίδουν, ώστε να τις διορθώσεις πριν το στείλεις.",
   "privacy.strong": "Όλα τρέχουν στον browser σου.",
   "privacy.rest": "Τίποτα από όσα επικολλάς δεν ανεβαίνει, δεν αποθηκεύεται και δεν στέλνεται πουθενά.",
 
@@ -37,7 +37,7 @@ window.UnslopI18N.catalogs.el = {
 
   "editor.textareaLabel": "Το κείμενό σου — επικόλλησε ή γράψε εδώ για να ελέγξεις αν ακούγεται σαν τεχνητή νοημοσύνη",
   "editor.placeholder": "Επικόλλησε ή γράψε το κείμενό σου εδώ...",
-  "editor.hintMarks": "Οι επισημάνσεις δείχνουν τι εντόπισε το unslop. Πέρασε το ποντίκι ή πήγαινε με Tab σε μια επισήμανση για λεπτομέρειες.",
+  "editor.hintMarks": "Οι επισημάνσεις δείχνουν τι εντόπισε το noslop. Πέρασε το ποντίκι ή πήγαινε με Tab σε μια επισήμανση για λεπτομέρειες.",
   "editor.hintTabbing": "Πάτησε {tab} για να μπεις στο κείμενο, και μετά ξανά {tab} για να μετακινείσαι ανάμεσα στις επισημάνσεις.",
 
   "results.ariaLabel": "Αποτελέσματα",
@@ -69,7 +69,7 @@ window.UnslopI18N.catalogs.el = {
   "breakdown.rhythmSurface": "Ρυθμός & επιφανειακά στοιχεία",
   "breakdown.clean.heading": "Διαβάζεται καθαρό.",
   "breakdown.clean.notEnoughText": "Υπάρχει ακόμη λίγο κείμενο για να κριθεί. Επικόλλησε λίγο περισσότερο για αξιόπιστο αποτέλεσμα.",
-  "breakdown.clean.noneFired": "Κανένας από τους ελέγχους του unslop δεν ενεργοποιήθηκε σε αυτό το κείμενο.",
+  "breakdown.clean.noneFired": "Κανένας από τους ελέγχους του noslop δεν ενεργοποιήθηκε σε αυτό το κείμενο.",
   "finding.hitCount.one": "{count} φορά",
   "finding.hitCount.other": "{count} φορές",
   "finding.linesLabel": "γραμμή {lines}",

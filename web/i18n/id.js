@@ -5,10 +5,10 @@
 // Intl.PluralRules("id").resolvedOptions().pluralCategories -> only
 // "other" is ever reported; "one" is kept identical for robustness).
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs.id = {
-  "meta.title": "unslop — temukan yang membocorkan AI dalam tulisanmu",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs.id = {
+  "meta.title": "noslop — temukan yang membocorkan AI dalam tulisanmu",
   "meta.description": "Tempel tulisanmu dan lihat apa yang membuatnya terdengar seperti robot, supaya bisa diperbaiki sebelum dikirim. Berjalan sepenuhnya di browser kamu — tidak ada yang diunggah.",
 
   "skipToEditor": "Lompat ke editor",
@@ -17,7 +17,7 @@ window.UnslopI18N.catalogs.id = {
   "uilang.switcherLabel": "Bahasa",
 
   "hero.heading": "Lihat apa yang membuat tulisanmu terdengar seperti robot.",
-  "hero.tagline": "Tempel draf di bawah ini. unslop menunjukkan tepat kata dan kebiasaan yang membocorkannya, supaya kamu bisa memperbaikinya sebelum mengirim.",
+  "hero.tagline": "Tempel draf di bawah ini. noslop menunjukkan tepat kata dan kebiasaan yang membocorkannya, supaya kamu bisa memperbaikinya sebelum mengirim.",
   "privacy.strong": "Semuanya berjalan di browser kamu.",
   "privacy.rest": "Tidak ada yang kamu tempel yang diunggah, disimpan, atau dikirim ke mana pun.",
 
@@ -39,7 +39,7 @@ window.UnslopI18N.catalogs.id = {
 
   "editor.textareaLabel": "Tulisanmu — tempel atau ketik di sini untuk memeriksa apakah terdengar seperti AI",
   "editor.placeholder": "Tempel atau ketik tulisanmu di sini...",
-  "editor.hintMarks": "Tanda menunjukkan apa yang ditemukan unslop. Arahkan kursor atau gunakan Tab ke sebuah tanda untuk melihat detailnya.",
+  "editor.hintMarks": "Tanda menunjukkan apa yang ditemukan noslop. Arahkan kursor atau gunakan Tab ke sebuah tanda untuk melihat detailnya.",
   "editor.hintTabbing": "Tekan {tab} untuk masuk ke teks, lalu {tab} lagi untuk berpindah antar tanda.",
 
   "results.ariaLabel": "Hasil",
@@ -71,7 +71,7 @@ window.UnslopI18N.catalogs.id = {
   "breakdown.rhythmSurface": "Ritme & ciri permukaan",
   "breakdown.clean.heading": "Terbaca bersih.",
   "breakdown.clean.notEnoughText": "Teksnya masih terlalu sedikit untuk dinilai. Tempel lebih banyak lagi untuk hasil yang bisa diandalkan.",
-  "breakdown.clean.noneFired": "Tidak ada pemeriksaan unslop yang terpicu pada teks ini.",
+  "breakdown.clean.noneFired": "Tidak ada pemeriksaan noslop yang terpicu pada teks ini.",
   "finding.hitCount.one": "{count} kali",
   "finding.hitCount.other": "{count} kali",
   "finding.linesLabel": "baris {lines}",

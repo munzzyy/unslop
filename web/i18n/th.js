@@ -5,10 +5,10 @@
 // Intl.PluralRules("th").resolvedOptions().pluralCategories -> only
 // "other" is ever reported; "one" is kept identical for robustness).
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs.th = {
-  "meta.title": "unslop — หาจุดที่บ่งบอกว่าเป็น AI ในงานเขียนของคุณ",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs.th = {
+  "meta.title": "noslop — หาจุดที่บ่งบอกว่าเป็น AI ในงานเขียนของคุณ",
   "meta.description": "วางข้อความของคุณแล้วดูว่าอะไรทำให้มันฟังดูเหมือนหุ่นยนต์ จะได้แก้ไขก่อนส่ง ทำงานในเบราว์เซอร์ของคุณทั้งหมด — ไม่มีอะไรถูกอัปโหลดไปที่ไหน",
 
   "skipToEditor": "ข้ามไปที่ช่องแก้ไข",
@@ -17,7 +17,7 @@ window.UnslopI18N.catalogs.th = {
   "uilang.switcherLabel": "ภาษา",
 
   "hero.heading": "ดูว่าอะไรทำให้งานเขียนของคุณฟังดูเหมือนหุ่นยนต์",
-  "hero.tagline": "วางร่างข้อความไว้ด้านล่าง unslop จะชี้ตรงจุดคำและความเคยชินที่บ่งบอกให้เห็น เพื่อให้คุณแก้ไขได้ก่อนส่ง",
+  "hero.tagline": "วางร่างข้อความไว้ด้านล่าง noslop จะชี้ตรงจุดคำและความเคยชินที่บ่งบอกให้เห็น เพื่อให้คุณแก้ไขได้ก่อนส่ง",
   "privacy.strong": "ทุกอย่างทำงานในเบราว์เซอร์ของคุณ",
   "privacy.rest": "ข้อความที่คุณวางจะไม่ถูกอัปโหลด บันทึก หรือส่งไปที่ไหนทั้งสิ้น",
 
@@ -39,7 +39,7 @@ window.UnslopI18N.catalogs.th = {
 
   "editor.textareaLabel": "งานเขียนของคุณ — วางหรือพิมพ์ที่นี่เพื่อตรวจว่าฟังดูเหมือน AI หรือไม่",
   "editor.placeholder": "วางหรือพิมพ์ข้อความของคุณที่นี่...",
-  "editor.hintMarks": "เครื่องหมายแสดงสิ่งที่ unslop พบ วางเมาส์หรือกด Tab ไปที่เครื่องหมายเพื่อดูรายละเอียด",
+  "editor.hintMarks": "เครื่องหมายแสดงสิ่งที่ noslop พบ วางเมาส์หรือกด Tab ไปที่เครื่องหมายเพื่อดูรายละเอียด",
   "editor.hintTabbing": "กด {tab} เพื่อเข้าไปในข้อความ จากนั้นกด {tab} อีกครั้งเพื่อย้ายไปมาระหว่างเครื่องหมาย",
 
   "results.ariaLabel": "ผลลัพธ์",
@@ -71,7 +71,7 @@ window.UnslopI18N.catalogs.th = {
   "breakdown.rhythmSurface": "จังหวะและลักษณะพื้นผิว",
   "breakdown.clean.heading": "อ่านแล้วดูสะอาด",
   "breakdown.clean.notEnoughText": "ข้อความยังน้อยเกินกว่าจะประเมินได้ วางเพิ่มอีกหน่อยเพื่อผลลัพธ์ที่น่าเชื่อถือ",
-  "breakdown.clean.noneFired": "ไม่มีการตรวจสอบใดของ unslop ทำงานกับข้อความนี้",
+  "breakdown.clean.noneFired": "ไม่มีการตรวจสอบใดของ noslop ทำงานกับข้อความนี้",
   "finding.hitCount.one": "{count} ครั้ง",
   "finding.hitCount.other": "{count} ครั้ง",
   "finding.linesLabel": "บรรทัดที่ {lines}",

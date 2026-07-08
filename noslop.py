@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""unslop - flag the AI tells in a piece of writing.
+"""noslop - flag the AI tells in a piece of writing.
 
 Reads text from file arguments or stdin and prints the patterns that make prose
 read as LLM-generated: filler phrases, overused buzzwords, the "not just X, but Y"
@@ -18,11 +18,11 @@ the structural checks, and the output says so.
 Standard library only. No network, no dependencies.
 
 Usage:
-  unslop draft.md
-  unslop docs/*.md
-  echo "some text here" | unslop
-  unslop --json draft.md       # machine-readable
-  unslop --quiet draft.md      # verdict line only
+  noslop draft.md
+  noslop docs/*.md
+  echo "some text here" | noslop
+  noslop --json draft.md       # machine-readable
+  noslop --quiet draft.md      # verdict line only
 
 Exit code is 0 when every input reads human enough, 1 when something needs
 a pass, and 2 if a path couldn't be read at all - so a crash and a lint
@@ -36,9 +36,9 @@ import os
 import fnmatch
 import argparse
 
-__version__ = "0.7.0"
+__version__ = "0.8.0"
 
-# analyze()'s return dict is unslop's only machine-readable contract. If you
+# analyze()'s return dict is noslop's only machine-readable contract. If you
 # add, rename, or remove a top-level key, update this set and bump the
 # version - anything parsing --json is relying on these names staying put.
 JSON_SCHEMA_KEYS = {
@@ -1229,7 +1229,7 @@ def line_of(text, idx):
     return text.count("\n", 0, idx) + 1
 
 
-CONFIG_NAMES = (".unslop.json", ".unsloprc")
+CONFIG_NAMES = (".noslop.json", ".nosloprc")
 
 
 def find_config(start_dir):
@@ -1290,7 +1290,7 @@ def apply_config(config, buzzwords, phrases):
 
 
 def load_ignore_file(path):
-    """Read a .unslopignore file: one gitignore-style glob per line, blank
+    """Read a .noslopignore file: one gitignore-style glob per line, blank
     lines and #-comments skipped."""
     patterns = []
     with open(path, "r", encoding="utf-8-sig") as fh:
@@ -1302,7 +1302,7 @@ def load_ignore_file(path):
 
 
 def is_ignored(path, patterns):
-    """Match a path against .unslopignore-style patterns. Matches against
+    """Match a path against .noslopignore-style patterns. Matches against
     both the full (forward-slash-normalized) path and the bare filename, so
     a pattern like "CHANGELOG.md" excludes it anywhere in the tree, same as
     gitignore's default behavior for a pattern with no slash."""
@@ -1317,7 +1317,7 @@ def is_ignored(path, patterns):
 def to_rdjsonl(path, r):
     """Yield rdjsonl (reviewdog diagnostic format) lines for one file's
     result: one JSON object per hit, message/location/severity shaped so
-    `unslop --rdjson file.md | reviewdog -f=rdjsonl -name=unslop` works with
+    `noslop --rdjson file.md | reviewdog -f=rdjsonl -name=noslop` works with
     no extra glue. https://github.com/reviewdog/reviewdog/tree/master/proto/rdf
     """
     src = path if path != "-" else "<stdin>"
@@ -1696,7 +1696,7 @@ def main(argv=None):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     except (AttributeError, ValueError):
         pass
-    ap = argparse.ArgumentParser(prog="unslop", description="Flag the AI tells in a piece of writing.")
+    ap = argparse.ArgumentParser(prog="noslop", description="Flag the AI tells in a piece of writing.")
     ap.add_argument("paths", nargs="*", default=["-"], metavar="path",
                     help="text files, or - for stdin (default: stdin)")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
@@ -1712,34 +1712,34 @@ def main(argv=None):
                          "per input; falls back to en + structural checks "
                          "when unsure)")
     ap.add_argument("--config", metavar="PATH",
-                    help="path to a .unslop.json config (default: search upward from cwd)")
+                    help="path to a .noslop.json config (default: search upward from cwd)")
     ap.add_argument("--no-config", action="store_true",
-                    help="ignore any .unslop.json / .unsloprc, even if one is found")
+                    help="ignore any .noslop.json / .nosloprc, even if one is found")
     ap.add_argument("--exclude", action="append", default=[], metavar="PATTERN",
-                    help="glob pattern to skip (repeatable); also see .unslopignore")
-    ap.add_argument("--version", action="version", version=f"unslop {__version__}")
+                    help="glob pattern to skip (repeatable); also see .noslopignore")
+    ap.add_argument("--version", action="version", version=f"noslop {__version__}")
     args = ap.parse_args(argv)
 
     config = None
     if not args.no_config:
         if args.config and not os.path.isfile(args.config):
-            print(f"unslop: {args.config}: no such file", file=sys.stderr)
+            print(f"noslop: {args.config}: no such file", file=sys.stderr)
             return 2
         config_path = args.config or find_config(os.getcwd())
         if config_path:
             try:
                 config = load_config(config_path)
             except (ValueError, OSError) as exc:
-                print(f"unslop: {exc}", file=sys.stderr)
+                print(f"noslop: {exc}", file=sys.stderr)
                 return 2
 
     ignore_patterns = list(args.exclude)
-    if os.path.isfile(".unslopignore"):
-        ignore_patterns += load_ignore_file(".unslopignore")
+    if os.path.isfile(".noslopignore"):
+        ignore_patterns += load_ignore_file(".noslopignore")
 
     # Expand any glob argument ourselves. POSIX shells already do this
     # before we see argv, but PowerShell and cmd.exe never expand
-    # wildcards, so "unslop docs/*.md" would otherwise reach open() as a
+    # wildcards, so "noslop docs/*.md" would otherwise reach open() as a
     # literal, nonexistent path on Windows.
     paths = []
     for p in (args.paths or ["-"]):
@@ -1747,7 +1747,7 @@ def main(argv=None):
             matches = sorted(glob.glob(p))
             matches = [m for m in matches if not is_ignored(m, ignore_patterns)]
             if not matches:
-                print(f"unslop: {p}: no files match", file=sys.stderr)
+                print(f"noslop: {p}: no files match", file=sys.stderr)
                 return 2
             paths.extend(matches)
         elif p != "-" and is_ignored(p, ignore_patterns):
@@ -1760,7 +1760,7 @@ def main(argv=None):
         try:
             text = load_text(p, force_markdown=args.markdown)
         except OSError as exc:
-            print(f"unslop: {p}: {exc.strerror or exc}", file=sys.stderr)
+            print(f"noslop: {p}: {exc.strerror or exc}", file=sys.stderr)
             return 2
         # Language is resolved per input, not per run - a docs sweep can mix
         # English and translated files, and the config's ignore/extra lists

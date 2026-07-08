@@ -5,10 +5,10 @@
 // few=2-4, many=non-integer counts (never hit here, since counts are always
 // whole numbers - its string mirrors "other"), other=0 and 5+).
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs.cs = {
-  "meta.title": "unslop — najdi, co v tvém textu prozrazuje AI",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs.cs = {
+  "meta.title": "noslop — najdi, co v tvém textu prozrazuje AI",
   "meta.description": "Vlož svůj text a zjisti, co ho dělá znít jako robota, abys to opravil ještě před odesláním. Vše běží přímo v prohlížeči — nic se nikam neodesílá.",
 
   "skipToEditor": "Přejít do editoru",
@@ -17,7 +17,7 @@ window.UnslopI18N.catalogs.cs = {
   "uilang.switcherLabel": "Jazyk",
 
   "hero.heading": "Zjisti, co dělá tvůj text znít jako robota.",
-  "hero.tagline": "Vlož níže koncept. unslop ukáže přesně ta slova a zvyky, které ho prozrazují, abys je mohl opravit ještě před odesláním.",
+  "hero.tagline": "Vlož níže koncept. noslop ukáže přesně ta slova a zvyky, které ho prozrazují, abys je mohl opravit ještě před odesláním.",
   "privacy.strong": "Vše běží přímo v prohlížeči.",
   "privacy.rest": "Nic z toho, co vložíš, se nikam neodesílá, neukládá ani nesdílí.",
 
@@ -41,7 +41,7 @@ window.UnslopI18N.catalogs.cs = {
 
   "editor.textareaLabel": "Tvůj text — vlož nebo napiš sem a zkontroluj, jestli nezní jako AI",
   "editor.placeholder": "Vlož nebo napiš svůj text sem...",
-  "editor.hintMarks": "Značky ukazují, co unslop našel. Najeď myší nebo se přepni klávesou Tab na značku pro podrobnosti.",
+  "editor.hintMarks": "Značky ukazují, co noslop našel. Najeď myší nebo se přepni klávesou Tab na značku pro podrobnosti.",
   "editor.hintTabbing": "Stiskni {tab} pro vstup do textu a pak znovu {tab} pro pohyb mezi značkami.",
 
   "results.ariaLabel": "Výsledky",
@@ -73,7 +73,7 @@ window.UnslopI18N.catalogs.cs = {
   "breakdown.rhythmSurface": "Rytmus a povrchové rysy",
   "breakdown.clean.heading": "Působí čistě.",
   "breakdown.clean.notEnoughText": "Zatím je tu málo textu na posouzení. Vlož ještě něco pro spolehlivý výsledek.",
-  "breakdown.clean.noneFired": "Žádná z kontrol unslop se u tohoto textu neaktivovala.",
+  "breakdown.clean.noneFired": "Žádná z kontrol noslop se u tohoto textu neaktivovala.",
   "finding.hitCount.one": "{count} výskyt",
   "finding.hitCount.few": "{count} výskyty",
   "finding.hitCount.many": "{count} výskytu",

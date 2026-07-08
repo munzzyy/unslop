@@ -1,6 +1,6 @@
 # Security
 
-unslop is a single-file, offline text linter. It doesn't make network
+noslop is a single-file, offline text linter. It doesn't make network
 calls, doesn't read credentials, and doesn't write anything besides its
 own stdout. The realistic attack surface is small, but if you find
 something, here's how to report it.
@@ -10,7 +10,7 @@ something, here's how to report it.
 Please don't open a public issue for security problems. Use GitHub's
 private reporting instead:
 
-https://github.com/munzzyy/unslop/security/advisories/new
+https://github.com/munzzyy/noslop/security/advisories/new
 
 That goes straight to the maintainer and isn't visible publicly until
 it's resolved. Include what you found, how to reproduce it, and the

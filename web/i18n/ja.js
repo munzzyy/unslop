@@ -5,10 +5,10 @@
 // Intl.PluralRules("ja").resolvedOptions().pluralCategories -> only
 // "other" is ever reported; "one" is kept identical for robustness).
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs.ja = {
-  "meta.title": "unslop — 文章からAIらしさの正体を見つける",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs.ja = {
+  "meta.title": "noslop — 文章からAIらしさの正体を見つける",
   "meta.description": "文章を貼り付けると、ロボットっぽく聞こえる原因がわかるので、送る前に直せます。すべてブラウザ内で完結し、どこにもアップロードされません。",
 
   "skipToEditor": "編集エリアへスキップ",
@@ -17,7 +17,7 @@ window.UnslopI18N.catalogs.ja = {
   "uilang.switcherLabel": "言語",
 
   "hero.heading": "文章がロボットっぽく聞こえる原因を見てみましょう。",
-  "hero.tagline": "下に下書きを貼り付けてください。unslopが、その原因になっている言葉や癖をピンポイントで示すので、送る前に直せます。",
+  "hero.tagline": "下に下書きを貼り付けてください。noslopが、その原因になっている言葉や癖をピンポイントで示すので、送る前に直せます。",
   "privacy.strong": "すべてブラウザ内で処理されます。",
   "privacy.rest": "貼り付けた内容がアップロードされたり、保存されたり、どこかへ送信されたりすることはありません。",
 
@@ -39,7 +39,7 @@ window.UnslopI18N.catalogs.ja = {
 
   "editor.textareaLabel": "あなたの文章 — ここに貼り付けるか入力して、AIらしさをチェックします",
   "editor.placeholder": "ここに文章を貼り付けるか入力してください...",
-  "editor.hintMarks": "マークはunslopが検出した箇所を示します。マークにマウスを乗せるかTabキーで移動すると詳細が見られます。",
+  "editor.hintMarks": "マークはnoslopが検出した箇所を示します。マークにマウスを乗せるかTabキーで移動すると詳細が見られます。",
   "editor.hintTabbing": "{tab} キーでテキストに入り、もう一度 {tab} キーでマーク間を移動します。",
 
   "results.ariaLabel": "結果",
@@ -71,7 +71,7 @@ window.UnslopI18N.catalogs.ja = {
   "breakdown.rhythmSurface": "リズムと表面的な特徴",
   "breakdown.clean.heading": "きれいな文章です。",
   "breakdown.clean.notEnoughText": "まだ判断するには文章が少なすぎます。信頼できる結果を得るには、もう少し貼り付けてください。",
-  "breakdown.clean.noneFired": "この文章では、unslopのチェックは何も引っかかりませんでした。",
+  "breakdown.clean.noneFired": "この文章では、noslopのチェックは何も引っかかりませんでした。",
   "finding.hitCount.one": "{count} 回",
   "finding.hitCount.other": "{count} 回",
   "finding.linesLabel": "{lines} 行目",

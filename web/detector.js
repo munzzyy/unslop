@@ -1,25 +1,25 @@
 /*
- * unslop detector - browser/Node port of the analyze() core in unslop.py.
+ * noslop detector - browser/Node port of the analyze() core in noslop.py.
  *
  * This is a faithful reimplementation of the Python scorer so the web app
  * gives the exact same number the CLI does. web/parity.js checks that against
- * `py unslop.py --json` on every commit; if you touch the word lists, the
- * language packs, or the math here, update unslop.py to match (or the parity
+ * `py noslop.py --json` on every commit; if you touch the word lists, the
+ * language packs, or the math here, update noslop.py to match (or the parity
  * job goes red).
  *
  * Loads two ways with no build step:
- *   - browser:  <script src="detector.js"></script>  ->  window.Unslop
- *   - Node:     const Unslop = require("./detector.js")
+ *   - browser:  <script src="detector.js"></script>  ->  window.Noslop
+ *   - Node:     const Noslop = require("./detector.js")
  * No imports, no network, no dependencies - same promise as the CLI.
  */
 (function (root, factory) {
   const api = factory();
   if (typeof module === "object" && module.exports) module.exports = api;
-  root.Unslop = api;
+  root.Noslop = api;
 })(typeof globalThis !== "undefined" ? globalThis : this, function () {
   "use strict";
 
-  // ---- English lists (kept in lockstep with unslop.py) ----
+  // ---- English lists (kept in lockstep with noslop.py) ----
 
   const BUZZWORDS = [
     "delve", "delved", "delves", "delving", "tapestry", "testament", "realm", "realms",
@@ -36,7 +36,7 @@
     "supercharge", "turbocharge", "effortless", "effortlessly", "unleash",
     "empower", "empowering", "transformative", "reimagine", "reimagined",
     "streamline", "streamlined", "peace of mind", "dive deep", "deep dive",
-    // Post-2024 additions - see the annotated list in unslop.py.
+    // Post-2024 additions - see the annotated list in noslop.py.
     "groundbreaking", "aligns", "surpassing", "surpasses",
     "emphasizing", "comprehending",
     "showcases", "trailblazing", "bolstered", "resonate", "resonates",
@@ -58,7 +58,7 @@
     "the world of", "in the realm of", "plays a vital role",
     "plays a crucial role", "a wide range of", "more than just",
     "not just a", "whether you're a", "gone are the days",
-    // Significance inflation and chat-native framing - see unslop.py for
+    // Significance inflation and chat-native framing - see noslop.py for
     // the annotated list and what's deliberately absent.
     "stands as a testament", "a testament to", "marks a pivotal",
     "a pivotal moment", "continues to captivate", "continues to thrive",
@@ -89,7 +89,7 @@
     ["hedge stack (may/can/often/typically)",
       /(?<![\p{L}\p{N}_])(?:may|might|can|could|often|typically|generally|usually|arguably)(?![\p{L}\p{N}_])/gu, 0,
       "too many hedges reads evasive - commit or cut"],
-    // The 2025 wave - see the annotated entries in unslop.py. 5th element,
+    // The 2025 wave - see the annotated entries in noslop.py. 5th element,
     // when present, is free hits (occurrences that don't score).
     ["dangling '-ing' significance closer",
       /,\s+(?:highlighting|reflecting|symbolizing|cementing|reinforcing|cultivating|encompassing)(?![\p{L}\p{N}_])[^.?!\n]{0,80}[.?!]/giu, 3,
@@ -114,7 +114,7 @@
       "name the specific challenge and the specific response"],
   ];
 
-  // Chat-UI residue - mirrors AI_ARTIFACTS in unslop.py. Direct paste
+  // Chat-UI residue - mirrors AI_ARTIFACTS in noslop.py. Direct paste
   // evidence: a single hit pins the score at the hard-verdict floor.
   // Template placeholders are deliberately absent - humans write those.
   const AI_ARTIFACTS = [
@@ -126,7 +126,7 @@
   ];
 
   // Sentence-initial connective adverbs for the en pack - scored on
-  // density over an allowance, mirroring unslop.py. Packs without a
+  // density over an allowance, mirroring noslop.py. Packs without a
   // connectives list skip the check.
   const EN_CONNECTIVES = [
     "moreover", "furthermore", "additionally", "notably",
@@ -134,7 +134,7 @@
     "in essence", "overall",
   ];
 
-  // ---- language packs (kept in lockstep with LANGUAGES in unslop.py) ----
+  // ---- language packs (kept in lockstep with LANGUAGES in noslop.py) ----
   //
   // Same idea as the Python side: every language carries its own researched
   // tell lists - an LLM's crutch words in Spanish are Spanish words, not
@@ -955,7 +955,7 @@
   const EMDASH_RE = /—/g;
   const DETECT_TOKEN_RE = /\p{L}+/gu;
 
-  // How much text detection reads - mirrors _DETECT_SAMPLE in unslop.py.
+  // How much text detection reads - mirrors _DETECT_SAMPLE in noslop.py.
   const DETECT_SAMPLE = 4000;
 
   // ---- helpers ----
@@ -964,7 +964,7 @@
     return tok.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   }
 
-  // Reproduces unslop.py find_all(): a word-bounded match that tolerates the
+  // Reproduces noslop.py find_all(): a word-bounded match that tolerates the
   // line wraps editors insert mid-phrase (single spaces -> \s+). Runs on the
   // lowercased text, so matching is case-insensitive like the CLI.
   //
@@ -1043,7 +1043,7 @@
     return text.slice(0, end);
   }
 
-  // ---- language detection: mirrors detect_language() in unslop.py ----
+  // ---- language detection: mirrors detect_language() in noslop.py ----
 
   function detectLanguage(text) {
     const sample = samplePrefix(text, DETECT_SAMPLE).toLowerCase();
@@ -1089,7 +1089,7 @@
     return [code, source, LANGUAGES[code]];
   }
 
-  // ---- core: mirrors analyze() in unslop.py ----
+  // ---- core: mirrors analyze() in noslop.py ----
 
   function analyze(text, opts) {
     opts = opts || {};
@@ -1098,7 +1098,7 @@
     const phrases = opts.phrases || pack.phrases;
     // Exotic line terminators and the BOM sit in different \s classes in
     // Python and JavaScript - normalize them away so multiline anchors and
-    // sentence splitting agree with the CLI. Mirrors unslop.py analyze().
+    // sentence splitting agree with the CLI. Mirrors noslop.py analyze().
     text = text.replace(/\r\n?|[\x1c-\x1f\x85\u2028\u2029]/g, "\n").replace(/\ufeff/g, " ");
     // One curly apostrophe (U+2019) normalized to the straight form the
     // phrase lists are written in - same length, spans still line up.
@@ -1145,7 +1145,7 @@
     for (const entry of pack.patterns) {
       const [label, rx, weight, hint] = entry;
       // Optional 5th field: hits that don't score (a device that's normal
-      // rhetoric once only counts when it repeats). Mirrors unslop.py.
+      // rhetoric once only counts when it repeats). Mirrors noslop.py.
       const free = entry.length > 4 ? entry[4] : 0;
       rx.lastIndex = 0;
       const lines = [];
@@ -1166,7 +1166,7 @@
     const emoji = countMatches(text, EMOJI);
 
     // Chat-UI residue. Overlapping/adjacent spans merge - mirrors the
-    // artifact block in unslop.py analyze().
+    // artifact block in noslop.py analyze().
     const artSpans = [];
     for (const [label, needle] of AI_ARTIFACTS) {
       let i = lower.indexOf(needle);
@@ -1195,7 +1195,7 @@
     const artTotal = artifacts.reduce((t, r) => t + r[1], 0);
 
     // Structure-decorating emoji and inline bold spray - mirrors the
-    // per-line loop in unslop.py analyze().
+    // per-line loop in noslop.py analyze().
     let headerEmoji = 0;
     let boldInline = 0;
     const STRUCT_RE = /^(?:[-*+]|\d{1,3}[.)])\s/;
@@ -1255,7 +1255,7 @@
       paragraphUniformity = pyRound(pmean ? psd / pmean : 0, 2);
     }
 
-    // Self-answering question hooks (mid-line only) - mirrors unslop.py.
+    // Self-answering question hooks (mid-line only) - mirrors noslop.py.
     const QUESTION_HOOK_RE =
       /(?<=[.!?]) [ \t]*(?:\p{L}[\p{L}\p{N}_'\-]*[ \t]+){0,4}\p{L}[\p{L}\p{N}_'\-]*\?/gu;
     const questionHooks = countMatches(text, QUESTION_HOOK_RE);
@@ -1311,7 +1311,7 @@
 
     let score = per1k(raw);
     // Rhythm and typography signals ride on top of the normalized score
-    // as small fixed bumps - mirrors the block in unslop.py analyze().
+    // as small fixed bumps - mirrors the block in noslop.py analyze().
     if (uniformity !== null && uniformity < 0.35) score += 8;
     if (paragraphUniformity !== null && paragraphUniformity < 0.25) score += 4;
     score += Math.min(Math.max(0, staccatoRuns - 1) * 4, 8);

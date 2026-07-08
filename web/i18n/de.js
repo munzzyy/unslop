@@ -3,10 +3,10 @@
 // Plural categories used here: one, other (verified via
 // Intl.PluralRules("de").resolvedOptions().pluralCategories).
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs.de = {
-  "meta.title": "unslop — findet, was deinen Text nach KI klingen lässt",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs.de = {
+  "meta.title": "noslop — findet, was deinen Text nach KI klingen lässt",
   "meta.description": "Text einfügen und sehen, was ihn wie einen Roboter klingen lässt, damit du es vor dem Abschicken korrigierst. Läuft komplett im Browser — nichts wird hochgeladen.",
 
   "skipToEditor": "Zum Editor springen",
@@ -15,7 +15,7 @@ window.UnslopI18N.catalogs.de = {
   "uilang.switcherLabel": "Sprache",
 
   "hero.heading": "Sieh, was deinen Text wie einen Roboter klingen lässt.",
-  "hero.tagline": "Füge unten einen Entwurf ein. unslop zeigt genau die Wörter und Angewohnheiten, die ihn verraten, damit du sie vor dem Abschicken korrigieren kannst.",
+  "hero.tagline": "Füge unten einen Entwurf ein. noslop zeigt genau die Wörter und Angewohnheiten, die ihn verraten, damit du sie vor dem Abschicken korrigieren kannst.",
   "privacy.strong": "Alles läuft in deinem Browser.",
   "privacy.rest": "Nichts von dem, was du einfügst, wird hochgeladen, gespeichert oder irgendwohin gesendet.",
 
@@ -37,7 +37,7 @@ window.UnslopI18N.catalogs.de = {
 
   "editor.textareaLabel": "Dein Text — hier einfügen oder tippen, um ihn auf KI-Anzeichen zu prüfen",
   "editor.placeholder": "Text hier einfügen oder eintippen …",
-  "editor.hintMarks": "Markierungen zeigen, was unslop gefunden hat. Mit der Maus oder per Tab zu einer Markierung für Details.",
+  "editor.hintMarks": "Markierungen zeigen, was noslop gefunden hat. Mit der Maus oder per Tab zu einer Markierung für Details.",
   "editor.hintTabbing": "{tab} drücken, um in den Text zu springen, dann {tab} erneut, um zwischen den Markierungen zu wechseln.",
 
   "results.ariaLabel": "Ergebnisse",
@@ -69,7 +69,7 @@ window.UnslopI18N.catalogs.de = {
   "breakdown.rhythmSurface": "Rhythmus & Oberfläche",
   "breakdown.clean.heading": "Liest sich sauber.",
   "breakdown.clean.notEnoughText": "Noch zu wenig Text für ein sicheres Urteil. Füge etwas mehr ein für ein verlässliches Ergebnis.",
-  "breakdown.clean.noneFired": "Keine der Prüfungen von unslop hat bei diesem Text angeschlagen.",
+  "breakdown.clean.noneFired": "Keine der Prüfungen von noslop hat bei diesem Text angeschlagen.",
   "finding.hitCount.one": "{count} Treffer",
   "finding.hitCount.other": "{count} Treffer",
   "finding.linesLabel": "Zeile {lines}",

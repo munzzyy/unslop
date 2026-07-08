@@ -3,10 +3,10 @@
 // Plural categories used here: one, other (verified via
 // Intl.PluralRules("hu").resolvedOptions().pluralCategories).
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs.hu = {
-  "meta.title": "unslop — találd meg, mi árulja el az AI-t a szövegedben",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs.hu = {
+  "meta.title": "noslop — találd meg, mi árulja el az AI-t a szövegedben",
   "meta.description": "Illeszd be a szöveged, és nézd meg, mitől hangzik robotnak, hogy kijavíthasd, mielőtt elküldöd. Teljesen a böngésződben fut — semmi nem kerül fel sehova.",
 
   "skipToEditor": "Ugrás a szerkesztőhöz",
@@ -15,7 +15,7 @@ window.UnslopI18N.catalogs.hu = {
   "uilang.switcherLabel": "Nyelv",
 
   "hero.heading": "Nézd meg, mitől hangzik robotnak a szöveged.",
-  "hero.tagline": "Illessz be lent egy piszkozatot. Az unslop pontosan azokra a szavakra és szokásokra mutat rá, amelyek elárulják, hogy kijavíthasd őket, mielőtt elküldöd.",
+  "hero.tagline": "Illessz be lent egy piszkozatot. Az noslop pontosan azokra a szavakra és szokásokra mutat rá, amelyek elárulják, hogy kijavíthasd őket, mielőtt elküldöd.",
   "privacy.strong": "Minden a böngésződben fut.",
   "privacy.rest": "Semmi, amit beillesztesz, nem kerül feltöltésre, tárolásra vagy elküldésre sehova.",
 
@@ -37,7 +37,7 @@ window.UnslopI18N.catalogs.hu = {
 
   "editor.textareaLabel": "A szöveged — illeszd be vagy írd ide, hogy ellenőrizd, AI-nak hangzik-e",
   "editor.placeholder": "Illeszd be vagy írd ide a szöveged...",
-  "editor.hintMarks": "A jelölések mutatják, mit talált az unslop. Vidd rá az egeret vagy Tabbal lépj rá egy jelölésre a részletekért.",
+  "editor.hintMarks": "A jelölések mutatják, mit talált az noslop. Vidd rá az egeret vagy Tabbal lépj rá egy jelölésre a részletekért.",
   "editor.hintTabbing": "Nyomd meg a {tab} billentyűt, hogy a szövegbe lépj, majd újra a {tab} billentyűt, hogy a jelölések között mozogj.",
 
   "results.ariaLabel": "Eredmények",
@@ -69,7 +69,7 @@ window.UnslopI18N.catalogs.hu = {
   "breakdown.rhythmSurface": "Ritmus és felszíni jegyek",
   "breakdown.clean.heading": "Tisztán olvasható.",
   "breakdown.clean.notEnoughText": "Még kevés a szöveg a megítéléshez. Illessz be még egy kicsit a megbízható eredményért.",
-  "breakdown.clean.noneFired": "Az unslop egyik ellenőrzése sem jelzett ennél a szövegnél.",
+  "breakdown.clean.noneFired": "Az noslop egyik ellenőrzése sem jelzett ennél a szövegnél.",
   "finding.hitCount.one": "{count} találat",
   "finding.hitCount.other": "{count} találat",
   "finding.linesLabel": "{lines}. sor",

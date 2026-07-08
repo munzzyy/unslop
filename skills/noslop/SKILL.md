@@ -1,9 +1,9 @@
 ---
-name: unslop
+name: noslop
 description: Flag AI-sounding prose (buzzwords, filler phrases, the not-just-X-but-Y frame, em-dash spray, flat sentence rhythm) before it ships. Use before finalizing any writing a user will publish or send - PR descriptions, commit messages, issue comments, READMEs, docs, blog posts, emails - to check whether it reads like a person wrote it or like a bot did.
 ---
 
-# unslop
+# noslop
 
 Run this before you finalize any prose a user is about to publish or send. It won't rewrite
 anything for you - that's still your job - but it'll tell you exactly what to fix and where.
@@ -22,13 +22,13 @@ Skip it for code, terminal output, and anything that isn't meant to read as pros
 ## How to run it
 
 ```bash
-python unslop.py --json path/to/draft.md
+python noslop.py --json path/to/draft.md
 ```
 
 No file yet? Pipe the text in instead:
 
 ```bash
-echo "some text here" | python unslop.py --json
+echo "some text here" | python noslop.py --json
 ```
 
 Markdown gets its fenced/inline code blocks skipped automatically by extension; pass
@@ -59,7 +59,7 @@ bullet lists, and suspiciously uniform sentence lengths.
 
 ## The rule
 
-unslop flags patterns, it doesn't rewrite sentences. When something scores high, rewrite it
+noslop flags patterns, it doesn't rewrite sentences. When something scores high, rewrite it
 yourself in plain, direct language - don't just swap out the flagged words and call it done,
 and don't argue with the score. A flag you're tempted to explain away is usually a flag that's
 right.

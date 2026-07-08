@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Measure unslop's detection quality against the labeled corpus in eval/corpus/.
+"""Measure noslop's detection quality against the labeled corpus in eval/corpus/.
 
 Runs the real analyze() over every sample and reports how well the scores
 separate AI text from human text: detection rate at each verdict threshold,
@@ -21,7 +21,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from unslop import analyze, strip_markdown_code  # noqa: E402
+from noslop import analyze, strip_markdown_code  # noqa: E402
 
 CORPUS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "corpus")
 
@@ -109,7 +109,7 @@ def main(argv=None):
     if args.json:
         print(json.dumps({"summary": summary, "ai": ai, "human": human}, indent=2))
     else:
-        print("unslop eval - %d AI / %d human samples" % (len(ai), len(human)))
+        print("noslop eval - %d AI / %d human samples" % (len(ai), len(human)))
         print()
         for label, rows in (("AI", ai), ("HUMAN", human)):
             print("%s samples:" % label)

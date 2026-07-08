@@ -5,10 +5,10 @@
 // French's rare large-round-number category (millions); word/hit counts in
 // this app never realistically reach it, so its string mirrors "other".
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs.fr = {
-  "meta.title": "unslop — repère ce qui trahit l'IA dans ton texte",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs.fr = {
+  "meta.title": "noslop — repère ce qui trahit l'IA dans ton texte",
   "meta.description": "Colle ton texte et découvre ce qui le fait sonner comme un robot, pour le corriger avant de l'envoyer. Tout se passe dans ton navigateur — rien n'est envoyé ailleurs.",
 
   "skipToEditor": "Aller à l'éditeur",
@@ -17,7 +17,7 @@ window.UnslopI18N.catalogs.fr = {
   "uilang.switcherLabel": "Langue",
 
   "hero.heading": "Découvre ce qui fait sonner ton texte comme un robot.",
-  "hero.tagline": "Colle un brouillon ci-dessous. unslop pointe les mots et les habitudes précises qui le trahissent, pour que tu les corriges avant d'envoyer.",
+  "hero.tagline": "Colle un brouillon ci-dessous. noslop pointe les mots et les habitudes précises qui le trahissent, pour que tu les corriges avant d'envoyer.",
   "privacy.strong": "Tout se passe dans ton navigateur.",
   "privacy.rest": "Rien de ce que tu colles n'est envoyé, stocké ou transmis nulle part.",
 
@@ -40,7 +40,7 @@ window.UnslopI18N.catalogs.fr = {
 
   "editor.textareaLabel": "Ton texte — colle-le ou tape-le ici pour vérifier s'il sonne comme une IA",
   "editor.placeholder": "Colle ou tape ton texte ici...",
-  "editor.hintMarks": "Les marques montrent ce que unslop a repéré. Survole une marque ou atteins-la avec Tab pour voir le détail.",
+  "editor.hintMarks": "Les marques montrent ce que noslop a repéré. Survole une marque ou atteins-la avec Tab pour voir le détail.",
   "editor.hintTabbing": "Appuie sur {tab} pour entrer dans le texte, puis {tab} à nouveau pour passer d'une marque à l'autre.",
 
   "results.ariaLabel": "Résultats",
@@ -72,7 +72,7 @@ window.UnslopI18N.catalogs.fr = {
   "breakdown.rhythmSurface": "Rythme et surface",
   "breakdown.clean.heading": "Rien à signaler.",
   "breakdown.clean.notEnoughText": "Il n'y a pas encore assez de texte pour juger. Colle-en un peu plus pour un résultat fiable.",
-  "breakdown.clean.noneFired": "Aucune des vérifications d'unslop ne s'est déclenchée sur ce texte.",
+  "breakdown.clean.noneFired": "Aucune des vérifications d'noslop ne s'est déclenchée sur ce texte.",
   "finding.hitCount.one": "{count} occurrence",
   "finding.hitCount.many": "{count} occurrences",
   "finding.hitCount.other": "{count} occurrences",

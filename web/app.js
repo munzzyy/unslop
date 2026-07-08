@@ -1,16 +1,16 @@
 /*
- * unslop web app — wires the DOM to window.Unslop (detector.js) and
- * window.UnslopI18N (i18n/registry.js + i18n/<code>.js catalogs).
+ * noslop web app — wires the DOM to window.Noslop (detector.js) and
+ * window.NoslopI18N (i18n/registry.js + i18n/<code>.js catalogs).
  * Classic script on purpose: file:// pages can't use ES module imports
  * (CORS blocks them), so no `import`/`export` here. Everything below reads
- * from the global `Unslop` and `UnslopI18N` objects.
+ * from the global `Noslop` and `NoslopI18N` objects.
  *
  * Two separate language controls live in this file - don't conflate them:
  *   - UI LANGUAGE (#uilang-select): what the app's own chrome reads in.
- *     Persisted (localStorage + URL), driven by UnslopI18N.
+ *     Persisted (localStorage + URL), driven by NoslopI18N.
  *   - TEXT LANGUAGE (#text-lang-select): what the pasted writing is SCORED
  *     as. Session-only, never persisted - it's a per-text choice. Feeds
- *     {lang: code} into Unslop.analyze()/.highlight().
+ *     {lang: code} into Noslop.analyze()/.highlight().
  *
  * Zero network activity: no fetch, no XHR, no external anything. Every byte
  * this page needs is already loaded from the local web/ folder.
@@ -18,7 +18,7 @@
 (function () {
   "use strict";
 
-  var THEME_KEY = "unslop:theme";
+  var THEME_KEY = "noslop:theme";
   var DEBOUNCE_MS = 120;
 
   // ---------- DOM refs ----------
@@ -194,7 +194,7 @@
   // ---------- UI language ----------
 
   function populateUilangSelect() {
-    var locales = window.UnslopI18N.LOCALES;
+    var locales = window.NoslopI18N.LOCALES;
     for (var i = 0; i < locales.length; i++) {
       var opt = document.createElement("option");
       opt.value = locales[i].code;
@@ -224,7 +224,7 @@
   }
 
   function renderTabbingHint() {
-    renderTokenTemplate(editorHintTabbing, window.UnslopI18N.t("editor.hintTabbing"), "{tab}", buildTabKbd);
+    renderTokenTemplate(editorHintTabbing, window.NoslopI18N.t("editor.hintTabbing"), "{tab}", buildTabKbd);
   }
 
   // Applies every static (text-independent) translated string to the DOM:
@@ -232,7 +232,7 @@
   // [data-i18n-placeholder] placeholders, and the token-rendered tab hint.
   // Called once at load and again every time the UI language changes.
   function applyStaticI18n() {
-    var t = window.UnslopI18N.t;
+    var t = window.NoslopI18N.t;
     document.title = t("meta.title");
     if (metaDescriptionEl) metaDescriptionEl.setAttribute("content", t("meta.description"));
 
@@ -249,7 +249,7 @@
       placeholderNodes[k].setAttribute("placeholder", t(placeholderNodes[k].getAttribute("data-i18n-placeholder")));
     }
     renderTabbingHint();
-    uilangSelect.value = window.UnslopI18N.getLocale();
+    uilangSelect.value = window.NoslopI18N.getLocale();
   }
 
   function onUiLanguageChange() {
@@ -258,7 +258,7 @@
   }
 
   uilangSelect.addEventListener("change", function () {
-    window.UnslopI18N.setLocale(uilangSelect.value, { onChange: onUiLanguageChange });
+    window.NoslopI18N.setLocale(uilangSelect.value, { onChange: onUiLanguageChange });
   });
 
   // ---------- text language (forces the pasted TEXT's scoring pack) ----------
@@ -269,7 +269,7 @@
   var forcedTextLang = "auto";
 
   function populateTextLangSelect() {
-    var langs = window.Unslop.LANGUAGES;
+    var langs = window.Noslop.LANGUAGES;
     var codes = Object.keys(langs);
     for (var i = 0; i < codes.length; i++) {
       var code = codes[i];
@@ -291,7 +291,7 @@
   // (a forced pack always resolves with source "forced" - see detector.js's
   // resolvePack()), so no extra guard against a forced pack is needed here.
   function updateTextLangStatus(text, result) {
-    var t = window.UnslopI18N.t;
+    var t = window.NoslopI18N.t;
     if (!text.trim()) {
       textLangAutoOption.textContent = t("textlang.autoOption");
       textLangFallbackHint.hidden = true;
@@ -302,7 +302,7 @@
       textLangFallbackHint.textContent = t("textlang.fallbackHint");
       textLangFallbackHint.hidden = false;
     } else {
-      var pack = window.Unslop.LANGUAGES[result.language];
+      var pack = window.Noslop.LANGUAGES[result.language];
       textLangAutoOption.textContent = t("textlang.autoDetected", { name: pack ? pack.name : result.language });
       textLangFallbackHint.hidden = true;
     }
@@ -338,7 +338,7 @@
   // in at the ranges highlight() returned. Ranges are flat and
   // non-overlapping (detector.js guarantees this), so a single linear walk
   // is enough. The category label shown in data-label/aria-label is the UI
-  // language's own translation (keyed off Unslop.CATEGORY_META's category
+  // language's own translation (keyed off Noslop.CATEGORY_META's category
   // ids); the per-mark `hint` text is whatever the matched TEXT-language
   // pack produced it in, and is never re-translated here.
   //
@@ -348,7 +348,7 @@
   // instead of either hiding everything (marks included) or double-announcing
   // the same paragraph the textarea's own value already provides.
   function buildBackdropHtml(text, ranges) {
-    var t = window.UnslopI18N.t;
+    var t = window.NoslopI18N.t;
     if (!ranges.length) return '<span aria-hidden="true">' + escapeHtml(text) + "</span>";
     var out = [];
     var cursor = 0;
@@ -392,7 +392,7 @@
     tooltip.innerHTML =
       '<span class="tt-label"></span>' + (hint ? '<span class="tt-hint"></span>' : "");
     tooltip.querySelector(".tt-label").textContent = label;
-    if (hint) tooltip.querySelector(".tt-hint").textContent = window.UnslopI18N.t("finding.fixPrefix") + hint;
+    if (hint) tooltip.querySelector(".tt-hint").textContent = window.NoslopI18N.t("finding.fixPrefix") + hint;
 
     var rect = mark.getBoundingClientRect();
     var top = rect.top - 10;
@@ -512,7 +512,7 @@
     if (scoreRaf) cancelAnimationFrame(scoreRaf);
     if (reduceMotion) {
       displayedScore = target;
-      scoreNumberEl.textContent = window.UnslopI18N.formatNumber(target, SCORE_FRACTION_OPTS);
+      scoreNumberEl.textContent = window.NoslopI18N.formatNumber(target, SCORE_FRACTION_OPTS);
       return;
     }
     var start = displayedScore;
@@ -526,12 +526,12 @@
       var eased = 1 - Math.pow(1 - t, 3);
       var value = start + (target - start) * eased;
       displayedScore = value;
-      scoreNumberEl.textContent = window.UnslopI18N.formatNumber(value, SCORE_FRACTION_OPTS);
+      scoreNumberEl.textContent = window.NoslopI18N.formatNumber(value, SCORE_FRACTION_OPTS);
       if (t < 1) {
         scoreRaf = requestAnimationFrame(tick);
       } else {
         displayedScore = target;
-        scoreNumberEl.textContent = window.UnslopI18N.formatNumber(target, SCORE_FRACTION_OPTS);
+        scoreNumberEl.textContent = window.NoslopI18N.formatNumber(target, SCORE_FRACTION_OPTS);
       }
     }
     scoreRaf = requestAnimationFrame(tick);
@@ -562,14 +562,14 @@
 
   function localizedVerdict(rawVerdict) {
     var key = VERDICT_KEY_BY_STRING[rawVerdict];
-    return key ? window.UnslopI18N.t(key) : rawVerdict;
+    return key ? window.NoslopI18N.t(key) : rawVerdict;
   }
 
   // ---------- breakdown rendering ----------
 
   function linesLabel(lines) {
     if (!lines || !lines.length) return "";
-    return window.UnslopI18N.t("finding.linesLabel", { lines: lines.join(", ") });
+    return window.NoslopI18N.t("finding.linesLabel", { lines: lines.join(", ") });
   }
 
   function buildFindingItem(term, count, lines, hint) {
@@ -583,7 +583,7 @@
 
     var countEl = document.createElement("span");
     countEl.className = "finding-count";
-    countEl.textContent = window.UnslopI18N.tCount("finding.hitCount", count);
+    countEl.textContent = window.NoslopI18N.tCount("finding.hitCount", count);
     li.appendChild(countEl);
 
     if (lines && lines.length) {
@@ -623,7 +623,7 @@
     rows.forEach(function (row) {
       if (kind === "pattern") {
         var label = row[0], count = row[1], weight = row[2], hint = row[3], lines = row[4];
-        var term = label + (weight === 0 ? window.UnslopI18N.t("finding.styleNotScored") : "");
+        var term = label + (weight === 0 ? window.NoslopI18N.t("finding.styleNotScored") : "");
         list.appendChild(buildFindingItem(term, count, lines, hint));
       } else {
         var key = row[0], cnt = row[1], ln = row[2];
@@ -635,7 +635,7 @@
   }
 
   function renderBreakdown(result) {
-    var t = window.UnslopI18N.t;
+    var t = window.NoslopI18N.t;
     breakdownBody.innerHTML = "";
 
     var hasArtifact = result.ai_artifacts.length > 0;
@@ -704,44 +704,44 @@
 
       if (result.em_dashes > 0) {
         grid.appendChild(tile(
-          window.UnslopI18N.formatNumber(result.em_dashes),
+          window.NoslopI18N.formatNumber(result.em_dashes),
           result.em_dash_excess > 0
-            ? t("surface.emdashExcess", { excess: window.UnslopI18N.formatNumber(result.em_dash_excess) })
+            ? t("surface.emdashExcess", { excess: window.NoslopI18N.formatNumber(result.em_dash_excess) })
             : t("surface.emdashLabel"),
           result.em_dash_excess > 0
         ));
       }
       if (result.emoji > 0) {
         grid.appendChild(tile(
-          window.UnslopI18N.formatNumber(result.emoji),
-          window.UnslopI18N.tCount("surface.emojiCount", result.emoji),
+          window.NoslopI18N.formatNumber(result.emoji),
+          window.NoslopI18N.tCount("surface.emojiCount", result.emoji),
           true
         ));
       }
       if (result.bold_label_bullets > 0) {
         grid.appendChild(tile(
-          window.UnslopI18N.formatNumber(result.bold_label_bullets),
+          window.NoslopI18N.formatNumber(result.bold_label_bullets),
           t("surface.boldBullet") + (result.bold_label_bullets >= 3 ? t("surface.boldBulletTemplateRun") : ""),
           result.bold_label_bullets >= 3
         ));
       }
       if (result.sentence_uniformity_cv !== null) {
         grid.appendChild(tile(
-          window.UnslopI18N.formatNumber(result.sentence_uniformity_cv, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+          window.NoslopI18N.formatNumber(result.sentence_uniformity_cv, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
           t("surface.sentenceVariation") + (result.sentence_uniformity_cv < 0.35 ? t("surface.suspiciouslyEven") : ""),
           result.sentence_uniformity_cv < 0.35
         ));
       }
       if (result.header_emoji > 0) {
         grid.appendChild(tile(
-          window.UnslopI18N.formatNumber(result.header_emoji),
+          window.NoslopI18N.formatNumber(result.header_emoji),
           t("surface.headerEmoji"),
           true
         ));
       }
       if (result.staccato_runs > 0) {
         grid.appendChild(tile(
-          window.UnslopI18N.formatNumber(result.staccato_runs),
+          window.NoslopI18N.formatNumber(result.staccato_runs),
           t("surface.staccato"),
           true
         ));
@@ -751,35 +751,35 @@
       }
       if (result.question_hooks > 0) {
         grid.appendChild(tile(
-          window.UnslopI18N.formatNumber(result.question_hooks),
+          window.NoslopI18N.formatNumber(result.question_hooks),
           t("surface.questionHooks"),
           result.question_hook_excess > 0
         ));
       }
       if (result.connective_excess > 0) {
         grid.appendChild(tile(
-          window.UnslopI18N.formatNumber(result.connective_openers),
+          window.NoslopI18N.formatNumber(result.connective_openers),
           t("surface.connectives"),
           true
         ));
       }
       if (result.bold_inline_excess > 0) {
         grid.appendChild(tile(
-          window.UnslopI18N.formatNumber(result.bold_inline),
+          window.NoslopI18N.formatNumber(result.bold_inline),
           t("surface.boldInline"),
           true
         ));
       }
       if (result.paragraph_uniformity_cv !== null && result.paragraph_uniformity_cv < 0.25) {
         grid.appendChild(tile(
-          window.UnslopI18N.formatNumber(result.paragraph_uniformity_cv, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+          window.NoslopI18N.formatNumber(result.paragraph_uniformity_cv, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
           t("surface.paragraphVariation"),
           true
         ));
       }
       if (result.opener_top_share !== null && result.opener_top_share >= 0.4) {
         grid.appendChild(tile(
-          window.UnslopI18N.formatPercent(result.opener_top_share),
+          window.NoslopI18N.formatPercent(result.opener_top_share),
           t("surface.openerShare"),
           true
         ));
@@ -792,11 +792,11 @@
   // ---------- main run loop ----------
 
   function runAnalysis() {
-    var t = window.UnslopI18N.t;
+    var t = window.NoslopI18N.t;
     var text = textarea.value;
     var opts = { lang: forcedTextLang };
-    var result = window.Unslop.analyze(text, opts);
-    var ranges = window.Unslop.highlight(text, opts);
+    var result = window.Noslop.analyze(text, opts);
+    var ranges = window.Noslop.highlight(text, opts);
 
     // Any rebuild replaces the <mark> elements themselves, so a tooltip
     // anchored to the old ones (shown via a tap, which - unlike a focused
@@ -811,7 +811,7 @@
 
     updateTextLangStatus(text, result);
 
-    wordCountEl.textContent = window.UnslopI18N.tCount("toolbar.wordCount", result.words);
+    wordCountEl.textContent = window.NoslopI18N.tCount("toolbar.wordCount", result.words);
 
     var band = verdictBand(result.score_per_1k);
     var verdictDisplay = localizedVerdict(result.verdict);
@@ -820,16 +820,16 @@
     verdictIconEl.innerHTML = VERDICT_ICONS[band];
     animateScoreTo(result.score_per_1k);
 
-    metaWords.textContent = window.UnslopI18N.formatNumber(result.words);
-    metaEmdash.textContent = window.UnslopI18N.formatNumber(result.em_dashes);
-    metaEmoji.textContent = window.UnslopI18N.formatNumber(result.emoji);
+    metaWords.textContent = window.NoslopI18N.formatNumber(result.words);
+    metaEmdash.textContent = window.NoslopI18N.formatNumber(result.em_dashes);
+    metaEmoji.textContent = window.NoslopI18N.formatNumber(result.emoji);
     metaRhythm.textContent = result.sentence_uniformity_cv === null
       ? t("score.rhythm.notEnough")
-      : window.UnslopI18N.formatNumber(result.sentence_uniformity_cv, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) +
+      : window.NoslopI18N.formatNumber(result.sentence_uniformity_cv, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) +
         (result.sentence_uniformity_cv < 0.35 ? t("score.rhythm.evenSuffix") : "");
 
     scoreLiveEl.textContent = t("score.liveAnnouncement", {
-      score: window.UnslopI18N.formatNumber(result.score_per_1k, SCORE_FRACTION_OPTS),
+      score: window.NoslopI18N.formatNumber(result.score_per_1k, SCORE_FRACTION_OPTS),
       verdict: verdictDisplay,
     });
 
@@ -859,10 +859,10 @@
 
   var copyResetTimer = null;
   function flashCopyButton() {
-    btnCopyLabel.textContent = window.UnslopI18N.t("toolbar.copied");
+    btnCopyLabel.textContent = window.NoslopI18N.t("toolbar.copied");
     if (copyResetTimer) clearTimeout(copyResetTimer);
     copyResetTimer = setTimeout(function () {
-      btnCopyLabel.textContent = window.UnslopI18N.t("toolbar.copy");
+      btnCopyLabel.textContent = window.NoslopI18N.t("toolbar.copy");
     }, 1400);
   }
 
@@ -900,7 +900,7 @@
   // forces a theme (any id from THEMES, e.g. ?theme=solarized-dark), so a
   // link can drop someone straight onto the tool already showing what it
   // does. ?uilang=<code> is handled separately, inside
-  // UnslopI18N.detectLocale() (see i18n/registry.js) - it's the top-priority
+  // NoslopI18N.detectLocale() (see i18n/registry.js) - it's the top-priority
   // source there, so it's already applied by the time this runs. Falls back
   // silently if the URL can't be parsed.
   (function applyUrlState() {
@@ -923,7 +923,7 @@
   // ---------- initial paint ----------
 
   populateUilangSelect();
-  window.UnslopI18N.initLocale();
+  window.NoslopI18N.initLocale();
   applyStaticI18n();
   initTheme();
   populateTextLangSelect();

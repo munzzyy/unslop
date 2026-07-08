@@ -1,12 +1,12 @@
 name: Bug report
-description: Something doesn't work right, including false positives/negatives in what unslop flags.
+description: Something doesn't work right, including false positives/negatives in what noslop flags.
 labels: ["bug"]
 body:
   - type: textarea
     id: input
     attributes:
       label: Input
-      description: The exact text (or a minimal snippet that still reproduces it) you ran unslop on.
+      description: The exact text (or a minimal snippet that still reproduces it) you ran noslop on.
       render: text
     validations:
       required: true
@@ -15,7 +15,7 @@ body:
     attributes:
       label: Command
       description: The exact command you ran.
-      placeholder: unslop draft.md --json
+      placeholder: noslop draft.md --json
     validations:
       required: true
   - type: textarea
@@ -36,8 +36,8 @@ body:
   - type: input
     id: version
     attributes:
-      label: unslop version
-      description: Output of `unslop --version`.
+      label: noslop version
+      description: Output of `noslop --version`.
     validations:
       required: true
   - type: input

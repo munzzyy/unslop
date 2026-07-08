@@ -3,10 +3,10 @@
 // categories). Plural categories used here: one, many, other (verified via
 // Intl.PluralRules("pt-BR").resolvedOptions().pluralCategories).
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs["pt-BR"] = {
-  "meta.title": "unslop — encontre o que denuncia a IA no seu texto",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs["pt-BR"] = {
+  "meta.title": "noslop — encontre o que denuncia a IA no seu texto",
   "meta.description": "Cole seu texto e veja o que faz ele soar como um robô, para corrigir antes de enviar. Tudo roda no seu navegador — nada é enviado para lugar nenhum.",
 
   "skipToEditor": "Ir para o editor",
@@ -15,7 +15,7 @@ window.UnslopI18N.catalogs["pt-BR"] = {
   "uilang.switcherLabel": "Idioma",
 
   "hero.heading": "Veja o que faz seu texto soar como um robô.",
-  "hero.tagline": "Cole um rascunho abaixo. O unslop aponta as palavras e os hábitos exatos que denunciam isso, para você corrigir antes de enviar.",
+  "hero.tagline": "Cole um rascunho abaixo. O noslop aponta as palavras e os hábitos exatos que denunciam isso, para você corrigir antes de enviar.",
   "privacy.strong": "Tudo roda no seu navegador.",
   "privacy.rest": "Nada do que você cola é enviado, salvo ou compartilhado com ninguém.",
 
@@ -38,7 +38,7 @@ window.UnslopI18N.catalogs["pt-BR"] = {
 
   "editor.textareaLabel": "Seu texto — cole ou digite aqui para checar se soa como IA",
   "editor.placeholder": "Cole ou digite seu texto aqui...",
-  "editor.hintMarks": "As marcações mostram o que o unslop encontrou. Passe o mouse ou use Tab até uma marcação para ver o detalhe.",
+  "editor.hintMarks": "As marcações mostram o que o noslop encontrou. Passe o mouse ou use Tab até uma marcação para ver o detalhe.",
   "editor.hintTabbing": "Pressione {tab} para entrar no texto e, depois, {tab} de novo para passar pelas marcações.",
 
   "results.ariaLabel": "Resultados",
@@ -70,7 +70,7 @@ window.UnslopI18N.catalogs["pt-BR"] = {
   "breakdown.rhythmSurface": "Ritmo e superfície",
   "breakdown.clean.heading": "Está limpo.",
   "breakdown.clean.notEnoughText": "Ainda tem pouco texto para avaliar. Cole um pouco mais para um resultado confiável.",
-  "breakdown.clean.noneFired": "Nenhuma checagem do unslop foi disparada neste texto.",
+  "breakdown.clean.noneFired": "Nenhuma checagem do noslop foi disparada neste texto.",
   "finding.hitCount.one": "{count} vez",
   "finding.hitCount.many": "{count} vezes",
   "finding.hitCount.other": "{count} vezes",

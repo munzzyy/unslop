@@ -1,6 +1,6 @@
 /*
  * parity.js - prove web/detector.js scores a piece of text identically to the
- * unslop.py CLI. Runs the JS analyze() and `py/python unslop.py --json` on the
+ * noslop.py CLI. Runs the JS analyze() and `py/python noslop.py --json` on the
  * same fixtures and diffs the results. Any drift between the browser scorer and
  * the CLI shows up here (and in CI) instead of as a silent lie in the web app.
  *
@@ -11,9 +11,9 @@
 "use strict";
 const { execFileSync } = require("child_process");
 const path = require("path");
-const Unslop = require("./detector.js");
+const Noslop = require("./detector.js");
 
-const CLI = path.join(__dirname, "..", "unslop.py");
+const CLI = path.join(__dirname, "..", "noslop.py");
 
 // Pick whatever Python launcher exists: `python` on most machines, `py` on a
 // default Windows install where `python` is the Store stub.
@@ -194,7 +194,7 @@ const FIXTURES = {
 
   "nl clean": "De buurman heeft eindelijk zijn schutting gerepareerd, die sinds die storm in februari scheef hing. Hij heeft er drie zaterdagen over gedaan en twee keer nieuwe planken moeten halen omdat hij verkeerd gemeten had. Gisteren stond het ding recht en vanmorgen zat er alweer een kat bovenop.",
 
-  // Greek has no pack (see the drop rationale in unslop.py's language notes)
+  // Greek has no pack (see the drop rationale in noslop.py's language notes)
   // so it's a clean, honest stand-in for "a real language this tool has
   // never heard of" - disjoint script from every pack here, ordinary
   // space-separated words so the word count still comes out sane.
@@ -257,7 +257,7 @@ for (const [name, text, lang] of cases) {
   let py, js, err = null;
   try {
     py = cliAnalyze(text, lang);
-    js = Unslop.analyze(text, lang ? { lang: lang } : undefined);
+    js = Noslop.analyze(text, lang ? { lang: lang } : undefined);
   } catch (e) {
     err = e.message;
   }

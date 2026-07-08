@@ -1,4 +1,4 @@
-name: unslop
+name: noslop
 description: Flag the AI tells in your writing before you send it.
 author: Cole Munz
 branding:
@@ -10,7 +10,7 @@ inputs:
     description: Files or glob patterns to check, space-separated (e.g. "docs/*.md README.md").
     required: true
   threshold:
-    description: Score at/above which unslop exits non-zero.
+    description: Score at/above which noslop exits non-zero.
     required: false
     default: "10"
   markdown:
@@ -18,7 +18,7 @@ inputs:
     required: false
     default: "false"
   python-version:
-    description: Python version to run unslop with.
+    description: Python version to run noslop with.
     required: false
     default: "3.x"
 
@@ -30,16 +30,16 @@ runs:
         python-version: ${{ inputs.python-version }}
     - shell: bash
       env:
-        UNSLOP_PATHS: ${{ inputs.paths }}
-        UNSLOP_THRESHOLD: ${{ inputs.threshold }}
-        UNSLOP_MARKDOWN: ${{ inputs.markdown }}
-        UNSLOP_SCRIPT: ${{ github.action_path }}/unslop.py
+        NOSLOP_PATHS: ${{ inputs.paths }}
+        NOSLOP_THRESHOLD: ${{ inputs.threshold }}
+        NOSLOP_MARKDOWN: ${{ inputs.markdown }}
+        NOSLOP_SCRIPT: ${{ github.action_path }}/noslop.py
       run: |
         set -e
         args=()
-        if [ "$UNSLOP_MARKDOWN" = "true" ]; then
+        if [ "$NOSLOP_MARKDOWN" = "true" ]; then
           args+=(--markdown)
         fi
-        args+=(--threshold "$UNSLOP_THRESHOLD")
-        # $UNSLOP_PATHS stays unquoted: the input is a space-separated list.
-        python "$UNSLOP_SCRIPT" "${args[@]}" $UNSLOP_PATHS
+        args+=(--threshold "$NOSLOP_THRESHOLD")
+        # $NOSLOP_PATHS stays unquoted: the input is a space-separated list.
+        python "$NOSLOP_SCRIPT" "${args[@]}" $NOSLOP_PATHS

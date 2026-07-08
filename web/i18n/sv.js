@@ -3,10 +3,10 @@
 // Plural categories used here: one, other (verified via
 // Intl.PluralRules("sv").resolvedOptions().pluralCategories).
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs.sv = {
-  "meta.title": "unslop — se vad som avslöjar AI i din text",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs.sv = {
+  "meta.title": "noslop — se vad som avslöjar AI i din text",
   "meta.description": "Klistra in din text och se vad som får den att låta som en robot, så du kan fixa det innan du skickar. Körs helt i din webbläsare — inget laddas upp.",
 
   "skipToEditor": "Hoppa till redigeraren",
@@ -15,7 +15,7 @@ window.UnslopI18N.catalogs.sv = {
   "uilang.switcherLabel": "Språk",
 
   "hero.heading": "Se vad som får din text att låta som en robot.",
-  "hero.tagline": "Klistra in ett utkast nedan. unslop pekar ut exakt de ord och vanor som avslöjar det, så du kan fixa dem innan du skickar.",
+  "hero.tagline": "Klistra in ett utkast nedan. noslop pekar ut exakt de ord och vanor som avslöjar det, så du kan fixa dem innan du skickar.",
   "privacy.strong": "Allt körs i din webbläsare.",
   "privacy.rest": "Inget av det du klistrar in laddas upp, sparas eller skickas någonstans.",
 
@@ -37,7 +37,7 @@ window.UnslopI18N.catalogs.sv = {
 
   "editor.textareaLabel": "Din text — klistra in eller skriv här för att kontrollera om den låter som AI",
   "editor.placeholder": "Klistra in eller skriv din text här...",
-  "editor.hintMarks": "Markeringarna visar vad unslop har hittat. För musen över eller Tab:a till en markering för detaljer.",
+  "editor.hintMarks": "Markeringarna visar vad noslop har hittat. För musen över eller Tab:a till en markering för detaljer.",
   "editor.hintTabbing": "Tryck på {tab} för att komma in i texten, sedan {tab} igen för att flytta mellan markeringarna.",
 
   "results.ariaLabel": "Resultat",
@@ -69,7 +69,7 @@ window.UnslopI18N.catalogs.sv = {
   "breakdown.rhythmSurface": "Rytm & ytdrag",
   "breakdown.clean.heading": "Läses rent.",
   "breakdown.clean.notEnoughText": "Fortfarande för lite text för att bedöma. Klistra in lite mer för ett tillförlitligt resultat.",
-  "breakdown.clean.noneFired": "Ingen av unslops kontroller slog till på den här texten.",
+  "breakdown.clean.noneFired": "Ingen av noslops kontroller slog till på den här texten.",
   "finding.hitCount.one": "{count} gång",
   "finding.hitCount.other": "{count} gånger",
   "finding.linesLabel": "rad {lines}",

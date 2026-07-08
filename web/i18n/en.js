@@ -7,7 +7,7 @@
 //
 // 1. Do NOT translate - these stay byte-identical everywhere, or aren't in
 //    this catalog at all:
-//      - The brand name "unslop" (never wrapped in a translatable string).
+//      - The brand name "noslop" (never wrapped in a translatable string).
 //      - Theme names in index.html's <option> list (Paper, Ink, Terminal,
 //        Sepia, Newsprint, Midnight, Solarized Light, Solarized Dark, High
 //        Contrast) - treated like liftmath's theme names (iron, chalk, rust,
@@ -15,7 +15,7 @@
 //        English-only in every locale. Only "theme.auto" and
 //        "theme.switcherLabel" are real translated strings.
 //      - Each text-language pack's own name (Español, Français, Deutsch...) -
-//        sourced live from Unslop.LANGUAGES[code].name at runtime, which is
+//        sourced live from Noslop.LANGUAGES[code].name at runtime, which is
 //        already that language's own autonym. Never re-translate a language's
 //        name into a third language.
 //      - "GitHub" (proper noun, footer link).
@@ -39,7 +39,7 @@
 //    registry.js's tCount() always falls back to `.other` if a specific
 //    category is missing, so it's safe to under-provide rather than guess.
 //
-// 4. Numbers are formatted by the runtime via UnslopI18N.formatNumber(),
+// 4. Numbers are formatted by the runtime via NoslopI18N.formatNumber(),
 //    not hardcoded here - a placeholder like {excess} arrives already
 //    locale-formatted (grouping/decimal separator), just place it correctly.
 //
@@ -50,11 +50,11 @@
 //    Y" framing in every language, not just English.
 // ---------------------------------------------------------------------------
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs.en = {
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs.en = {
   // ---- Meta / SEO ---------------------------------------------------------
-  "meta.title": "unslop — flag the AI tells in your writing",
+  "meta.title": "noslop — flag the AI tells in your writing",
   "meta.description":
     "Paste your writing and see what makes it read like a robot, so you can fix it before you send it. Runs entirely in your browser — nothing is uploaded.",
 
@@ -66,7 +66,7 @@ window.UnslopI18N.catalogs.en = {
 
   // ---- Hero -----------------------------------------------------------------
   "hero.heading": "See what makes your writing sound like a robot.",
-  "hero.tagline": "Paste a draft below. unslop points at the exact words and habits that give it away, so you can fix them before you hit send.",
+  "hero.tagline": "Paste a draft below. noslop points at the exact words and habits that give it away, so you can fix them before you hit send.",
   "privacy.strong": "Everything runs in your browser.",
   "privacy.rest": "Nothing you paste is uploaded, stored, or sent anywhere.",
 
@@ -91,7 +91,7 @@ window.UnslopI18N.catalogs.en = {
   // ---- Editor -----------------------------------------------------------------
   "editor.textareaLabel": "Your writing — paste or type here to check it for AI tells",
   "editor.placeholder": "Paste or type your writing here...",
-  "editor.hintMarks": "Marks show what unslop flagged. Hover or tab to a mark for details.",
+  "editor.hintMarks": "Marks show what noslop flagged. Hover or tab to a mark for details.",
   "editor.hintTabbing": "Press {tab} to enter the text, then {tab} again to move between marks.",
 
   // ---- Score card -------------------------------------------------------------
@@ -112,7 +112,7 @@ window.UnslopI18N.catalogs.en = {
   "verdict.bad": "reads as AI - needs a real rewrite",
 
   // ---- Breakdown ----------------------------------------------------------
-  // "category.*" keys mirror Unslop.CATEGORY_META's own category ids and
+  // "category.*" keys mirror Noslop.CATEGORY_META's own category ids and
   // cover every mark the highlighter can produce (used for tooltip/aria
   // labels on individual marks). "breakdown.section.*" are the section
   // headings above a LIST of findings for that category - a separate,
@@ -135,7 +135,7 @@ window.UnslopI18N.catalogs.en = {
   "breakdown.rhythmSurface": "Rhythm & surface",
   "breakdown.clean.heading": "Reads clean.",
   "breakdown.clean.notEnoughText": "Not much text to judge yet. Paste a bit more for a confident read.",
-  "breakdown.clean.noneFired": "None of unslop's checks fired on this text.",
+  "breakdown.clean.noneFired": "None of noslop's checks fired on this text.",
   "finding.hitCount.one": "{count} hit",
   "finding.hitCount.other": "{count} hits",
   "finding.linesLabel": "line {lines}",

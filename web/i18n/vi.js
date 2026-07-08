@@ -5,10 +5,10 @@
 // Intl.PluralRules("vi").resolvedOptions().pluralCategories -> only
 // "other" is ever reported; "one" is kept identical for robustness).
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs.vi = {
-  "meta.title": "unslop — tìm ra điều tố cáo AI trong bài viết của bạn",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs.vi = {
+  "meta.title": "noslop — tìm ra điều tố cáo AI trong bài viết của bạn",
   "meta.description": "Dán bài viết của bạn vào và xem điều gì khiến nó nghe như robot, để sửa trước khi gửi đi. Chạy hoàn toàn trong trình duyệt của bạn — không có gì được tải lên đâu cả.",
 
   "skipToEditor": "Chuyển đến khung soạn thảo",
@@ -17,7 +17,7 @@ window.UnslopI18N.catalogs.vi = {
   "uilang.switcherLabel": "Ngôn ngữ",
 
   "hero.heading": "Xem điều gì khiến bài viết của bạn nghe như robot.",
-  "hero.tagline": "Dán một bản nháp bên dưới. unslop chỉ ra chính xác những từ ngữ và thói quen tố cáo điều đó, để bạn sửa trước khi gửi đi.",
+  "hero.tagline": "Dán một bản nháp bên dưới. noslop chỉ ra chính xác những từ ngữ và thói quen tố cáo điều đó, để bạn sửa trước khi gửi đi.",
   "privacy.strong": "Mọi thứ đều chạy trong trình duyệt của bạn.",
   "privacy.rest": "Không có gì bạn dán vào bị tải lên, lưu trữ hay gửi đi bất cứ đâu.",
 
@@ -39,7 +39,7 @@ window.UnslopI18N.catalogs.vi = {
 
   "editor.textareaLabel": "Bài viết của bạn — dán hoặc gõ vào đây để kiểm tra xem có nghe như AI không",
   "editor.placeholder": "Dán hoặc gõ bài viết của bạn vào đây...",
-  "editor.hintMarks": "Các dấu đánh dấu cho thấy điều unslop đã phát hiện. Di chuột hoặc dùng Tab đến một dấu để xem chi tiết.",
+  "editor.hintMarks": "Các dấu đánh dấu cho thấy điều noslop đã phát hiện. Di chuột hoặc dùng Tab đến một dấu để xem chi tiết.",
   "editor.hintTabbing": "Nhấn {tab} để vào văn bản, rồi nhấn {tab} lần nữa để di chuyển giữa các dấu đánh dấu.",
 
   "results.ariaLabel": "Kết quả",
@@ -71,7 +71,7 @@ window.UnslopI18N.catalogs.vi = {
   "breakdown.rhythmSurface": "Nhịp điệu & đặc điểm bề mặt",
   "breakdown.clean.heading": "Đọc lên sạch sẽ.",
   "breakdown.clean.notEnoughText": "Vẫn còn quá ít văn bản để đánh giá. Dán thêm một chút để có kết quả đáng tin cậy.",
-  "breakdown.clean.noneFired": "Không có kiểm tra nào của unslop được kích hoạt trên văn bản này.",
+  "breakdown.clean.noneFired": "Không có kiểm tra nào của noslop được kích hoạt trên văn bản này.",
   "finding.hitCount.one": "{count} lần",
   "finding.hitCount.other": "{count} lần",
   "finding.linesLabel": "dòng {lines}",

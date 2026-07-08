@@ -1,10 +1,10 @@
 /*
- * unslop UI-language registry + runtime.
+ * noslop UI-language registry + runtime.
  *
  * Classic script on purpose (no `export`/`import`) - file:// pages can't load
  * ES modules (CORS blocks them), the same constraint app.js documents at its
  * own top. Every web/i18n/<code>.js catalog is ALSO a classic script; each
- * one attaches its dictionary to window.UnslopI18N.catalogs[code]. Load every
+ * one attaches its dictionary to window.NoslopI18N.catalogs[code]. Load every
  * catalog, then this file, then app.js.
  *
  * This is the UI-CHROME language (what the app's own labels/buttons read in),
@@ -13,25 +13,25 @@
  *
  * API surface (mirrors liftmath's web/js/i18n/index.js, adapted for a global
  * namespace instead of ES module exports):
- *   UnslopI18N.LOCALES            - ordered [{code, autonym}] for the picker
- *   UnslopI18N.DEFAULT_LOCALE      - "en"
- *   UnslopI18N.isSupported(code)
- *   UnslopI18N.isRtl(code)
- *   UnslopI18N.detectLocale()      - URL ?uilang= > localStorage > navigator
- *   UnslopI18N.getLocale()
- *   UnslopI18N.setLocale(code, {onChange, persist=true})
- *   UnslopI18N.initLocale({onChange}) - first-load detect, does not persist
- *   UnslopI18N.t(key, params)          - {placeholder} interpolation, falls
+ *   NoslopI18N.LOCALES            - ordered [{code, autonym}] for the picker
+ *   NoslopI18N.DEFAULT_LOCALE      - "en"
+ *   NoslopI18N.isSupported(code)
+ *   NoslopI18N.isRtl(code)
+ *   NoslopI18N.detectLocale()      - URL ?uilang= > localStorage > navigator
+ *   NoslopI18N.getLocale()
+ *   NoslopI18N.setLocale(code, {onChange, persist=true})
+ *   NoslopI18N.initLocale({onChange}) - first-load detect, does not persist
+ *   NoslopI18N.t(key, params)          - {placeholder} interpolation, falls
  *                                        back to English then the raw key
- *   UnslopI18N.tCount(key, count, params) - key + "." + Intl.PluralRules
+ *   NoslopI18N.tCount(key, count, params) - key + "." + Intl.PluralRules
  *                                        category, falls back to ".other"
- *   UnslopI18N.formatNumber(n, options)   - Intl.NumberFormat, Western
+ *   NoslopI18N.formatNumber(n, options)   - Intl.NumberFormat, Western
  *                                        digits always (see note below)
  */
 (function (root) {
   "use strict";
 
-  var ns = root.UnslopI18N || (root.UnslopI18N = {});
+  var ns = root.NoslopI18N || (root.NoslopI18N = {});
   ns.catalogs = ns.catalogs || {};
 
   // Ordered Western/Northern Europe, Central/Eastern Europe, Southeast Asia,
@@ -73,7 +73,7 @@
   ];
   var RTL_LOCALES = { ar: true, he: true, fa: true };
   var DEFAULT_LOCALE = "en";
-  var STORAGE_KEY = "unslop:uilang";
+  var STORAGE_KEY = "noslop:uilang";
   var URL_PARAM = "uilang";
 
   ns.LOCALES = LOCALES;

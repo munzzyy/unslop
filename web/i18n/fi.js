@@ -3,10 +3,10 @@
 // Plural categories used here: one, other (verified via
 // Intl.PluralRules("fi").resolvedOptions().pluralCategories).
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs.fi = {
-  "meta.title": "unslop — löydä mikä paljastaa tekoälyn tekstistäsi",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs.fi = {
+  "meta.title": "noslop — löydä mikä paljastaa tekoälyn tekstistäsi",
   "meta.description": "Liitä tekstisi ja katso, mikä saa sen kuulostamaan robotilta, jotta voit korjata sen ennen lähettämistä. Toimii kokonaan selaimessasi — mitään ei lähetetä minnekään.",
 
   "skipToEditor": "Siirry muokkaimeen",
@@ -15,7 +15,7 @@ window.UnslopI18N.catalogs.fi = {
   "uilang.switcherLabel": "Kieli",
 
   "hero.heading": "Katso, mikä saa tekstisi kuulostamaan robotilta.",
-  "hero.tagline": "Liitä luonnos alle. unslop osoittaa juuri ne sanat ja tavat, jotka paljastavat sen, jotta voit korjata ne ennen lähettämistä.",
+  "hero.tagline": "Liitä luonnos alle. noslop osoittaa juuri ne sanat ja tavat, jotka paljastavat sen, jotta voit korjata ne ennen lähettämistä.",
   "privacy.strong": "Kaikki tapahtuu selaimessasi.",
   "privacy.rest": "Mitään liittämääsi ei lähetetä, tallenneta tai välitetä minnekään.",
 
@@ -37,7 +37,7 @@ window.UnslopI18N.catalogs.fi = {
 
   "editor.textareaLabel": "Tekstisi — liitä tai kirjoita tähän tarkistaaksesi, kuulostaako se tekoälyltä",
   "editor.placeholder": "Liitä tai kirjoita tekstisi tähän...",
-  "editor.hintMarks": "Merkinnät näyttävät, mitä unslop löysi. Vie hiiri merkinnän päälle tai käytä Sarkainta lisätietoja varten.",
+  "editor.hintMarks": "Merkinnät näyttävät, mitä noslop löysi. Vie hiiri merkinnän päälle tai käytä Sarkainta lisätietoja varten.",
   "editor.hintTabbing": "Paina {tab} siirtyäksesi tekstiin ja sitten {tab} uudelleen siirtyäksesi merkintöjen välillä.",
 
   "results.ariaLabel": "Tulokset",
@@ -69,7 +69,7 @@ window.UnslopI18N.catalogs.fi = {
   "breakdown.rhythmSurface": "Rytmi ja pintapiirteet",
   "breakdown.clean.heading": "Kuulostaa puhtaalta.",
   "breakdown.clean.notEnoughText": "Tekstiä on vielä liian vähän arvioitavaksi. Liitä lisää luotettavaa tulosta varten.",
-  "breakdown.clean.noneFired": "Mikään unslopin tarkistuksista ei osunut tähän tekstiin.",
+  "breakdown.clean.noneFired": "Mikään noslopin tarkistuksista ei osunut tähän tekstiin.",
   "finding.hitCount.one": "{count} kerta",
   "finding.hitCount.other": "{count} kertaa",
   "finding.linesLabel": "rivi {lines}",

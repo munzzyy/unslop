@@ -5,10 +5,10 @@
 // Intl.PluralRules("zh-Hant").resolvedOptions().pluralCategories -> only
 // "other" is ever reported; "one" is kept identical for robustness).
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs["zh-Hant"] = {
-  "meta.title": "unslop — 找出文字裡洩露 AI 痕跡的地方",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs["zh-Hant"] = {
+  "meta.title": "noslop — 找出文字裡洩露 AI 痕跡的地方",
   "meta.description": "貼上你的文字,看看是什麼讓它聽起來像機器人寫的,傳送前先改一改。全部在瀏覽器裡執行——什麼都不會上傳。",
 
   "skipToEditor": "跳到編輯區",
@@ -17,7 +17,7 @@ window.UnslopI18N.catalogs["zh-Hant"] = {
   "uilang.switcherLabel": "語言",
 
   "hero.heading": "看看是什麼讓你的文字聽起來像機器人。",
-  "hero.tagline": "把草稿貼到下面。unslop 會準確指出洩露痕跡的那些字詞和習慣,方便你在傳送前改掉。",
+  "hero.tagline": "把草稿貼到下面。noslop 會準確指出洩露痕跡的那些字詞和習慣,方便你在傳送前改掉。",
   "privacy.strong": "一切都在你的瀏覽器裡執行。",
   "privacy.rest": "你貼上的任何內容都不會被上傳、儲存或傳送到任何地方。",
 
@@ -39,7 +39,7 @@ window.UnslopI18N.catalogs["zh-Hant"] = {
 
   "editor.textareaLabel": "你的文字 — 貼上或輸入到這裡,檢查是否聽起來像 AI",
   "editor.placeholder": "在這裡貼上或輸入你的文字...",
-  "editor.hintMarks": "標記顯示 unslop 發現的問題。將滑鼠移到標記上或用 Tab 鍵切換過去查看詳情。",
+  "editor.hintMarks": "標記顯示 noslop 發現的問題。將滑鼠移到標記上或用 Tab 鍵切換過去查看詳情。",
   "editor.hintTabbing": "按 {tab} 進入文字區,再按一次 {tab} 可以在各個標記之間移動。",
 
   "results.ariaLabel": "結果",
@@ -71,7 +71,7 @@ window.UnslopI18N.catalogs["zh-Hant"] = {
   "breakdown.rhythmSurface": "節奏與表面特徵",
   "breakdown.clean.heading": "讀起來很乾淨。",
   "breakdown.clean.notEnoughText": "文字還太少,不足以判斷。多貼一些以取得可靠的結果。",
-  "breakdown.clean.noneFired": "這段文字沒有觸發 unslop 的任何檢查項目。",
+  "breakdown.clean.noneFired": "這段文字沒有觸發 noslop 的任何檢查項目。",
   "finding.hitCount.one": "{count} 次",
   "finding.hitCount.other": "{count} 次",
   "finding.linesLabel": "第 {lines} 行",

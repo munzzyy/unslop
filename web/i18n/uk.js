@@ -5,10 +5,10 @@
 // (not 11), few=ends in 2-4 (not 12-14), many=ends in 0/5-9/11-14,
 // other=fractional).
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs.uk = {
-  "meta.title": "unslop — знайди, що видає ШІ в твоєму тексті",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs.uk = {
+  "meta.title": "noslop — знайди, що видає ШІ в твоєму тексті",
   "meta.description": "Встав свій текст і подивись, що змушує його звучати як робот, щоб виправити це до відправки. Все працює прямо в браузері — нічого нікуди не завантажується.",
 
   "skipToEditor": "Перейти до редактора",
@@ -17,7 +17,7 @@ window.UnslopI18N.catalogs.uk = {
   "uilang.switcherLabel": "Мова",
 
   "hero.heading": "Подивись, що змушує твій текст звучати як робот.",
-  "hero.tagline": "Встав чернетку нижче. unslop вказує точно на ті слова й звички, які його видають, щоб ти міг виправити їх до відправки.",
+  "hero.tagline": "Встав чернетку нижче. noslop вказує точно на ті слова й звички, які його видають, щоб ти міг виправити їх до відправки.",
   "privacy.strong": "Все працює прямо в твоєму браузері.",
   "privacy.rest": "Нічого з того, що ти вставляєш, не завантажується, не зберігається і нікуди не надсилається.",
 
@@ -41,7 +41,7 @@ window.UnslopI18N.catalogs.uk = {
 
   "editor.textareaLabel": "Твій текст — встав або напиши тут, щоб перевірити, чи звучить він як ШІ",
   "editor.placeholder": "Встав або напиши свій текст тут...",
-  "editor.hintMarks": "Позначки показують, що знайшов unslop. Наведи курсор або перейди Tab до позначки, щоб побачити деталі.",
+  "editor.hintMarks": "Позначки показують, що знайшов noslop. Наведи курсор або перейди Tab до позначки, щоб побачити деталі.",
   "editor.hintTabbing": "Натисни {tab}, щоб перейти в текст, а потім знову {tab}, щоб рухатися між позначками.",
 
   "results.ariaLabel": "Результати",
@@ -73,7 +73,7 @@ window.UnslopI18N.catalogs.uk = {
   "breakdown.rhythmSurface": "Ритм і поверхневі ознаки",
   "breakdown.clean.heading": "Читається чисто.",
   "breakdown.clean.notEnoughText": "Поки що замало тексту для оцінки. Встав ще трохи для надійного результату.",
-  "breakdown.clean.noneFired": "Жодна з перевірок unslop не спрацювала на цьому тексті.",
+  "breakdown.clean.noneFired": "Жодна з перевірок noslop не спрацювала на цьому тексті.",
   "finding.hitCount.one": "{count} раз",
   "finding.hitCount.few": "{count} рази",
   "finding.hitCount.many": "{count} разів",

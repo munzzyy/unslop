@@ -3,10 +3,10 @@
 // Plural categories used here: one, other (verified via
 // Intl.PluralRules("tr").resolvedOptions().pluralCategories).
 
-window.UnslopI18N = window.UnslopI18N || {};
-window.UnslopI18N.catalogs = window.UnslopI18N.catalogs || {};
-window.UnslopI18N.catalogs.tr = {
-  "meta.title": "unslop — metnindeki yapay zeka izlerini bul",
+window.NoslopI18N = window.NoslopI18N || {};
+window.NoslopI18N.catalogs = window.NoslopI18N.catalogs || {};
+window.NoslopI18N.catalogs.tr = {
+  "meta.title": "noslop — metnindeki yapay zeka izlerini bul",
   "meta.description": "Metnini yapıştır ve onu robot gibi gösteren şeyi gör, göndermeden önce düzelt. Tamamen tarayıcında çalışır — hiçbir şey hiçbir yere yüklenmez.",
 
   "skipToEditor": "Düzenleyiciye geç",
@@ -15,7 +15,7 @@ window.UnslopI18N.catalogs.tr = {
   "uilang.switcherLabel": "Dil",
 
   "hero.heading": "Metnini robot gibi gösteren şeyi gör.",
-  "hero.tagline": "Aşağıya bir taslak yapıştır. unslop, onu ele veren tam olarak hangi kelimeler ve alışkanlıklar olduğunu gösterir, sen de göndermeden önce düzeltirsin.",
+  "hero.tagline": "Aşağıya bir taslak yapıştır. noslop, onu ele veren tam olarak hangi kelimeler ve alışkanlıklar olduğunu gösterir, sen de göndermeden önce düzeltirsin.",
   "privacy.strong": "Her şey tarayıcında çalışır.",
   "privacy.rest": "Yapıştırdığın hiçbir şey yüklenmez, saklanmaz ya da herhangi bir yere gönderilmez.",
 
@@ -37,7 +37,7 @@ window.UnslopI18N.catalogs.tr = {
 
   "editor.textareaLabel": "Metnin — yapay zeka izi taşıyıp taşımadığını kontrol etmek için buraya yapıştır ya da yaz",
   "editor.placeholder": "Metnini buraya yapıştır ya da yaz...",
-  "editor.hintMarks": "İşaretler unslop'un bulduklarını gösterir. Ayrıntılar için bir işaretin üzerine gel ya da Tab ile git.",
+  "editor.hintMarks": "İşaretler noslop'un bulduklarını gösterir. Ayrıntılar için bir işaretin üzerine gel ya da Tab ile git.",
   "editor.hintTabbing": "Metne girmek için {tab} tuşuna, işaretler arasında gezinmek içinse tekrar {tab} tuşuna bas.",
 
   "results.ariaLabel": "Sonuçlar",
@@ -69,7 +69,7 @@ window.UnslopI18N.catalogs.tr = {
   "breakdown.rhythmSurface": "Ritim ve yüzey özellikleri",
   "breakdown.clean.heading": "Temiz görünüyor.",
   "breakdown.clean.notEnoughText": "Değerlendirmek için henüz çok az metin var. Güvenilir bir sonuç için biraz daha yapıştır.",
-  "breakdown.clean.noneFired": "unslop'un kontrollerinden hiçbiri bu metinde tetiklenmedi.",
+  "breakdown.clean.noneFired": "noslop'un kontrollerinden hiçbiri bu metinde tetiklenmedi.",
   "finding.hitCount.one": "{count} kez",
   "finding.hitCount.other": "{count} kez",
   "finding.linesLabel": "satır {lines}",
