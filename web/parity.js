@@ -110,6 +110,62 @@ const FIXTURES = {
 
   "single sentence long": "The whole thing came down to a single decision made late one night by a tired engineer who had already been warned twice about the risk and chose to ship anyway because the deadline felt more real than the danger.",
 
+  // ---- the 0.7.0 tells: every new check gets a fixture through both engines ----
+
+  "chat artifact citation": "Prices rose in March according to the report :contentReference[oaicite:3]{index=3} and analysts expect further gains. The rest of the passage is deliberately plain so only the artifact fires.",
+
+  "chat artifact tracking": "Read the announcement at https://example.com/news?utm_source=chatgpt.com and tell me what you think. Also see https://example.com/two?utm_source=openai for the other one.",
+
+  "template placeholders are not artifacts": "Dear [Insert Name Here], thank you for your interest in the role. We will contact you at [insert your email] within five business days.",
+
+  "artifact at offset zero": "oaicite residue opens this very text, and the rest of the passage is deliberately plain filler prose about nothing much at all.",
+
+  "curly apostrophe split flip": "The problem isn’t the tooling. It’s the culture around the tooling that nobody wants to name. Here’s why that matters to us.",
+
+  "accented boundary bute": "This design is not only rapide buté in every way we tried and tested here, and the rest reads plainly.",
+
+  "accented anaphora cafe": "the café au lait, café con leche, café americano. the café au lait, café con leche, café americano.",
+
+  "arabic digit list markers": "٣. ✨ item one\n٤. ✨ item two\n\nPlain closing sentence for balance here.",
+
+  "dangling ing closer": "The bridge opened in 1932, highlighting the city's ambition. Attendance doubled that year, underscoring its importance. The park remains open, showcasing the region's beauty.",
+
+  "split flip": "The problem isn't a lack of tools. It's that nobody reads the docs. The fix wasn't complicated. It's just tedious. This doesn't mean we stop. It's a pause.",
+
+  "anaphora triads": "We came for the food, for the music, and for the company. It works where trust exists, where budgets allow, where teams commit. Success comes when you plan, when you test, when you ship.",
+
+  "single anaphora triad is free": "It works where trust exists, where budgets allow, where teams commit. The rest of this passage is ordinary prose about a bicycle repair on a rainy Tuesday afternoon.",
+
+  "ta-da openers": "Here's why this matters.\nSome content in between.\nHere's how it works.\nMore content here.\nHere's what to do next.",
+
+  "fragment hooks": "We cut the budget in half. The result? Nothing broke. We asked users to pay more. The catch? They stayed. We shipped early. The best part? No bugs.",
+
+  "sycophantic openers": "Great question! The answer is in the config file.\nAbsolutely! You can change that setting.\nOf course! Here is the command.",
+
+  "despite arc": "Despite significant challenges in funding, the museum continues to attract visitors. Despite recent setbacks, the team continues to ship on schedule.",
+
+  "staccato run": "We tried it. It broke. We fixed it. It broke again. Nobody panicked. The second attempt held, and the long weekend that followed gave everyone a chance to recover from the whole ordeal properly.",
+
+  "bold inline spray": "The **key insight** here is that **most teams** never measure their **actual throughput** before making **sweeping changes** to process, and the **resulting chaos** gets blamed on the **wrong causes** entirely.",
+
+  "bold paragraph leads": "**Speed.** We go fast and measure everything twice.\n\n**Quality.** We stay sharp and review every change.\n\n**Trust.** We deliver on the date we said.\n\n**Scale.** We grow without breaking what works.",
+
+  "quote mixing": "She said “the deal is done” and then added ‘for now’ with a shrug. The contract says \"terminable at will\" in section 4, and the addendum uses 'ninety days' twice.",
+
+  "header emoji": "# 🚀 Launch Plan\n\nThe plan is simple and boring on purpose.\n\n## 📚 Background\n\n- ✅ finish the docs\n- ✅ tag the release\n\nNothing else changes this week.",
+
+  "question hooks": "We doubled the cache size. The gain? Four percent. We tripled it after that. The cost? Memory pressure everywhere. So we rolled it back to the old size.",
+
+  "connective spray": "Moreover, the results were strong. Furthermore, costs fell. Additionally, the team grew. Notably, retention improved. Ultimately, the quarter closed well. Overall, a good year. The plain sentences continue here. They balance the count out. Nothing else is wrong with them.",
+
+  "paragraph uniformity": "The first paragraph runs about twenty words when you count them all the way through to the end here.\n\nThe second paragraph also runs about twenty words when you count it all the way through to the end.\n\nThe third paragraph again runs about twenty words when you count it all the way through to the end.\n\nThe fourth paragraph still runs about twenty words when you count it all the way through to the end.\n\nThe fifth paragraph too runs about twenty words when you count it all the way through to the end now.",
+
+  "opener repetition": "The server restarted at nine. The logs showed nothing unusual. The disk was half full. The network held steady all night. The backup completed on time. The monitoring stayed quiet. The morning shift found no issues. The incident was closed by noon.",
+
+  "new buzzwords 2025": "This groundbreaking work garnered praise for its advancements, surpassing every benchmark. The design resonates with users and aligns with the roadmap, a diverse array of features bolstered by valuable insights that solidify its enduring legacy.",
+
+  "significance inflation": "The building stands as a testament to the city's past, a pivotal moment in its history. The festival continues to thrive, setting the stage for future growth and paving the way for a new generation, cements its legacy among locals.",
+
   // ---- language packs: one slop + one clean fixture per pack, all of them
   // exercising detection, the per-language lists, and the em-dash factor
   // through both implementations at once ----

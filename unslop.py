@@ -3,8 +3,11 @@
 
 Reads text from file arguments or stdin and prints the patterns that make prose
 read as LLM-generated: filler phrases, overused buzzwords, the "not just X, but Y"
-frame, em-dash spray, emoji, and suspiciously even sentence rhythm. It does NOT
-rewrite anything - that's your job. It just shows you where to look.
+frame, em-dash spray, emoji, suspiciously even sentence and paragraph rhythm,
+staccato fragment runs, bold-emphasis spray, mixed quote styles, and - the
+smoking gun - literal chat-UI residue like leftover citation markup or
+"utm_source=chatgpt.com" links. It does NOT rewrite anything - that's your
+job. It just shows you where to look.
 
 Speaks more than English: each language in LANGUAGES carries its own researched
 tell lists (an LLM's crutch words in Spanish are Spanish, not translations of
@@ -33,16 +36,20 @@ import os
 import fnmatch
 import argparse
 
-__version__ = "0.6.0"
+__version__ = "0.7.0"
 
 # analyze()'s return dict is unslop's only machine-readable contract. If you
 # add, rename, or remove a top-level key, update this set and bump the
 # version - anything parsing --json is relying on these names staying put.
 JSON_SCHEMA_KEYS = {
     "words", "score_per_1k", "verdict", "language", "language_source",
-    "buzzwords", "phrases", "patterns",
-    "em_dashes", "em_dash_excess", "emoji", "bold_label_bullets",
-    "sentence_uniformity_cv",
+    "buzzwords", "phrases", "patterns", "ai_artifacts",
+    "em_dashes", "em_dash_excess", "emoji", "header_emoji",
+    "bold_label_bullets", "bold_inline", "bold_inline_excess", "quote_mix",
+    "staccato_runs", "question_hooks", "question_hook_excess",
+    "connective_openers", "connective_excess",
+    "sentence_uniformity_cv", "paragraph_uniformity_cv",
+    "opener_top_share",
 }
 
 # Words that show up far more in LLM prose than in how people actually write.
@@ -61,6 +68,22 @@ BUZZWORDS = [
     "supercharge", "turbocharge", "effortless", "effortlessly", "unleash",
     "empower", "empowering", "transformative", "reimagine", "reimagined",
     "streamline", "streamlined", "peace of mind", "dive deep", "deep dive",
+    # Post-2024 additions with measured excess over the pre-LLM baseline
+    # (Juzek & Ward 2025, COLING; Kobak et al. 2025, Science Advances) plus
+    # the safest picks from Wikipedia's signs-of-AI-writing catalog. Words
+    # those same sources warn have too high a human base rate to score on a
+    # single hit (within, across, additionally, potential, findings) are
+    # deliberately absent.
+    # "advancements", "valuable insights", and "garnered" were measured
+    # too, but their base rate in ordinary human registers (non-native
+    # academic prose, wire-service journalism) is high enough that a
+    # single hit shouldn't score - left out on purpose.
+    "groundbreaking", "aligns", "surpassing", "surpasses",
+    "emphasizing", "comprehending",
+    "showcases", "trailblazing", "bolstered", "resonate", "resonates",
+    "solidify", "solidifies", "solidifying", "diverse array", "focal point",
+    "indelible mark", "deeply rooted",
+    "enduring legacy", "lasting legacy",
 ]
 
 # Whole-phrase tics. Matched case-insensitively as substrings.
@@ -77,6 +100,18 @@ PHRASES = [
     "the world of", "in the realm of", "plays a vital role",
     "plays a crucial role", "a wide range of", "more than just",
     "not just a", "whether you're a", "gone are the days",
+    # Significance inflation and chat-native framing, from the Wikipedia
+    # signs-of-AI-writing catalog and the 2025 pattern write-ups.
+    "stands as a testament", "a testament to", "marks a pivotal",
+    "a pivotal moment", "continues to captivate", "continues to thrive",
+    "cements its legacy", "solidifies its position", "leaves a lasting",
+    "setting the stage for", "represents a significant shift",
+    # Chat closers like "let me know if" and "hope that helps" are NOT
+    # here: they're the standard sign-off of ordinary human work email,
+    # and a per-hit score would brand every reply-all in the building.
+    # "Paving the way" stays out too - local news writes it unprompted.
+    "industry experts note", "experts agree that",
+    "observers have noted", "in a world where",
 ]
 
 # (label, regex, weight, hint)
@@ -85,7 +120,7 @@ PATTERNS = [
      r"\bnot (?:just|only)\b[^.?!\n]{1,70}?\bbut\b", 3,
      "state it plainly instead of the contrast frame"),
     ("'it isn't X, it's Y' flip",
-     r"\bis(?:n't| not)\b[^.?!\n]{1,45}?\bit(?:'s| is)\b", 2,
+     r"\bis(?:n['’]t| not)\b[^.?!\n]{1,45}?\bit(?:['’]s| is)\b", 2,
      "just say what it is"),
     ("rhetorical question opener",
      r"(?im)^\s*(?:ever wondered|have you ever|what if|imagine (?:a|if|that)|picture this)\b", 2,
@@ -93,6 +128,65 @@ PATTERNS = [
     ("hedge stack (may/can/often/typically)",
      r"\b(?:may|might|can|could|often|typically|generally|usually|arguably)\b", 0,
      "too many hedges reads evasive - commit or cut"),
+    # The 2025 wave: structural habits documented by Wikipedia's
+    # signs-of-AI-writing catalog and corroborated in at least one
+    # independent pattern study each. Verbs with a real human base rate in
+    # technical prose (ensuring, demonstrating, signaling) are left out of
+    # the closer list, and so are the ones already scored as buzzwords
+    # (underscoring, emphasizing, fostering, solidifying, showcasing) - one
+    # clause shouldn't pay twice. Apostrophes match straight or curly forms
+    # because patterns run on the raw text, not the normalized copy. The
+    # 5th field, where present, is free hits: a single use of a device
+    # that's legitimate rhetoric once (a lone triad, one wire-service
+    # closer, one op-ed flip) reports but doesn't score.
+    ("dangling '-ing' significance closer",
+     r"(?i),\s+(?:highlighting|reflecting|symbolizing|cementing|"
+     r"reinforcing|cultivating|encompassing)\b[^.?!\n]{0,80}[.?!]", 3,
+     "end at the fact - the tacked-on significance clause adds nothing", 1),
+    ("'It's not X. It's Y.' split flip",
+     r"(?i)\b(?:is(?:n['’]t| not)|are(?:n['’]t| not)|does(?:n['’]t| not)|"
+     r"was(?:n['’]t| not))\b[^.?!\n]{1,60}[.!]\s+it(?:['’]s| is)\b", 3,
+     "merge the flip into one plain statement of what it is", 1),
+    # The repeated token is ASCII-only ([a-z]) and the JS mirror wraps it
+    # in Unicode-letter lookarounds, so an accented continuation ("café")
+    # doesn't count as the token in either engine. Coordinators and
+    # articles are excluded as the token: "A, or B, or C" is ordinary
+    # enumeration, not rhetorical anaphora.
+    ("anaphora triad (where X, where Y, where Z)",
+     r"(?i)\b(?!(?:and|or|nor|the|an?)\b)([a-z]{2,12})\b[^,.?!\n]{2,40},\s+"
+     r"\1\b[^,.?!\n]{2,40},\s+(?:and\s+)?\1\b", 2,
+     "one of the three carries the point - keep that one", 1),
+    ("ta-da opener ('Here's why...')",
+     r"(?im)^\s*#*\s*here['’]s (?:why|how|what)\b", 2,
+     "skip the reveal frame - state the thing itself"),
+    ("fragment hook ('The result?')",
+     r"(?im)(?:^\s*|(?<=[.!?])\s+)(?:the result|the best part|the catch|"
+     r"the takeaway|the kicker|the bottom line|translation)\?", 2,
+     "answer in the same sentence, or cut the hook"),
+    ("sycophantic opener",
+     r"(?im)^\s*(?:great question|certainly|absolutely|of course|sure thing)!", 3,
+     "drop the chat-style opener - prose isn't answering anyone"),
+    ("'despite challenges ... continues to' arc",
+     r"(?i)\bdespite\b[^.?!\n]{0,80}?\b(?:challenges|obstacles|setbacks|"
+     r"hurdles)\b[^.?!\n]{0,120}?\bcontinues? to\b", 2,
+     "name the specific challenge and the specific response"),
+]
+
+# Chat-UI residue: literal strings a chatbot interface leaves behind in
+# copied text. Nobody types these by hand, so this is direct paste evidence,
+# not a probabilistic tell - a single hit pins the score at the hard-verdict
+# floor. Matched case-insensitively as plain substrings; overlapping or
+# adjacent hits merge so one pasted artifact reports once. Language-neutral:
+# every language pack gets this check.
+AI_ARTIFACTS = [
+    ("chatbot citation residue (oaicite)", "oaicite"),
+    ("chatbot citation residue (oai_citation)", "oai_citation"),
+    ("chatbot citation residue (grok_card)", "grok_card"),
+    ("chatgpt.com link-tracking parameter", "utm_source=chatgpt.com"),
+    ("openai link-tracking parameter", "utm_source=openai"),
+    # "[Insert name]"-style placeholders are NOT in this list: humans write
+    # those on purpose in mail-merge and resume templates, so they fail the
+    # "nobody types these by hand" bar this class requires.
 ]
 
 # Real emoji + the decorative dingbats used as slop. Plain glyphs that belong
@@ -140,7 +234,10 @@ EMOJI = re.compile(
 #
 # The weights (3 per buzzword/phrase hit, pattern weights, +8 uniformity) are
 # the same in every pack, so a 25+/1k verdict means the same thing in every
-# language.
+# language. The structural checks that don't depend on wording - chat-UI
+# artifacts, staccato runs, paragraph uniformity, heading emoji, bold spray,
+# quote mixing, opener concentration - run identically for every language,
+# so packs only need to localize vocabulary, phrases, and patterns.
 LANGUAGES = {
     "en": {
         "name": "English",
@@ -152,6 +249,16 @@ LANGUAGES = {
             "this", "was", "are", "have", "but", "they", "from", "not",
             "what", "you", "all",
         )),
+        # Sentence-initial connective adverbs (Moreover, Furthermore...).
+        # Scored on density, never per hit - academic prose uses these
+        # legitimately; it's the every-other-sentence spray that reads AI.
+        # Packs without this field skip the check rather than borrowing
+        # translations that were never researched for their language.
+        "connectives": (
+            "moreover", "furthermore", "additionally", "notably",
+            "ultimately", "importantly", "crucially", "significantly",
+            "in essence", "overall",
+        ),
         "marks": "",
         "em_dash_factor": 1.0,
     },
@@ -1107,6 +1214,17 @@ def find_all(text_lower, needle):
     return [(m.start(), m.end()) for m in re.finditer(pattern, text_lower)]
 
 
+def find_all_plain(text_lower, needle):
+    """Plain substring spans, no word boundaries - for chat-UI artifacts
+    like "utm_source=chatgpt.com" that live inside URLs and markup where
+    \\b does the wrong thing."""
+    spans, i = [], text_lower.find(needle)
+    while i != -1:
+        spans.append((i, i + len(needle)))
+        i = text_lower.find(needle, i + 1)
+    return spans
+
+
 def line_of(text, idx):
     return text.count("\n", 0, idx) + 1
 
@@ -1245,6 +1363,13 @@ def analyze(text, buzzwords=None, phrases=None, lang=None, lang_source=None):
         buzzwords = pack["buzzwords"]
     if phrases is None:
         phrases = pack["phrases"]
+    # Exotic line terminators and the BOM sit in different \s classes in
+    # Python and JavaScript, so both engines normalize them away up front -
+    # otherwise multiline anchors and sentence splitting quietly disagree.
+    # Every replacement is one-to-one except \r\n, which no UI input path
+    # produces (textareas and text-mode file reads both normalize it first).
+    text = re.sub("\\r\\n?|[\\x1c-\\x1f\\x85\\u2028\\u2029]", "\n", text)
+    text = text.replace("\ufeff", " ")
     # One curly apostrophe (U+2019) normalized to the straight form the
     # phrase lists are written in - same length, so spans still line up.
     # "it's important to note" in curly-quoted prose counts the same way.
@@ -1288,14 +1413,70 @@ def analyze(text, buzzwords=None, phrases=None, lang=None, lang_source=None):
     phr_total = sum(n for _, n, _ in phr)
 
     pat = []
-    for label, rx, weight, hint in pack["patterns"]:
+    pat_raw = 0
+    for entry in pack["patterns"]:
+        label, rx, weight, hint = entry[:4]
+        # Optional 5th field: hits that don't score. A device that's normal
+        # rhetoric once (a single triad) only counts when it repeats.
+        free = entry[4] if len(entry) > 4 else 0
         matches = list(re.finditer(rx, text))
         if matches:
             pat.append((label, len(matches), weight, hint,
                         [line_of(text, m.start()) for m in matches[:5]]))
+            pat_raw += max(0, len(matches) - free) * weight
 
     emdash = len(re.findall(r"—", text))
     emoji = len(EMOJI.findall(text))
+
+    # Chat-UI residue. Overlapping/adjacent spans merge (a pasted
+    # ":contentReference[oaicite:...]" block is one artifact, not several).
+    art_spans = []
+    for label, needle in AI_ARTIFACTS:
+        art_spans += [(s, e, label) for s, e in find_all_plain(lower, needle)]
+    art_spans.sort()
+    # Sentinel is -2, not -1: a span at offset 0 must still pass the
+    # adjacency test (0 > -1), or an artifact that opens the text vanishes.
+    art_rows, art_end = {}, -2
+    for s, e, label in art_spans:
+        if s > art_end + 1:
+            art_rows.setdefault(label, []).append(s)
+        art_end = max(art_end, e)
+    artifacts = [(label, len(starts), [line_of(text, s) for s in starts[:5]])
+                 for label, starts in art_rows.items()]
+    artifacts.sort(key=lambda x: -x[1])
+    art_total = sum(n for _, n, _ in artifacts)
+
+    # Emoji decorating structure (headings, list bullets) is a stronger tell
+    # than emoji inside body prose, so those occurrences score once as emoji
+    # and once more here.
+    header_emoji = 0
+    bold_inline = 0
+    for raw_line in text.split("\n"):
+        ls = raw_line.lstrip()
+        structural = ls.startswith("#") or re.match(r"(?:[-*+]|[0-9]{1,3}[.)])\s", ls)
+        if structural:
+            header_emoji += len(EMOJI.findall(raw_line))
+        else:
+            # Bold spray: **emphasis** sprinkled through flowing prose.
+            # List items are excluded, and so is a bold label leading the
+            # paragraph - the bold-label-bullet check below owns both.
+            matches = re.findall(r"\*\*[^*\n]{1,60}\*\*", raw_line)
+            if matches and re.match(
+                    r"\s*\*\*[^*\n]{1,45}?(?::\*\*|\*\*:|[.!?]\*\*)", raw_line):
+                matches = matches[1:]
+            bold_inline += len(matches)
+
+    # Curly and straight marks of the SAME kind mixed in one document
+    # usually means a paste boundary - chat UIs render smart quotes,
+    # editors type straight ones. Cross-kind mixing (straight apostrophes
+    # in the author's own prose around a curly-quoted excerpt) is how
+    # humans normally quote a source, so it doesn't count.
+    curly_apo = text.count("’") + text.count("‘")
+    straight_apo = text.count("'")
+    curly_dq = text.count("“") + text.count("”")
+    straight_dq = text.count('"')
+    quote_mix = 1 if ((curly_apo >= 3 and straight_apo >= 3) or
+                      (curly_dq >= 3 and straight_dq >= 3)) else 0
 
     sentences = [s for s in re.split(r"(?<=[.!?])\s+", text.strip()) if s.strip()]
     slens = [len(re.findall(r"(?:[^\W\d_]|['\-])+", s)) for s in sentences if s.strip()]
@@ -1305,24 +1486,120 @@ def analyze(text, buzzwords=None, phrases=None, lang=None, lang_source=None):
         sd = (sum((x - mean) ** 2 for x in slens) / len(slens)) ** 0.5
         uniformity = round((sd / mean) if mean else 0, 2)
 
-    raw = (buzz_total * 3) + (phr_total * 3)
-    for _, n, weight, _, _ in pat:
-        raw += n * weight
+    # Staccato runs: 3+ consecutive very short sentences ("No fluff. No
+    # filler. Just results.") - the punchy-fragment cadence. The sentence-CV
+    # check above can't see it because a few fragments barely move a
+    # document-wide coefficient of variation.
+    staccato_runs, run = 0, 0
+    for n in slens:
+        if 0 < n <= 5:
+            run += 1
+        else:
+            staccato_runs += 1 if run >= 3 else 0
+            run = 0
+    staccato_runs += 1 if run >= 3 else 0
+
+    # Paragraph-length uniformity, same math as the sentence check. No
+    # published threshold exists for paragraphs, so the cutoff is
+    # deliberately more conservative than the sentence one (0.25 vs 0.35)
+    # and the weight is lower.
+    paras = [p for p in re.split(r"\n\s*\n", text.strip()) if p.strip()]
+    plens = [n for n in
+             (len(re.findall(r"(?:[^\W\d_]|['\-])+", p)) for p in paras) if n]
+    paragraph_uniformity = None
+    if len(plens) >= 5:
+        pmean = sum(plens) / len(plens)
+        psd = (sum((x - pmean) ** 2 for x in plens) / len(plens)) ** 0.5
+        paragraph_uniformity = round((psd / pmean) if pmean else 0, 2)
+
+    # Self-answering question hooks: a tiny question dropped mid-paragraph
+    # and immediately answered ("More miners join? The puzzle gets harder.").
+    # Only mid-line questions count - a question at the start of a line is
+    # normal FAQ/heading structure, and the rhetorical-opener pattern
+    # already owns that case. One is rhetoric; a run of them is the tell.
+    question_hooks = len(re.findall(
+        r"(?<=[.!?]) [ \t]*(?:[^\W\d_][\w'\-]*[ \t]+){0,4}[^\W\d_][\w'\-]*\?",
+        text))
+    question_hook_excess = max(0, question_hooks - 1)
+
+    # Sentence-initial connective adverbs, scored on density over an
+    # allowance (like em dashes) because academic prose uses them
+    # legitimately. The word list lives in the pack; packs without one
+    # skip the check.
+    connective_openers = 0
+    connectives = pack.get("connectives", ())
+    if connectives:
+        alt = "|".join(re.escape(c) for c in connectives)
+        connective_openers = len(re.findall(
+            r"(?im)(?:^|(?<=[.!?])\s)[ \t]*(?:" + alt + r")\b", text))
+    connective_excess = max(0, connective_openers - max(2, len(slens) // 10))
+
+    # Sentence-opener concentration: share of sentences that open with the
+    # document's most common first word. Reported but not scored - the
+    # evidence is thinner than for the scored checks, and first-person prose
+    # ("I did... I went...") legitimately concentrates openers. Single-pass
+    # count: a chat log is tens of thousands of tiny sentences, and a
+    # quadratic loop here once froze the browser tab for minutes.
+    openers = []
+    for s in sentences:
+        m = re.match(r"[^\w]*([^\W\d_][\w'\-]*)", s)
+        if m:
+            openers.append(m.group(1).lower())
+    opener_top_share = None
+    if len(openers) >= 8:
+        freq, best_n = {}, 0
+        for w in openers:
+            n = freq.get(w, 0) + 1
+            freq[w] = n
+            if n > best_n:
+                best_n = n
+        opener_top_share = round(best_n / len(openers), 2)
+
+    raw = (buzz_total * 3) + (phr_total * 3) + pat_raw
+    raw += art_total * 10
     # Dialogue-dash languages get a wider allowance (see em_dash_factor in
     # LANGUAGES) - an em-dash budget tuned for English prose would flag
     # ordinary Spanish or French dialogue punctuation.
     emdash_excess = max(0, emdash - int(max(2, wc // 90) * pack["em_dash_factor"]))
     raw += emdash_excess
     raw += emoji * 2
+    raw += header_emoji * 2
     # repeated "**Term:** explanation" bullets - a formatting tell, whether
-    # the list uses dash/star markers or is numbered ("1. **Term:** ...")
+    # the list uses dash/star markers, is numbered ("1. **Term:** ..."), or
+    # drops the marker entirely and leads a paragraph with the bold label
+    # ("**Term.** explanation")
     bold_bullets = len(re.findall(
-        r"(?m)^\s*(?:[-*+]|\d{1,3}[.)])\s+\*\*[^*\n]{1,45}?(?::\*\*|\*\*:)", text))
+        r"(?m)^\s*(?:(?:[-*+]|[0-9]{1,3}[.)])\s+)?\*\*[^*\n]{1,45}?(?::\*\*|\*\*:|[.!?]\*\*)",
+        text))
     if bold_bullets >= 3:
         raw += (bold_bullets - 2) * 2
+    # Inline bold gets an allowance like em dashes do - a little emphasis is
+    # normal, a spray of it through prose is the tell.
+    bold_inline_excess = max(0, bold_inline - max(2, wc // 150))
+    raw += bold_inline_excess * 2
+    raw += question_hook_excess * 2
     score = per1k(raw)
+    # Rhythm and typography signals ride on top of the normalized score as
+    # small fixed bumps instead of raw points: per-1k normalization
+    # amplifies a raw point brutally on short texts (one +4 hit in a
+    # 130-word note would be 30/1k on its own), and none of these signals
+    # is strong enough evidence to cross a verdict line by itself. The
+    # first staccato run is free - terse fragments are a legitimate human
+    # style (fiction has written that way for a century); run after run
+    # is the tell.
     if uniformity is not None and uniformity < 0.35:
         score += 8
+    if paragraph_uniformity is not None and paragraph_uniformity < 0.25:
+        score += 4
+    score += min(max(0, staccato_runs - 1) * 4, 8)
+    score += quote_mix * 4
+    score += min(connective_excess, 2) * 2
+    # A chat-UI artifact is proof of paste, not a probabilistic signal - it
+    # pins the score at the hard-verdict floor no matter how long the text
+    # is (per-1k normalization would otherwise dilute it to nothing in a
+    # long document).
+    if art_total:
+        score = max(score, 25.0)
 
     verdict = "looks human"
     if score >= 25:
@@ -1334,8 +1611,19 @@ def analyze(text, buzzwords=None, phrases=None, lang=None, lang_source=None):
         "words": wc, "score_per_1k": score, "verdict": verdict,
         "language": code, "language_source": source,
         "buzzwords": buzz, "phrases": phr, "patterns": pat,
+        "ai_artifacts": artifacts,
         "em_dashes": emdash, "em_dash_excess": emdash_excess, "emoji": emoji,
-        "bold_label_bullets": bold_bullets, "sentence_uniformity_cv": uniformity,
+        "header_emoji": header_emoji,
+        "bold_label_bullets": bold_bullets,
+        "bold_inline": bold_inline, "bold_inline_excess": bold_inline_excess,
+        "quote_mix": quote_mix, "staccato_runs": staccato_runs,
+        "question_hooks": question_hooks,
+        "question_hook_excess": question_hook_excess,
+        "connective_openers": connective_openers,
+        "connective_excess": connective_excess,
+        "sentence_uniformity_cv": uniformity,
+        "paragraph_uniformity_cv": paragraph_uniformity,
+        "opener_top_share": opener_top_share,
     }
 
 
@@ -1348,6 +1636,10 @@ def report(r, quiet=False):
     elif r["language"] != "en" or r["language_source"] == "forced":
         name = LANGUAGES[r["language"]]["name"]
         out.append(f"language: {name} ({r['language_source']})")
+    if r["ai_artifacts"]:
+        out.append("\nChat-UI residue (direct paste evidence - scores the hard verdict on its own):")
+        for label, n, lines in r["ai_artifacts"]:
+            out.append(f"  {n:>2}x  {label} (lines {', '.join(map(str, lines))})")
     if r["buzzwords"]:
         out.append("\nLLM buzzwords:")
         for w, n, lines in r["buzzwords"]:
@@ -1367,15 +1659,31 @@ def report(r, quiet=False):
         misc.append(f"{r['em_dashes']} em dashes is dense for the length (vary the punctuation)")
     if r["emoji"]:
         misc.append(f"{r['emoji']} emoji (usually worth dropping in prose)")
+    if r["header_emoji"]:
+        misc.append(f"{r['header_emoji']} emoji decorating headings/bullets (the strongest emoji tell)")
     if r["sentence_uniformity_cv"] is not None and r["sentence_uniformity_cv"] < 0.35:
         misc.append(f"sentence lengths very even (cv={r['sentence_uniformity_cv']}) - vary the rhythm")
+    if r["paragraph_uniformity_cv"] is not None and r["paragraph_uniformity_cv"] < 0.25:
+        misc.append(f"paragraph lengths very even (cv={r['paragraph_uniformity_cv']}) - vary the block sizes")
+    if r["staccato_runs"]:
+        misc.append(f"{r['staccato_runs']} staccato run(s) of 3+ tiny sentences - the punchy-fragment cadence")
+    if r["quote_mix"]:
+        misc.append("curly and straight quotes mixed - usually a paste boundary; pick one style")
+    if r["question_hook_excess"]:
+        misc.append(f"{r['question_hooks']} mid-sentence question hooks ('The result? ...') - answer directly instead")
+    if r["connective_excess"]:
+        misc.append(f"{r['connective_openers']} sentences open on a connective (Moreover/Additionally/...) - most can go")
     if r.get("bold_label_bullets", 0) >= 3:
         misc.append(f"{r['bold_label_bullets']} '**Term:** ...' bullets - a formatting tell; write some as prose")
+    if r["bold_inline_excess"]:
+        misc.append(f"{r['bold_inline']} bold spans in running prose is heavy - keep the few that earn it")
+    if r["opener_top_share"] is not None and r["opener_top_share"] >= 0.4:
+        misc.append(f"{int(r['opener_top_share'] * 100)}% of sentences open with the same word [style, not scored] - vary the openers")
     if misc:
         out.append("\nRhythm & surface:")
         for m in misc:
             out.append(f"  - {m}")
-    if not (r["buzzwords"] or r["phrases"] or r["patterns"] or misc):
+    if not (r["ai_artifacts"] or r["buzzwords"] or r["phrases"] or r["patterns"] or misc):
         out.append("\nNothing flagged. Reads clean.")
     return "\n".join(out)
 

@@ -36,6 +36,13 @@
     "supercharge", "turbocharge", "effortless", "effortlessly", "unleash",
     "empower", "empowering", "transformative", "reimagine", "reimagined",
     "streamline", "streamlined", "peace of mind", "dive deep", "deep dive",
+    // Post-2024 additions - see the annotated list in unslop.py.
+    "groundbreaking", "aligns", "surpassing", "surpasses",
+    "emphasizing", "comprehending",
+    "showcases", "trailblazing", "bolstered", "resonate", "resonates",
+    "solidify", "solidifies", "solidifying", "diverse array", "focal point",
+    "indelible mark", "deeply rooted",
+    "enduring legacy", "lasting legacy",
   ];
 
   const PHRASES = [
@@ -51,22 +58,80 @@
     "the world of", "in the realm of", "plays a vital role",
     "plays a crucial role", "a wide range of", "more than just",
     "not just a", "whether you're a", "gone are the days",
+    // Significance inflation and chat-native framing - see unslop.py for
+    // the annotated list and what's deliberately absent.
+    "stands as a testament", "a testament to", "marks a pivotal",
+    "a pivotal moment", "continues to captivate", "continues to thrive",
+    "cements its legacy", "solidifies its position", "leaves a lasting",
+    "setting the stage for", "represents a significant shift",
+    "industry experts note", "experts agree that",
+    "observers have noted", "in a world where",
   ];
 
   // [label, regex (on original-case text), weight, hint]
+  //
+  // Word boundaries are written as explicit Unicode lookarounds, not \b:
+  // JS \b is ASCII-only regardless of the u flag, so "buté" would end a
+  // "word" mid-token and these patterns would fire on accented text that
+  // Python's Unicode-aware \b never matches. Same idiom as needleRegex()
+  // and the es pack. Apostrophes match straight or curly forms because
+  // patterns run on the raw text, not the normalized copy.
   const PATTERNS = [
     ["'not just X but Y' construction",
-      /\bnot (?:just|only)\b[^.?!\n]{1,70}?\bbut\b/g, 3,
+      /(?<![\p{L}\p{N}_])not (?:just|only)(?![\p{L}\p{N}_])[^.?!\n]{1,70}?(?<![\p{L}\p{N}_])but(?![\p{L}\p{N}_])/gu, 3,
       "state it plainly instead of the contrast frame"],
     ["'it isn't X, it's Y' flip",
-      /\bis(?:n't| not)\b[^.?!\n]{1,45}?\bit(?:'s| is)\b/g, 2,
+      /(?<![\p{L}\p{N}_])is(?:n['’]t| not)(?![\p{L}\p{N}_])[^.?!\n]{1,45}?(?<![\p{L}\p{N}_])it(?:['’]s| is)(?![\p{L}\p{N}_])/gu, 2,
       "just say what it is"],
     ["rhetorical question opener",
-      /^\s*(?:ever wondered|have you ever|what if|imagine (?:a|if|that)|picture this)\b/gim, 2,
+      /^\s*(?:ever wondered|have you ever|what if|imagine (?:a|if|that)|picture this)(?![\p{L}\p{N}_])/gimu, 2,
       "open with the point, not a hook"],
     ["hedge stack (may/can/often/typically)",
-      /\b(?:may|might|can|could|often|typically|generally|usually|arguably)\b/g, 0,
+      /(?<![\p{L}\p{N}_])(?:may|might|can|could|often|typically|generally|usually|arguably)(?![\p{L}\p{N}_])/gu, 0,
       "too many hedges reads evasive - commit or cut"],
+    // The 2025 wave - see the annotated entries in unslop.py. 5th element,
+    // when present, is free hits (occurrences that don't score).
+    ["dangling '-ing' significance closer",
+      /,\s+(?:highlighting|reflecting|symbolizing|cementing|reinforcing|cultivating|encompassing)(?![\p{L}\p{N}_])[^.?!\n]{0,80}[.?!]/giu, 3,
+      "end at the fact - the tacked-on significance clause adds nothing", 1],
+    ["'It's not X. It's Y.' split flip",
+      /(?<![\p{L}\p{N}_])(?:is(?:n['’]t| not)|are(?:n['’]t| not)|does(?:n['’]t| not)|was(?:n['’]t| not))(?![\p{L}\p{N}_])[^.?!\n]{1,60}[.!]\s+it(?:['’]s| is)(?![\p{L}\p{N}_])/giu, 3,
+      "merge the flip into one plain statement of what it is", 1],
+    ["anaphora triad (where X, where Y, where Z)",
+      /(?<![\p{L}\p{N}_])(?!(?:and|or|nor|the|an?)(?![\p{L}\p{N}_]))([a-z]{2,12})(?![\p{L}\p{N}_])[^,.?!\n]{2,40},\s+\1(?![\p{L}\p{N}_])[^,.?!\n]{2,40},\s+(?:and\s+)?\1(?![\p{L}\p{N}_])/giu, 2,
+      "one of the three carries the point - keep that one", 1],
+    ["ta-da opener ('Here's why...')",
+      /^\s*#*\s*here['’]s (?:why|how|what)(?![\p{L}\p{N}_])/gimu, 2,
+      "skip the reveal frame - state the thing itself"],
+    ["fragment hook ('The result?')",
+      /(?:^\s*|(?<=[.!?])\s+)(?:the result|the best part|the catch|the takeaway|the kicker|the bottom line|translation)\?/gimu, 2,
+      "answer in the same sentence, or cut the hook"],
+    ["sycophantic opener",
+      /^\s*(?:great question|certainly|absolutely|of course|sure thing)!/gimu, 3,
+      "drop the chat-style opener - prose isn't answering anyone"],
+    ["'despite challenges ... continues to' arc",
+      /(?<![\p{L}\p{N}_])despite(?![\p{L}\p{N}_])[^.?!\n]{0,80}?(?<![\p{L}\p{N}_])(?:challenges|obstacles|setbacks|hurdles)(?![\p{L}\p{N}_])[^.?!\n]{0,120}?(?<![\p{L}\p{N}_])continues? to(?![\p{L}\p{N}_])/giu, 2,
+      "name the specific challenge and the specific response"],
+  ];
+
+  // Chat-UI residue - mirrors AI_ARTIFACTS in unslop.py. Direct paste
+  // evidence: a single hit pins the score at the hard-verdict floor.
+  // Template placeholders are deliberately absent - humans write those.
+  const AI_ARTIFACTS = [
+    ["chatbot citation residue (oaicite)", "oaicite"],
+    ["chatbot citation residue (oai_citation)", "oai_citation"],
+    ["chatbot citation residue (grok_card)", "grok_card"],
+    ["chatgpt.com link-tracking parameter", "utm_source=chatgpt.com"],
+    ["openai link-tracking parameter", "utm_source=openai"],
+  ];
+
+  // Sentence-initial connective adverbs for the en pack - scored on
+  // density over an allowance, mirroring unslop.py. Packs without a
+  // connectives list skip the check.
+  const EN_CONNECTIVES = [
+    "moreover", "furthermore", "additionally", "notably",
+    "ultimately", "importantly", "crucially", "significantly",
+    "in essence", "overall",
   ];
 
   // ---- language packs (kept in lockstep with LANGUAGES in unslop.py) ----
@@ -87,6 +152,7 @@
         "this", "was", "are", "have", "but", "they", "from", "not",
         "what", "you", "all",
       ]),
+      connectives: EN_CONNECTIVES,
       marks: "",
       emDashFactor: 1.0,
     },
@@ -877,7 +943,7 @@
     "|[\\u2190-\\u2bff]\\u{fe0f}", "gu");
 
   const BOLD_BULLET =
-    /^\s*(?:[-*+]|\d{1,3}[.)])\s+\*\*[^*\n]{1,45}?(?::\*\*|\*\*:)/gm;
+    /^\s*(?:(?:[-*+]|\d{1,3}[.)])\s+)?\*\*[^*\n]{1,45}?(?::\*\*|\*\*:|[.!?]\*\*)/gm;
 
   // Letters in any script, not [A-Za-z] - mirrors the Python tokenizer's
   // [^\W\d_] classes so accented and non-Latin words count as words. Two
@@ -934,21 +1000,27 @@
     return n;
   }
 
-  // Python round(x, 1): round-half-to-even on the same IEEE-754 double JS
-  // produces, so the per-1k score lands on the CLI's value.
+  // Python round(x, nd): round-half-to-even on the exact double, so the
+  // per-1k score lands on the CLI's value. Scaling by 10^nd first would
+  // destroy the above/below-tie information (0.1499999999999999944 * 10
+  // is exactly 1.5), and even 15 extra digits can round the evidence away
+  // - so take 60: every double in this code's value range is a dyadic
+  // rational whose decimal expansion terminates well inside that, making
+  // the tie comparison exact. Half-to-even only on a true tie, by
+  // magnitude otherwise.
   function pyRound(x, nd) {
     if (!isFinite(x)) return x;
-    const m = Math.pow(10, nd);
-    const scaled = x * m;
-    const floor = Math.floor(scaled);
-    const diff = scaled - floor;
-    let r;
-    if (Math.abs(diff - 0.5) < 1e-9) {
-      r = floor % 2 === 0 ? floor : floor + 1;   // banker's rounding
-    } else {
-      r = Math.round(scaled);
-    }
-    return r / m;
+    const neg = x < 0;
+    const digits = Math.abs(x).toFixed(Math.min(100, nd + 60));
+    const dot = digits.indexOf(".");
+    const keep = digits.slice(0, dot) + digits.slice(dot + 1, dot + 1 + nd);
+    const rest = digits.slice(dot + 1 + nd);
+    let n = BigInt(keep);
+    const half = "5" + "0".repeat(rest.length - 1);
+    if (rest > half || (rest === half && n % 2n === 1n)) n += 1n;
+    let s = n.toString().padStart(nd + 1, "0");
+    const out = Number(s.slice(0, s.length - nd) + "." + s.slice(s.length - nd));
+    return neg ? -out : out;
   }
 
   function countMatches(text, rx) {
@@ -1024,6 +1096,10 @@
     const [code, source, pack] = resolvePack(text, opts);
     const buzzwords = opts.buzzwords || pack.buzzwords;
     const phrases = opts.phrases || pack.phrases;
+    // Exotic line terminators and the BOM sit in different \s classes in
+    // Python and JavaScript - normalize them away so multiline anchors and
+    // sentence splitting agree with the CLI. Mirrors unslop.py analyze().
+    text = text.replace(/\r\n?|[\x1c-\x1f\x85\u2028\u2029]/g, "\n").replace(/\ufeff/g, " ");
     // One curly apostrophe (U+2019) normalized to the straight form the
     // phrase lists are written in - same length, spans still line up.
     const lower = text.toLowerCase().replace(/’/g, "'");
@@ -1065,7 +1141,12 @@
     const phrTotal = phr.reduce((t, r) => t + r[1], 0);
 
     const pat = [];
-    for (const [label, rx, weight, hint] of pack.patterns) {
+    let patRaw = 0;
+    for (const entry of pack.patterns) {
+      const [label, rx, weight, hint] = entry;
+      // Optional 5th field: hits that don't score (a device that's normal
+      // rhetoric once only counts when it repeats). Mirrors unslop.py.
+      const free = entry.length > 4 ? entry[4] : 0;
       rx.lastIndex = 0;
       const lines = [];
       let count = 0;
@@ -1075,11 +1156,72 @@
         count++;
         if (m.index === rx.lastIndex) rx.lastIndex++;
       }
-      if (count > 0) pat.push([label, count, weight, hint, lines]);
+      if (count > 0) {
+        pat.push([label, count, weight, hint, lines]);
+        patRaw += Math.max(0, count - free) * weight;
+      }
     }
 
     const emdash = countMatches(text, EMDASH_RE);
     const emoji = countMatches(text, EMOJI);
+
+    // Chat-UI residue. Overlapping/adjacent spans merge - mirrors the
+    // artifact block in unslop.py analyze().
+    const artSpans = [];
+    for (const [label, needle] of AI_ARTIFACTS) {
+      let i = lower.indexOf(needle);
+      while (i !== -1) {
+        artSpans.push([i, i + needle.length, label]);
+        i = lower.indexOf(needle, i + 1);
+      }
+    }
+    artSpans.sort((a, b) => (a[0] - b[0]) || (a[1] - b[1]));
+    const artRows = new Map();
+    // Sentinel is -2, not -1: a span at offset 0 must still pass the
+    // adjacency test, or an artifact that opens the text vanishes.
+    let artEnd = -2;
+    for (const [s, e, label] of artSpans) {
+      if (s > artEnd + 1) {
+        if (!artRows.has(label)) artRows.set(label, []);
+        artRows.get(label).push(s);
+      }
+      artEnd = Math.max(artEnd, e);
+    }
+    const artifacts = [];
+    for (const [label, starts] of artRows) {
+      artifacts.push([label, starts.length, starts.slice(0, 5).map((s) => lineOf(text, s))]);
+    }
+    artifacts.sort((a, b) => b[1] - a[1]); // stable in modern JS engines
+    const artTotal = artifacts.reduce((t, r) => t + r[1], 0);
+
+    // Structure-decorating emoji and inline bold spray - mirrors the
+    // per-line loop in unslop.py analyze().
+    let headerEmoji = 0;
+    let boldInline = 0;
+    const STRUCT_RE = /^(?:[-*+]|\d{1,3}[.)])\s/;
+    const BOLD_SPAN_RE = /\*\*[^*\n]{1,60}\*\*/g;
+    const BOLD_LEAD_RE = /^\s*\*\*[^*\n]{1,45}?(?::\*\*|\*\*:|[.!?]\*\*)/;
+    for (const rawLine of text.split("\n")) {
+      const ls = rawLine.replace(/^\s+/, "");
+      if (ls.startsWith("#") || STRUCT_RE.test(ls)) {
+        headerEmoji += countMatches(rawLine, EMOJI);
+      } else {
+        let matches = rawLine.match(BOLD_SPAN_RE) || [];
+        if (matches.length && BOLD_LEAD_RE.test(rawLine)) {
+          matches = matches.slice(1);
+        }
+        boldInline += matches.length;
+      }
+    }
+
+    // Curly and straight marks of the SAME kind mixed in one document -
+    // a paste boundary. Cross-kind mixing is how humans quote sources.
+    const curlyApo = (text.split("’").length - 1) + (text.split("‘").length - 1);
+    const straightApo = text.split("'").length - 1;
+    const curlyDq = (text.split("“").length - 1) + (text.split("”").length - 1);
+    const straightDq = text.split('"').length - 1;
+    const quoteMix = ((curlyApo >= 3 && straightApo >= 3) ||
+                      (curlyDq >= 3 && straightDq >= 3)) ? 1 : 0;
 
     const sentences = text.trim().split(/(?<=[.!?])\s+/).filter((s) => s.trim());
     const slens = sentences.filter((s) => s.trim()).map((s) => (s.match(SENT_WORD_RE) || []).length);
@@ -1090,19 +1232,94 @@
       uniformity = pyRound(mean ? sd / mean : 0, 2);
     }
 
-    let raw = buzzTotal * 3 + phrTotal * 3;
-    for (const [, n, weight] of pat) raw += n * weight;
+    // Staccato runs: 3+ consecutive very short sentences.
+    let staccatoRuns = 0;
+    let run = 0;
+    for (const n of slens) {
+      if (n > 0 && n <= 5) {
+        run++;
+      } else {
+        if (run >= 3) staccatoRuns++;
+        run = 0;
+      }
+    }
+    if (run >= 3) staccatoRuns++;
+
+    // Paragraph-length uniformity, same math as the sentence check.
+    const paras = text.trim().split(/\n\s*\n/).filter((p) => p.trim());
+    const plens = paras.map((p) => (p.match(SENT_WORD_RE) || []).length).filter((n) => n > 0);
+    let paragraphUniformity = null;
+    if (plens.length >= 5) {
+      const pmean = plens.reduce((a, b) => a + b, 0) / plens.length;
+      const psd = Math.sqrt(plens.reduce((a, x) => a + (x - pmean) ** 2, 0) / plens.length);
+      paragraphUniformity = pyRound(pmean ? psd / pmean : 0, 2);
+    }
+
+    // Self-answering question hooks (mid-line only) - mirrors unslop.py.
+    const QUESTION_HOOK_RE =
+      /(?<=[.!?]) [ \t]*(?:\p{L}[\p{L}\p{N}_'\-]*[ \t]+){0,4}\p{L}[\p{L}\p{N}_'\-]*\?/gu;
+    const questionHooks = countMatches(text, QUESTION_HOOK_RE);
+    const questionHookExcess = Math.max(0, questionHooks - 1);
+
+    // Sentence-initial connective adverbs, scored on density over an
+    // allowance. The word list lives in the pack; packs without one skip.
+    let connectiveOpeners = 0;
+    const connectives = pack.connectives || [];
+    if (connectives.length) {
+      const alt = connectives.map(escapeToken).join("|");
+      const rx = new RegExp("(?:^|(?<=[.!?])\\s)[ \\t]*(?:" + alt + ")\\b", "gim");
+      connectiveOpeners = countMatches(text, rx);
+    }
+    const connectiveExcess = Math.max(0, connectiveOpeners - Math.max(2, Math.floor(slens.length / 10)));
+
+    // Sentence-opener concentration - reported, not scored. The skip class
+    // is non-word chars only ([^\w]* in Python): a sentence opening on a
+    // digit records no opener there, so none here either.
+    const OPENER_RE = /^[^\p{L}\p{N}_]*(\p{L}[\p{L}\p{N}_'\-]*)/u;
+    const openers = [];
+    for (const s of sentences) {
+      const m = s.match(OPENER_RE);
+      if (m) openers.push(m[1].toLowerCase());
+    }
+    let openerTopShare = null;
+    if (openers.length >= 8) {
+      // Single pass - a quadratic count here froze the tab on chat logs.
+      const freq = new Map();
+      let bestN = 0;
+      for (const w of openers) {
+        const n = (freq.get(w) || 0) + 1;
+        freq.set(w, n);
+        if (n > bestN) bestN = n;
+      }
+      openerTopShare = pyRound(bestN / openers.length, 2);
+    }
+
+    let raw = buzzTotal * 3 + phrTotal * 3 + patRaw;
+    raw += artTotal * 10;
     // Dialogue-dash languages get a wider allowance (emDashFactor) - an
     // em-dash budget tuned for English prose would flag ordinary Spanish
     // or French dialogue punctuation.
     const emdashExcess = Math.max(0, emdash - Math.floor(Math.max(2, Math.floor(wc / 90)) * pack.emDashFactor));
     raw += emdashExcess;
     raw += emoji * 2;
+    raw += headerEmoji * 2;
     const boldBullets = countMatches(text, BOLD_BULLET);
     if (boldBullets >= 3) raw += (boldBullets - 2) * 2;
+    const boldInlineExcess = Math.max(0, boldInline - Math.max(2, Math.floor(wc / 150)));
+    raw += boldInlineExcess * 2;
+    raw += questionHookExcess * 2;
 
     let score = per1k(raw);
+    // Rhythm and typography signals ride on top of the normalized score
+    // as small fixed bumps - mirrors the block in unslop.py analyze().
     if (uniformity !== null && uniformity < 0.35) score += 8;
+    if (paragraphUniformity !== null && paragraphUniformity < 0.25) score += 4;
+    score += Math.min(Math.max(0, staccatoRuns - 1) * 4, 8);
+    score += quoteMix * 4;
+    score += Math.min(connectiveExcess, 2) * 2;
+    // A chat-UI artifact is proof of paste - it pins the score at the
+    // hard-verdict floor no matter how long the text is.
+    if (artTotal > 0) score = Math.max(score, 25.0);
 
     let verdict = "looks human";
     if (score >= 25) verdict = "reads as AI - needs a real rewrite";
@@ -1117,11 +1334,23 @@
       buzzwords: buzz,
       phrases: phr,
       patterns: pat,
+      ai_artifacts: artifacts,
       em_dashes: emdash,
       em_dash_excess: emdashExcess,
       emoji: emoji,
+      header_emoji: headerEmoji,
       bold_label_bullets: boldBullets,
+      bold_inline: boldInline,
+      bold_inline_excess: boldInlineExcess,
+      quote_mix: quoteMix,
+      staccato_runs: staccatoRuns,
+      question_hooks: questionHooks,
+      question_hook_excess: questionHookExcess,
+      connective_openers: connectiveOpeners,
+      connective_excess: connectiveExcess,
       sentence_uniformity_cv: uniformity,
+      paragraph_uniformity_cv: paragraphUniformity,
+      opener_top_share: openerTopShare,
     };
   }
 
@@ -1135,6 +1364,7 @@
   // trimmed around it so every character belongs to at most one mark.
 
   const CATEGORY_META = {
+    artifact: { label: "chat-UI residue" },
     phrase: { label: "filler phrase" },
     buzzword: { label: "LLM buzzword" },
     construction: { label: "construction" },
@@ -1143,15 +1373,47 @@
     emdash: { label: "em dash" },
     "bold-bullet": { label: "**Term:** bullet" },
   };
-  const PRIORITY = ["phrase", "buzzword", "construction", "hedge", "emoji", "emdash", "bold-bullet"];
+  const PRIORITY = ["artifact", "phrase", "buzzword", "construction", "hedge", "emoji", "emdash", "bold-bullet"];
 
   function highlight(text, opts) {
     opts = opts || {};
     const [, , pack] = resolvePack(text, opts);
     const buzzwords = opts.buzzwords || pack.buzzwords;
     const phrases = opts.phrases || pack.phrases;
+    // Same normalization as analyze(). Every replacement is one-to-one,
+    // so the returned spans still index the caller's original string
+    // wherever that string could actually reach this code (textarea
+    // values never contain \r).
+    text = text.replace(/\r\n?|[\x1c-\x1f\x85\u2028\u2029]/g, "\n").replace(/\ufeff/g, " ");
     const lower = text.toLowerCase().replace(/’/g, "'");
     const raw = [];
+
+    // Chat-UI residue first - merged the same way analyze() merges it, so
+    // a pasted citation block paints as one mark.
+    const artSpans = [];
+    for (const [label, needle] of AI_ARTIFACTS) {
+      let i = lower.indexOf(needle);
+      while (i !== -1) {
+        artSpans.push([i, i + needle.length, label]);
+        i = lower.indexOf(needle, i + 1);
+      }
+    }
+    artSpans.sort((a, b) => (a[0] - b[0]) || (a[1] - b[1]));
+    let artStart = -1;
+    let artEnd = -2;
+    let artLabel = null;
+    const flushArt = () => {
+      if (artStart !== -1) raw.push({ start: artStart, end: artEnd, category: "artifact", key: artLabel });
+    };
+    for (const [s, e, label] of artSpans) {
+      if (s > artEnd + 1) {
+        flushArt();
+        artStart = s;
+        artLabel = label;
+      }
+      artEnd = Math.max(artEnd, e);
+    }
+    flushArt();
 
     // buzz + phrase, resolved to the same non-overlapping set analyze() uses
     const spans = [];

@@ -726,3 +726,266 @@ def test_finnish_slop_is_detected_and_flagged():
     assert any(w == "korvaamaton" for w, _, _ in r["buzzwords"])
     assert any(p == "on tärkeää huomioida" for p, _, _ in r["phrases"])
     assert any("vaan" in label for label, _, _, _, _ in r["patterns"])
+
+
+# ---- 0.7.0: chat-UI artifacts ----
+
+def test_oaicite_artifact_forces_hard_verdict():
+    text = (
+        "Quarterly numbers were fine. Revenue grew four percent on stable "
+        "costs, and the board approved the plan without much debate "
+        ":contentReference[oaicite:0]{index=0}. Everything else about this "
+        "paragraph is deliberately plain so nothing but the artifact fires. "
+    ) * 8  # long text: per-1k dilution would otherwise bury the artifact
+    r = unslop.analyze(text)
+    assert r["ai_artifacts"]
+    assert r["score_per_1k"] >= 25
+    assert "AI" in r["verdict"]
+
+
+def test_contentreference_block_counts_once_not_twice():
+    r = unslop.analyze("Sales rose :contentReference[oaicite:3]{index=3} again.")
+    assert sum(n for _, n, _ in r["ai_artifacts"]) == 1
+
+
+def test_chatgpt_tracking_param_is_an_artifact():
+    r = unslop.analyze("See https://example.com/a?utm_source=chatgpt.com for more.")
+    assert r["ai_artifacts"]
+    assert "AI" in r["verdict"]
+
+
+def test_plain_urls_are_not_artifacts():
+    r = unslop.analyze("See https://example.com/a?utm_source=newsletter for more. "
+                       "The site tracks campaigns like most marketing sites do.")
+    assert r["ai_artifacts"] == []
+
+
+def test_artifact_at_offset_zero_still_counts():
+    # Regression: the merge sentinel used to swallow a span at offset 0.
+    r = unslop.analyze("oaicite residue opens this very text and the rest "
+                       "of the passage is deliberately plain filler prose.")
+    assert sum(n for _, n, _ in r["ai_artifacts"]) == 1
+    assert "AI" in r["verdict"]
+
+
+def test_template_placeholders_are_not_artifacts():
+    # Humans write mail-merge placeholders on purpose.
+    r = unslop.analyze("Dear [Insert Name], thank you for applying. Reply "
+                       "to [insert your email] with two references, please.")
+    assert r["ai_artifacts"] == []
+
+
+def test_curly_apostrophe_split_flip_is_caught():
+    r = unslop.analyze("The problem isn’t the tooling. It’s the culture "
+                       "around the tooling that nobody wants to name.")
+    assert any("split flip" in label for label, _, _, _, _ in r["patterns"])
+
+
+def test_single_split_flip_reports_but_does_not_score():
+    r = unslop.analyze("The county says it is a staffing problem. It isn't "
+                       "a staffing problem. It's a software problem that "
+                       "nobody budgeted for, and everyone in the building "
+                       "knows it by now.")
+    assert any("split flip" in label for label, _, _, _, _ in r["patterns"])
+    assert r["score_per_1k"] == 0.0
+
+
+def test_single_ing_closer_reports_but_does_not_score():
+    r = unslop.analyze("The bridge opened in 1932, reflecting the city's "
+                       "ambitions at the time. Repairs began within a "
+                       "decade and never really stopped after that.")
+    assert any("closer" in label for label, _, _, _, _ in r["patterns"])
+    assert r["score_per_1k"] == 0.0
+
+
+def test_ing_closer_does_not_double_count_buzzword_verbs():
+    # ", underscoring X." scores once as a buzzword, not again as a closer.
+    r = unslop.analyze("Attendance doubled that year, underscoring the "
+                       "festival's growing pull across the region.")
+    assert any(w == "underscoring" for w, _, _ in r["buzzwords"])
+    assert not any("closer" in label for label, _, _, _, _ in r["patterns"])
+
+
+def test_connective_bump_is_capped():
+    heavy = unslop.analyze("Moreover, results held. Furthermore, costs "
+                           "fell. Additionally, the team grew. Notably, "
+                           "retention improved. Ultimately, we shipped. "
+                           "Overall, a fine quarter by any measure.")
+    assert heavy["connective_excess"] > 0
+    assert heavy["score_per_1k"] <= 8
+
+
+# ---- 0.7.0: new construction patterns ----
+
+def test_dangling_ing_closer_is_flagged():
+    r = unslop.analyze("The bridge opened in 1932, highlighting the city's ambition.")
+    assert any("closer" in label for label, _, _, _, _ in r["patterns"])
+
+
+def test_ensuring_clause_is_not_flagged_as_closer():
+    # ", ensuring ..." is ordinary technical prose, deliberately excluded.
+    r = unslop.analyze("The lock is released in a finally block, ensuring the "
+                       "file handle is closed even on error.")
+    assert not any("closer" in label for label, _, _, _, _ in r["patterns"])
+
+
+def test_split_sentence_flip_is_flagged():
+    r = unslop.analyze("The problem isn't a lack of tools. It's that nobody "
+                       "reads the documentation we already have.")
+    assert any("split flip" in label for label, _, _, _, _ in r["patterns"])
+
+
+def test_single_anaphora_triad_reports_but_does_not_score():
+    r = unslop.analyze("It works where trust exists, where budgets allow, "
+                       "where teams commit.")
+    assert any("triad" in label for label, _, _, _, _ in r["patterns"])
+    assert r["score_per_1k"] == 0.0
+
+
+def test_repeated_anaphora_triads_do_score():
+    r = unslop.analyze(
+        "It works where trust exists, where budgets allow, where teams commit. "
+        "We came for the food, for the music, and for the company.")
+    assert r["score_per_1k"] > 0
+
+
+def test_fragment_hook_is_flagged():
+    r = unslop.analyze("We cut the budget in half. The result? Nothing broke.")
+    assert any("fragment hook" in label for label, _, _, _, _ in r["patterns"])
+
+
+def test_sycophantic_opener_only_fires_line_initial():
+    hit = unslop.analyze("Great question! The answer is in the config.")
+    miss = unslop.analyze("She said it was a great question, and moved on.")
+    assert any("sycophantic" in label for label, _, _, _, _ in hit["patterns"])
+    assert not any("sycophantic" in label for label, _, _, _, _ in miss["patterns"])
+
+
+def test_tada_opener_only_fires_line_initial():
+    hit = unslop.analyze("Here's why this matters. The pump was never the issue.")
+    miss = unslop.analyze("I asked him twice, and here's what he said about it.")
+    assert any("ta-da" in label for label, _, _, _, _ in hit["patterns"])
+    assert not any("ta-da" in label for label, _, _, _, _ in miss["patterns"])
+
+
+# ---- 0.7.0: structural rhythm checks ----
+
+def test_single_staccato_run_reports_but_does_not_score():
+    # Terse fragments are a legitimate human style once - the first run is
+    # free and only repetition of the cadence scores.
+    r = unslop.analyze("We tried it. It broke. We fixed it. It broke again. "
+                       "Nobody panicked. The second attempt held through the "
+                       "weekend and nobody had to think about it again.")
+    assert r["staccato_runs"] == 1
+    assert r["score_per_1k"] == 0.0
+
+
+def test_repeated_staccato_runs_do_score():
+    r = unslop.analyze("We tried it. It broke. We fixed it. Then the plan "
+                       "changed for the better part of a week while we "
+                       "watched. No fluff. No filler. Just results. That "
+                       "was the whole pitch they gave us on the call.")
+    assert r["staccato_runs"] == 2
+    assert r["score_per_1k"] >= 4
+
+
+def test_normal_prose_has_no_staccato_runs():
+    r = unslop.analyze("The pump broke on Tuesday morning. I drove over after "
+                       "lunch and pulled the housing apart. The seal had a "
+                       "visible crack along the top edge. A new one cost nine "
+                       "dollars at the counter. It has run fine since then.")
+    assert r["staccato_runs"] == 0
+
+
+def test_header_emoji_scores_extra():
+    plain = unslop.analyze("Shipping went fine ✅ and everyone went home.")
+    decorated = unslop.analyze("# ✅ Shipping Update\n\nEverything went "
+                               "fine and everyone went home on time.")
+    assert plain["header_emoji"] == 0
+    assert decorated["header_emoji"] == 1
+
+
+def test_bold_inline_spray_has_an_allowance():
+    two = unslop.analyze("The **first point** stands. The **second point** "
+                         "does not, and the rest of the paragraph explains "
+                         "why at a length that keeps the density plausible.")
+    assert two["bold_inline_excess"] == 0
+
+
+def test_bold_paragraph_leads_count_as_label_bullets():
+    r = unslop.analyze("**Speed.** We go fast.\n\n**Quality.** We stay sharp."
+                       "\n\n**Trust.** We deliver.\n\n**Scale.** We grow.")
+    assert r["bold_label_bullets"] == 4
+    assert r["score_per_1k"] > 0
+
+
+def test_quote_mixing_flags_same_kind_paste_boundary():
+    # Curly and straight apostrophes both used as apostrophes - the paste
+    # boundary the check exists for.
+    mixed = unslop.analyze("It’s the vendor’s call and they’ve made it. "
+                           "But it's our contract, it's our data, and it's "
+                           "our name on the front page when this breaks.")
+    assert mixed["quote_mix"] == 1
+
+
+def test_quoting_a_curly_source_does_not_flag():
+    # A straight-apostrophe author quoting a curly-quoted excerpt is how
+    # humans cite sources, not paste evidence.
+    r = unslop.analyze('The report says “the committee’s decision is '
+                       'final” in section two. That\'s the whole basis '
+                       'for the town\'s appeal, and it isn\'t much.')
+    assert r["quote_mix"] == 0
+
+
+def test_consistent_quotes_do_not_flag():
+    straight = unslop.analyze('He said "fine" and then "not fine" and then '
+                              '"we will see" within a single minute.')
+    assert straight["quote_mix"] == 0
+
+
+def test_question_hooks_have_an_allowance_of_one():
+    one = unslop.analyze("We doubled the cache. The gain? Four percent, "
+                         "which nobody considered worth the added memory.")
+    two = unslop.analyze("We doubled the cache. The gain? Four percent. We "
+                         "tripled it after. The cost? Memory pressure.")
+    assert one["question_hook_excess"] == 0
+    assert two["question_hook_excess"] == 1
+
+
+def test_connective_openers_score_on_density_only():
+    light = unslop.analyze("Moreover, the results held. The rest of the "
+                           "report was unremarkable in every direction. The "
+                           "team moved on to other work within the week.")
+    heavy = unslop.analyze("Moreover, results held. Furthermore, costs fell. "
+                           "Additionally, the team grew. Notably, retention "
+                           "improved. Ultimately, the quarter closed strong.")
+    assert light["connective_excess"] == 0
+    assert heavy["connective_excess"] > 0
+
+
+def test_paragraph_uniformity_reported_when_five_paragraphs():
+    text = "\n\n".join(
+        "This paragraph runs to roughly twenty words when you count it all "
+        "the way through to the very end okay." for _ in range(5))
+    r = unslop.analyze(text)
+    assert r["paragraph_uniformity_cv"] is not None
+    assert r["paragraph_uniformity_cv"] < 0.25
+
+
+def test_opener_share_is_reported_not_scored():
+    text = ("The server restarted. The logs were clean. The disk held. "
+            "The network stayed up. The backup ran. The monitors slept. "
+            "The morning was quiet. The ticket was closed.")
+    r = unslop.analyze(text)
+    assert r["opener_top_share"] is not None
+    assert r["opener_top_share"] >= 0.9
+
+
+def test_new_buzzwords_are_word_bounded():
+    r = unslop.analyze("The realignments were subtle.")  # not "aligns"
+    assert not any(w == "aligns" for w, _, _ in r["buzzwords"])
+
+
+def test_json_schema_keys_match_analyze_output():
+    r = unslop.analyze("Plain text.")
+    assert set(r) == unslop.JSON_SCHEMA_KEYS
