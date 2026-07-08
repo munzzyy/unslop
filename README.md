@@ -128,6 +128,14 @@ paste.
 
 ## Install
 
+From PyPI (the command it installs is `noslop`):
+
+```bash
+pip install noslop-lint
+```
+
+Or with pipx, straight from the repo:
+
 ```bash
 pipx install git+https://github.com/munzzyy/noslop
 ```

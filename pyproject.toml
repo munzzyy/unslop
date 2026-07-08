@@ -3,7 +3,7 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "noslop"
+name = "noslop-lint"
 version = "0.8.0"
 description = "Flag the AI tells in a piece of writing, so you can rewrite them before you ship."
 readme = "README.md"
