@@ -989,3 +989,263 @@ def test_new_buzzwords_are_word_bounded():
 def test_json_schema_keys_match_analyze_output():
     r = noslop.analyze("Plain text.")
     assert set(r) == noslop.JSON_SCHEMA_KEYS
+
+
+# ---- 0.9.0: chatbot disclaimer artifacts ----
+
+def test_as_an_ai_is_an_artifact_not_a_phrase():
+    r = noslop.analyze("As an AI, I don't have personal opinions on this, "
+                       "but here is what the data in the report suggests.")
+    assert r["ai_artifacts"]
+    assert not any(p == "as an ai" for p, _, _ in r["phrases"])
+    assert r["score_per_1k"] >= 25
+
+
+def test_knowledge_cutoff_disclaimer_is_an_artifact():
+    r = noslop.analyze("As of my last update, the population figure was "
+                       "around eight million, though that may have shifted "
+                       "since then given how fast the city has grown.")
+    assert r["ai_artifacts"]
+    assert "AI" in r["verdict"]
+
+
+def test_no_browsing_disclaimer_is_an_artifact():
+    r = noslop.analyze("I don't have real-time access to the news, so I "
+                       "can't confirm today's headline for you directly.")
+    assert r["ai_artifacts"]
+
+
+def test_spanish_ai_self_reference_is_an_artifact():
+    r = noslop.analyze(
+        "Ayer se me rompió la cadena de la bici a mitad del camino al "
+        "trabajo. Como modelo de lenguaje, no puedo verificar esto, pero "
+        "la arreglé con el tronchacadenas que llevo desde hace años.",
+        lang="es")
+    assert r["ai_artifacts"]
+
+
+# ---- 0.9.0: punctuation-distribution entropy ----
+
+def test_single_punctuation_class_is_low_entropy():
+    text = "this, " * 35 + "and that is the end of it."
+    r = noslop.analyze(text)
+    assert r["punct_entropy"] is not None
+    assert r["punct_entropy_low"] is True
+
+
+def test_short_text_has_no_punct_entropy_reading():
+    r = noslop.analyze("Short and plain, done.")
+    assert r["punct_entropy"] is None
+    assert r["punct_entropy_low"] is False
+
+
+def test_ordinary_prose_is_not_low_entropy():
+    r = noslop.analyze(open(__file__, encoding="utf-8").read()[:4000])
+    # the test file's own docstrings/asserts mix enough punctuation classes
+    # (commas, colons, parens, quotes) that this should read as varied, not
+    # a smoke test of noslop's own source - just a sanity check the flag
+    # isn't trivially always true.
+    assert r["punct_entropy_low"] is False
+
+
+# ---- 0.9.0: generic listicle headings ----
+
+def test_single_generic_heading_does_not_score():
+    r = noslop.analyze("# Conclusion\n\nOne last plain paragraph about "
+                       "nothing in particular, long enough to read fine.")
+    assert r["generic_headings"] == 1
+    assert r["score_per_1k"] == 0.0
+
+
+def test_repeated_generic_headings_score():
+    text = ("# Introduction\n\nSome plain opening text about the topic.\n\n"
+            "# Key Takeaways\n\nA few plain points about the topic.\n\n"
+            "# Conclusion\n\nA plain closing paragraph about the topic.\n")
+    r = noslop.analyze(text)
+    assert r["generic_headings"] == 3
+    assert r["score_per_1k"] > 0
+
+
+def test_bold_and_colon_stripped_before_matching():
+    r = noslop.analyze("## **Conclusion:**\n\nPlain text follows here.\n\n"
+                       "## Overview\n\nMore plain text follows this line.")
+    assert r["generic_headings"] == 2
+
+
+def test_specific_heading_is_not_generic():
+    r = noslop.analyze("# Shipping the v2 API\n\nPlain text about the "
+                       "release, nothing templated about this heading.")
+    assert r["generic_headings"] == 0
+
+
+# ---- 0.9.0: bare bullet glyphs ----
+
+def test_bare_bullet_glyphs_score():
+    text = ("Here is the plan:\n"
+            "• Ship the fix\n"
+            "• Write the test\n"
+            "• Tell the team\n")
+    r = noslop.analyze(text)
+    assert r["bare_bullets"] == 3
+    assert r["score_per_1k"] > 0
+
+
+def test_dash_bullets_are_not_bare_bullets():
+    r = noslop.analyze("Here is the plan:\n- Ship the fix\n- Write the "
+                       "test\n- Tell the team\n")
+    assert r["bare_bullets"] == 0
+
+
+# ---- 0.9.0: copula-avoidance and scope-inflation ----
+
+def test_copula_avoidance_needs_density_to_score():
+    r = noslop.analyze("The bridge serves as a crossing for the rail line, "
+                       "and it has done that job well for almost a century "
+                       "now without a single major structural repair.")
+    assert r["copula_avoidance"]
+    assert r["copula_avoidance_scored"] is False
+    assert r["score_per_1k"] == 0.0
+
+
+def test_copula_avoidance_scores_past_density_gate():
+    text = ("The report serves as a summary of the quarter. The chart "
+            "stands as a record of the trend. The footnote functions as a "
+            "caveat for the reader, and the appendix acts as a testament "
+            "to how much detail was cut from the main draft.")
+    r = noslop.analyze(text)
+    assert r["copula_avoidance_scored"] is True
+    assert r["score_per_1k"] > 0
+
+
+def test_stands_as_a_testament_is_not_double_counted():
+    # The longer PHRASES entry should win the overlap, not stack with the
+    # shorter copula-avoidance fragment it contains.
+    r = noslop.analyze("The building stands as a testament to a century of "
+                       "the city's civic ambition and careful upkeep.")
+    assert sum(n for _, n, _ in r["phrases"]) == 1
+    assert r["copula_avoidance"] == []
+
+
+def test_scope_inflation_scores_every_hit():
+    r = noslop.analyze("Her contribution to the launch cannot be "
+                       "overstated, and the team felt it from the moment "
+                       "she joined the project full time.")
+    assert r["scope_inflation"]
+    assert r["score_per_1k"] > 0
+
+
+# ---- 0.9.0: heading-level skip (report-only) ----
+
+def test_heading_skip_is_reported_not_scored():
+    text = "# Title\n\n## Section\n\n#### Deep subsection\n\nPlain text."
+    r = noslop.analyze(text)
+    assert r["heading_level_skips"] == 1
+    assert r["score_per_1k"] == 0.0
+
+
+def test_no_heading_skip_when_levels_are_sequential():
+    text = "# Title\n\n## Section\n\n### Subsection\n\nPlain text follows."
+    r = noslop.analyze(text)
+    assert r["heading_level_skips"] == 0
+
+
+# ---- 0.9.0: cross-paragraph opener repetition ----
+
+def test_repeated_paragraph_openers_score():
+    text = "\n\n".join([
+        "Best for people who want speed above everything else in a tool.",
+        "Best for people who want a simple setup with no configuration.",
+        "Best for people who want to run this entirely offline and local.",
+        "A closing paragraph that opens differently from the three above.",
+        "One more paragraph included just to clear the five-paragraph floor.",
+    ])
+    r = noslop.analyze(text)
+    assert r["paragraph_opener_repeat"] == 3
+    assert r["paragraph_opener_repeat_text"] == "best for people who want"
+    assert r["score_per_1k"] > 0
+
+
+def test_varied_paragraph_openers_do_not_score():
+    text = "\n\n".join([
+        "The first paragraph opens with its own distinct sentence here.",
+        "A second paragraph starts on a completely different note today.",
+        "Then a third one takes yet another angle on the same subject.",
+        "The fourth continues without repeating any earlier opening words.",
+        "And the fifth wraps up without echoing the others at all here.",
+    ])
+    r = noslop.analyze(text)
+    assert r["paragraph_opener_repeat"] == 0
+
+
+# ---- 0.9.0: windowed TTR / function-word ratio (report-only diagnostics) ----
+
+def test_windowed_ttr_needs_200_words():
+    r = noslop.analyze("Not nearly enough words here to fill a window.")
+    assert r["windowed_ttr"] is None
+
+
+def test_windowed_ttr_and_function_word_ratio_never_score():
+    # A 200+ word block that repeats one word constantly (near-zero TTR)
+    # still must not move score_per_1k - these are report-only by design.
+    text = ("word " * 220).strip() + "."
+    r = noslop.analyze(text)
+    assert r["windowed_ttr"] is not None
+    assert r["windowed_ttr"] < 0.05
+    assert r["score_per_1k"] == 0.0
+
+
+def test_function_word_ratio_is_always_reported():
+    r = noslop.analyze("The cat sat on the mat and then it left the room.")
+    assert 0.0 <= r["function_word_ratio"] <= 1.0
+
+
+# ---- 0.9.0: Russian pack upgrades ----
+
+def test_russian_bureaucratic_determiner_is_a_buzzword():
+    r = noslop.analyze("Данный отчёт содержит краткое изложение результатов "
+                       "работы команды за прошедший квартал целиком.",
+                       lang="ru")
+    assert any(w == "данный" for w, _, _ in r["buzzwords"])
+
+
+def test_russian_opener_cliche_is_a_phrase():
+    r = noslop.analyze("В эпоху цифровизации компании пересматривают свои "
+                       "процессы, чтобы оставаться конкурентоспособными.",
+                       lang="ru")
+    assert any("в эпоху цифровизации" in p for p, _, _ in r["phrases"])
+
+
+def test_yavlyaetsya_has_an_allowance():
+    # A couple of ordinary uses of "является" in otherwise plain formal
+    # Russian shouldn't score - it's a normal copula verb.
+    r = noslop.analyze("Совет является главным органом управления. Устав "
+                       "является основным документом организации.",
+                       lang="ru")
+    assert r["density_crutch_excess"] == 0
+    assert r["score_per_1k"] == 0.0
+
+
+def test_yavlyaetsya_excess_scores_past_the_allowance():
+    clause = "Это является важным фактом, который является ключевым. "
+    r = noslop.analyze(clause * 6, lang="ru")
+    assert r["density_crutch"] > 0
+    assert r["density_crutch_excess"] > 0
+    assert r["score_per_1k"] > 0
+
+
+def test_yavlyayutsya_plural_is_not_matched_as_the_singular_crutch():
+    # Word-boundary matching on the bare stem "является" deliberately
+    # doesn't reach into its own inflected forms - documented as a real
+    # limitation in eval/README.md, not a bug.
+    r = noslop.analyze("Участниками этих отношений являются граждане и "
+                       "юридические лица, если иное не предусмотрено "
+                       "законом или уставом организации в целом.",
+                       lang="ru")
+    assert r["density_crutch"] == 0
+
+
+def test_russian_ai_self_reference_is_an_artifact():
+    r = noslop.analyze("Как языковая модель, я не могу дать точный прогноз, "
+                       "но вот что показывают доступные данные по теме.",
+                       lang="ru")
+    assert r["ai_artifacts"]

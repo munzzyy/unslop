@@ -28,8 +28,12 @@ CORPUS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "corpus")
 # CI floors. Deliberately below the measured numbers so ordinary drift passes
 # and only a real regression fails; see eval/README.md for the measured state.
 FLOORS = {
-    "auc_min": 0.93,
-    "detect_at_10_min": 0.80,   # share of AI samples scoring >= 10
+    # Raised in 0.9.0 after the new detectors + 4 new corpus samples (see
+    # eval/README.md) moved AUC to 0.9752 and detection@10 to 89.5% without
+    # moving either false-positive ceiling. Still sits below the measured
+    # numbers so routine drift passes and only a real regression trips.
+    "auc_min": 0.95,
+    "detect_at_10_min": 0.85,   # share of AI samples scoring >= 10
     "human_fp_at_10_max": 0.10, # share of human samples scoring >= 10
     "human_fp_at_25_max": 0.0,  # no human sample may cross the hard verdict
 }

@@ -239,6 +239,50 @@ const FIXTURES = {
   "fi slop": "Nykypäivän nopeatempoisessa maailmassa on tärkeää huomioida, että alustamme on kattava, saumaton ja mullistava. Sukella syvemmälle ja vapauta potentiaalisi! Tämä ei ole vain työkalu, vaan korvaamaton kulmakivi strategiassamme. Se on avainasemassa, kun viemme tiimisi seuraavalle tasolle. Toivottavasti tästä on apua!",
 
   "fi clean": "Eilen illalla polkupyörän ketju katkesi matkalla kotiin töistä. Korjasin sen työkalulla, jota olen kantanut mukana vuosia mutta en ollut koskaan käyttänyt. Se kesti kaksikymmentä minuuttia, ja pääsin kotiin kädet mustana rasvasta, mutta ajoissa. Korjaaja kertoi myöhemmin, että ketju oli jo ajanut yli viisi tuhatta kilometriä, joten ostin heti uuden.",
+
+  // ---- the 0.9.0 tells: every new check gets a fixture through both engines ----
+
+  "as an ai artifact": "As an AI, I don't have personal opinions on this, but here is what the report's numbers suggest about the quarter overall.",
+
+  "knowledge cutoff artifact": "As of my last update, the population figure was around eight million, though that may well have shifted by now given how fast the city keeps growing year over year.",
+
+  "no browsing artifact": "I don't have real-time access to the news, so I can't confirm today's headline directly, but here is how you'd check it yourself in under a minute.",
+
+  "spanish ai self reference artifact": "Ayer se me rompió la cadena de la bici a mitad del camino al trabajo. Como modelo de lenguaje, no puedo verificar esto, pero la arreglé con el tronchacadenas que llevo desde hace años.",
+
+  "german ai self reference artifact": "Der Aufzug im Haus ist seit Dienstag wieder kaputt. Als KI-Modell kann ich das nicht bestätigen, aber die Hausverwaltung hat einen Zettel mit dem Ersatzteil-Termin aufgehängt.",
+
+  "low punctuation entropy": "this, ".repeat(35) + "and that is the end of it.",
+
+  "varied punctuation entropy": "The plan: ship it. Then what? We'll see (probably fine) - but \"careful\" is the word; nothing's certain, not yet.",
+
+  "single generic heading is free": "# Conclusion\n\nOne last plain paragraph about nothing in particular, long enough to read fine on its own.",
+
+  "repeated generic headings score": "# Introduction\n\nSome plain opening text about the topic at hand.\n\n# Key Takeaways\n\nA few plain points about the topic.\n\n# Conclusion\n\nA plain closing paragraph about the topic.\n",
+
+  "bold and colon stripped from heading": "## **Conclusion:**\n\nPlain text follows here in this paragraph.\n\n## Overview\n\nMore plain text follows this line here too.",
+
+  "bare bullet glyphs": "Here is the plan:\n• Ship the fix\n• Write the test\n• Tell the team\n",
+
+  "dash bullets are not bare bullets": "Here is the plan:\n- Ship the fix\n- Write the test\n- Tell the team\n",
+
+  "copula avoidance below density gate": "The bridge serves as a crossing for the rail line, and it has done that job well for almost a century now without a single major structural repair.",
+
+  "copula avoidance past density gate": "The report serves as a summary of the quarter. The chart stands as a record of the trend. The footnote functions as a caveat for the reader, and the appendix acts as a testament to how much detail was cut.",
+
+  "stands as a testament not double counted": "The building stands as a testament to a century of the city's civic ambition and careful upkeep.",
+
+  "scope inflation phrases": "Her contribution to the launch cannot be overstated, and the team felt it from the moment she joined the project full time.",
+
+  "heading level skip": "# Title\n\n## Section\n\n#### Deep subsection\n\nPlain text follows this heading structure.",
+
+  "no heading level skip": "# Title\n\n## Section\n\n### Subsection\n\nPlain text follows this heading structure fine.",
+
+  "repeated paragraph openers": "Best for people who want speed above everything else in a tool.\n\nBest for people who want a simple setup with no configuration.\n\nBest for people who want to run this entirely offline and local.\n\nA closing paragraph that opens differently from the three above.\n\nOne more paragraph included just to clear the five-paragraph floor.",
+
+  "varied paragraph openers": "The first paragraph opens with its own distinct sentence here.\n\nA second paragraph starts on a completely different note today.\n\nThen a third one takes yet another angle on the same subject.\n\nThe fourth continues without repeating any earlier opening words.\n\nAnd the fifth wraps up without echoing the others at all here.",
+
+  "windowed ttr and function word ratio never score": ("word ".repeat(220)).trim() + ".",
 };
 
 // [text, lang] pairs: same diff, but with --lang forced on both sides.
@@ -246,6 +290,16 @@ const FORCED = {
   "forced es on english": ["The quick brown fox jumps over the lazy dog and keeps going for a while.", "es"],
   "forced en on spanish": ["El zorro marrón salta sobre el perro perezoso y sigue corriendo un buen rato más.", "en"],
   "forced de on german": ["In der heutigen schnelllebigen Welt ist es wichtig zu beachten, dass nahtlose Synergien entscheidend sind.", "de"],
+
+  // Short single/two-sentence Russian fixtures below the auto-detector's
+  // confidence floor (see detect_language() in noslop.py) - forced so the
+  // fixture tests the intended pack instead of the English fallback.
+  "russian bureaucratic determiner buzzword": ["Данный отчёт содержит краткое изложение результатов работы команды за прошедший квартал целиком и полностью.", "ru"],
+  "russian opener cliche phrase": ["В эпоху цифровизации компании пересматривают свои процессы, чтобы оставаться конкурентоспособными на рынке услуг.", "ru"],
+  "yavlyaetsya has an allowance": ["Совет является главным органом управления. Устав является основным документом организации в целом.", "ru"],
+  "yavlyaetsya excess scores": [("Это является важным фактом, который является ключевым. ").repeat(6), "ru"],
+  "yavlyayutsya plural not matched as singular crutch": ["Участниками этих отношений являются граждане и юридические лица, если иное не предусмотрено законом или уставом организации в целом.", "ru"],
+  "russian ai self reference artifact": ["Как языковая модель, я не могу дать точный прогноз, но вот что показывают доступные данные по этой теме на сегодня.", "ru"],
 };
 
 let pass = 0, fail = 0;

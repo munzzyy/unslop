@@ -51,8 +51,10 @@
     "that said", "rest assured", "needless to say", "at the end of the day",
     "in today's world", "in today's fast-paced", "let's dive", "dive into",
     "let's break it down", "here's the thing", "i hope this helps",
-    "feel free to", "happy to help", "great question", "as an ai",
-    "as a language model", "this is where", "look no further",
+    "feel free to", "happy to help", "great question",
+    // "as an ai" / "as a language model" moved to AI_ARTIFACT_PHRASES in
+    // 0.9.0 - see the note there.
+    "this is where", "look no further",
     "without further ado", "the key takeaway", "let's explore",
     "let's take a look", "buckle up", "when it comes to", "at its core",
     "the world of", "in the realm of", "plays a vital role",
@@ -125,6 +127,20 @@
     ["openai link-tracking parameter", "utm_source=openai"],
   ];
 
+  // Chatbot disclaimer sentences - same floor-at-25 tier as AI_ARTIFACTS,
+  // but matched with findAll()'s word-boundary search (not a bare
+  // indexOf scan) since these are natural-language phrases that can wrap
+  // across an edited line, not markup tokens that sit inside a URL.
+  // Mirrors AI_ARTIFACT_PHRASES in noslop.py.
+  const AI_ARTIFACT_PHRASES = [
+    ["chatbot self-reference (\"as an AI\")", "as an ai"],
+    ["chatbot self-reference (\"as a language model\")", "as a language model"],
+    ["chatbot knowledge-cutoff disclaimer (\"as of my last update\")", "as of my last update"],
+    ["chatbot knowledge-cutoff disclaimer (\"as of my knowledge cutoff\")", "as of my knowledge cutoff"],
+    ["chatbot no-browsing disclaimer (\"I don't have real-time access\")", "i don't have real-time access"],
+    ["chatbot no-browsing disclaimer (\"I cannot browse the internet\")", "i cannot browse the internet"],
+  ];
+
   // Sentence-initial connective adverbs for the en pack - scored on
   // density over an allowance, mirroring noslop.py. Packs without a
   // connectives list skip the check.
@@ -133,6 +149,58 @@
     "ultimately", "importantly", "crucially", "significantly",
     "in essence", "overall",
   ];
+
+  // Copula-avoidance and scope-inflation filler - mirrors COPULA_AVOIDANCE/
+  // SCOPE_INFLATION in noslop.py. English only for now.
+  const COPULA_AVOIDANCE = [
+    "serves as a", "stands as a", "functions as a", "acts as a testament",
+  ];
+  const COPULA_AVOIDANCE_MIN_PER_1K = 2.0;
+  const SCOPE_INFLATION = [
+    "cannot be overstated", "cannot be understated", "in every sense of the word",
+    "from the moment",
+  ];
+
+  // Generic AI-listicle headings - mirrors GENERIC_HEADINGS in noslop.py.
+  // Only scores at 2+ hits in one document.
+  const GENERIC_HEADINGS = new Set([
+    "introduction", "conclusion", "overview", "key takeaways",
+    "final thoughts", "in summary", "background", "the bottom line",
+    "why it matters", "getting started",
+  ]);
+
+  // Bare bullet glyphs opening a line - mirrors BARE_BULLET_RE.
+  const BARE_BULLET_RE = /^[ \t]*[•▪‣]/gm;
+
+  // Sentence-punctuation entropy - mirrors punct_entropy() in noslop.py.
+  const PUNCT_CLASS = new Set(".,;:!?…()'\"’“”—-".split(""));
+  const PUNCT_ENTROPY_MIN_CHARS = 30;
+  const PUNCT_ENTROPY_LOW = 0.55;
+
+  function punctEntropy(text) {
+    const counts = new Map();
+    let total = 0;
+    for (const ch of text) {
+      if (PUNCT_CLASS.has(ch)) {
+        counts.set(ch, (counts.get(ch) || 0) + 1);
+        total++;
+      }
+    }
+    if (total < PUNCT_ENTROPY_MIN_CHARS) return null;
+    const classes = counts.size;
+    if (classes <= 1) return 0.0;
+    let ent = 0;
+    for (const c of counts.values()) {
+      const p = c / total;
+      ent -= p * Math.log2(p);
+    }
+    return pyRound(ent / Math.log2(classes), 3);
+  }
+
+  // Per-language "density crutch" words - mirrors DENSITY_CRUTCH_ALLOWANCE_DIVISOR
+  // and pack["density_crutch"] in noslop.py. A pack opts in with a
+  // densityCrutch array; packs without one skip the check.
+  const DENSITY_CRUTCH_ALLOWANCE_DIVISOR = 150;
 
   // ---- language packs (kept in lockstep with LANGUAGES in noslop.py) ----
   //
@@ -153,6 +221,8 @@
         "what", "you", "all",
       ]),
       connectives: EN_CONNECTIVES,
+      copulaAvoidance: COPULA_AVOIDANCE,
+      scopeInflation: SCOPE_INFLATION,
       marks: "",
       emDashFactor: 1.0,
     },
@@ -184,8 +254,10 @@
         "en el vertiginoso mundo", "sumérgete en", "exploremos",
         "profundicemos en", "espero que esto ayude",
         "espero que esto te ayude", "no dudes en", "siéntete libre de",
-        "gran pregunta", "excelente pregunta", "como modelo de lenguaje",
-        "como inteligencia artificial", "desbloquea todo tu potencial",
+        "gran pregunta", "excelente pregunta",
+        // "como modelo de lenguaje" / "como inteligencia artificial" moved
+        // to artifactPhrases below in 0.9.0.
+        "desbloquea todo tu potencial",
         "libera todo tu potencial", "ya seas", "tanto si eres",
         "atrás quedaron los días", "más que un simple",
         "juega un papel crucial", "juega un papel fundamental",
@@ -206,6 +278,14 @@
         ["acumulación de matizadores (puede/podría/a menudo)",
           /(?<![\p{L}\p{N}_])(?:puede|podría|podrían|a menudo|generalmente|típicamente|usualmente|posiblemente|quizás|tal vez)(?![\p{L}\p{N}_])/giu, 0,
           "tantos matices suenan evasivos - afirma o corta"],
+      ],
+      // es was one of the three packs that got researched knowledge-cutoff
+      // / no-browsing variants this pass (see AI_ARTIFACT_PHRASES).
+      artifactPhrases: [
+        ["autorreferencia de chatbot (modelo de lenguaje)", "como modelo de lenguaje"],
+        ["autorreferencia de chatbot (ia)", "como inteligencia artificial"],
+        ["aviso de chatbot (sin acceso en tiempo real)", "no tengo acceso a internet en tiempo real"],
+        ["aviso de chatbot (fecha de corte de conocimiento)", "mi conocimiento tiene fecha de corte"],
       ],
       stopwords: new Set([
         "el", "la", "los", "las", "de", "que", "y", "en", "un", "una",
@@ -242,8 +322,8 @@
         "explorons", "penchons-nous sur", "j'espère que cela vous aide",
         "j'espère que cela aide", "n'hésitez pas à",
         "excellente question", "très bonne question",
-        "en tant que modèle de langage",
-        "en tant qu'intelligence artificielle",
+        // "en tant que modèle de langage" / "...intelligence artificielle"
+        // moved to artifactPhrases below in 0.9.0.
         "libérez tout votre potentiel", "que vous soyez",
         "joue un rôle crucial", "joue un rôle essentiel",
         "une large gamme de", "lorsqu'il s'agit de",
@@ -262,6 +342,10 @@
         ["empilement de précautions (peut/pourrait/souvent)",
           /(?<![\p{L}\p{N}_])(?:peut|pourrait|pourraient|souvent|généralement|typiquement|habituellement|sans doute|peut-être)(?![\p{L}\p{N}_])/giu, 0,
           "trop de précautions sonne évasif - affirmez ou coupez"],
+      ],
+      artifactPhrases: [
+        ["auto-référence de chatbot (modèle de langage)", "en tant que modèle de langage"],
+        ["auto-référence de chatbot (ia)", "en tant qu'intelligence artificielle"],
       ],
       stopwords: new Set([
         "le", "la", "les", "des", "de", "et", "est", "une", "un", "dans",
@@ -300,7 +384,8 @@
         "in der heutigen zeit", "tauchen wir ein", "tauchen sie ein",
         "lassen sie uns eintauchen", "ich hoffe, das hilft",
         "zögern sie nicht", "gute frage", "ausgezeichnete frage",
-        "als ki-modell", "als sprachmodell",
+        // "als ki-modell" / "als sprachmodell" moved to artifactPhrases
+        // below in 0.9.0.
         "entfesseln sie ihr volles potenzial",
         "schöpfen sie ihr volles potenzial aus", "egal, ob sie",
         "ganz gleich, ob sie", "spielt eine entscheidende rolle",
@@ -321,6 +406,14 @@
         ["Absicherungs-Stapel (kann/könnte/oft)",
           /(?<![\p{L}\p{N}_])(?:kann|könnte|könnten|oft|typischerweise|in der regel|üblicherweise|möglicherweise|vielleicht)(?![\p{L}\p{N}_])/giu, 0,
           "so viel Absicherung wirkt ausweichend - behaupten oder streichen"],
+      ],
+      // de was one of the three packs that got researched knowledge-cutoff
+      // / no-browsing variants this pass (see AI_ARTIFACT_PHRASES).
+      artifactPhrases: [
+        ["Chatbot-Selbstbezug (als KI-Modell)", "als ki-modell"],
+        ["Chatbot-Selbstbezug (als Sprachmodell)", "als sprachmodell"],
+        ["Chatbot-Hinweis (kein Echtzeitzugriff)", "ich habe keinen zugriff auf das internet in echtzeit"],
+        ["Chatbot-Hinweis (Wissensstand-Stichtag)", "mein wissensstand reicht bis"],
       ],
       stopwords: new Set([
         "der", "die", "das", "und", "ist", "nicht", "mit", "für", "auf",
@@ -360,7 +453,8 @@
         "espero ter ajudado", "não hesite em",
         "sinta-se à vontade para", "fique à vontade para",
         "ótima pergunta", "excelente pergunta",
-        "como modelo de linguagem", "como inteligência artificial",
+        // "como modelo de linguagem" / "como inteligência artificial"
+        // moved to artifactPhrases below in 0.9.0.
         "desbloqueie todo o seu potencial",
         "libere todo o seu potencial", "seja você", "quer você seja",
         "desempenha um papel crucial",
@@ -381,6 +475,10 @@
         ["pilha de ressalvas (pode/poderia/frequentemente)",
           /(?<![\p{L}\p{N}_])(?:pode|poderia|poderiam|frequentemente|geralmente|tipicamente|normalmente|possivelmente|talvez)(?![\p{L}\p{N}_])/giu, 0,
           "tanta ressalva soa evasivo - afirme ou corte"],
+      ],
+      artifactPhrases: [
+        ["autorreferência de chatbot (modelo de linguagem)", "como modelo de linguagem"],
+        ["autorreferência de chatbot (ia)", "como inteligência artificial"],
       ],
       stopwords: new Set([
         "o", "os", "as", "de", "que", "e", "em", "um", "uma", "é",
@@ -417,7 +515,8 @@
         "immergiamoci in", "esploriamo", "approfondiamo",
         "spero che questo aiuti", "spero che questo ti sia utile",
         "non esitare a", "sentiti libero di", "ottima domanda",
-        "come modello linguistico", "come intelligenza artificiale",
+        // "come modello linguistico" / "come intelligenza artificiale"
+        // moved to artifactPhrases below in 0.9.0.
         "sblocca tutto il tuo potenziale",
         "libera tutto il tuo potenziale", "che tu sia",
         "svolge un ruolo cruciale", "svolge un ruolo fondamentale",
@@ -438,6 +537,10 @@
         ["pila di cautele (può/potrebbe/spesso)",
           /(?<![\p{L}\p{N}_])(?:può|potrebbe|potrebbero|spesso|generalmente|tipicamente|solitamente|possibilmente|forse)(?![\p{L}\p{N}_])/giu, 0,
           "troppe cautele suonano evasive - afferma o taglia"],
+      ],
+      artifactPhrases: [
+        ["autoreferenza del chatbot (modello linguistico)", "come modello linguistico"],
+        ["autoreferenza del chatbot (ia)", "come intelligenza artificiale"],
       ],
       stopwords: new Set([
         "il", "la", "le", "gli", "di", "che", "e", "è", "per", "con",
@@ -475,7 +578,9 @@
         "laten we duiken in", "laten we eens kijken naar",
         "duik in de wereld van", "ik hoop dat dit helpt",
         "aarzel niet om", "voel je vrij om", "goede vraag",
-        "uitstekende vraag", "als taalmodel", "als ai-model",
+        "uitstekende vraag",
+        // "als taalmodel" / "als ai-model" moved to artifactPhrases below
+        // in 0.9.0.
         "ontgrendel je volledige potentieel",
         "ontketen je volledige potentieel", "of je nu",
         "speelt een cruciale rol", "speelt een belangrijke rol",
@@ -496,6 +601,10 @@
         ["stapel voorbehouden (kan/zou kunnen/vaak)",
           /(?<![\p{L}\p{N}_])(?:kan|kunnen|zou kunnen|vaak|meestal|doorgaans|over het algemeen|mogelijk|misschien)(?![\p{L}\p{N}_])/giu, 0,
           "zoveel voorbehoud leest ontwijkend - beweer of schrap"],
+      ],
+      artifactPhrases: [
+        ["chatbot-zelfverwijzing (taalmodel)", "als taalmodel"],
+        ["chatbot-zelfverwijzing (ai-model)", "als ai-model"],
       ],
       stopwords: new Set([
         "de", "het", "een", "en", "van", "is", "dat", "niet", "met",
@@ -519,17 +628,26 @@
         "гармонично сочетает", "безграничные возможности",
         "на переднем крае", "краеугольный камень",
         "по-настоящему уникальный",
+        // Bureaucratic determiners and nominalizations (канцелярит) -
+        // 0.9.0 research pass. Calibrated against a formal-Russian human
+        // sample in eval/corpus/human - see eval/README.md.
+        "данный", "указанный", "вышеупомянутый",
+        "осуществление", "проведение", "обеспечение",
       ],
       phrases: [
         "важно отметить", "стоит отметить", "следует отметить",
         "нельзя не отметить", "в современном мире",
         "в быстро меняющемся мире", "давайте погрузимся",
         "давайте разберемся", "в заключение", "подводя итог",
-        "в двух словах", "как языковая модель",
-        "как искусственный интеллект", "надеюсь, это поможет",
+        "в двух словах",
+        // "как языковая модель" / "как искусственный интеллект" moved to
+        // artifactPhrases below in 0.9.0.
+        "надеюсь, это поможет",
         "не стесняйтесь", "отличный вопрос", "когда речь заходит о",
         "широкий спектр возможностей", "открывает новые горизонты",
         "играет ключевую роль", "играет важную роль", "хочу подчеркнуть",
+        // 0.9.0 opener cliché.
+        "в эпоху цифровизации",
       ],
       patterns: [
         ["конструкция 'не только X, но и Y'",
@@ -548,6 +666,18 @@
           /(?<![\p{L}\p{N}_])(?:может|могут|можно|вероятно|как правило|обычно|зачастую|возможно|порой)(?![\p{L}\p{N}_])/giu, 0,
           "столько оговорок звучит уклончиво - утверждай или убери"],
       ],
+      // ru was one of the three packs that got researched knowledge-cutoff
+      // / no-browsing variants this pass (see AI_ARTIFACT_PHRASES).
+      artifactPhrases: [
+        ["самоссылка чат-бота (языковая модель)", "как языковая модель"],
+        ["самоссылка чат-бота (ИИ)", "как искусственный интеллект"],
+        ["оговорка чат-бота (нет доступа в реальном времени)", "у меня нет доступа к интернету в реальном времени"],
+        ["оговорка чат-бота (дата отсечки знаний)", "мои знания ограничены датой обучения"],
+      ],
+      // "является" (is/serves as) is an ordinary Russian copula verb, but
+      // LLM Russian leans on it as a formal-register crutch well past the
+      // rate of ordinary prose - see DENSITY_CRUTCH_ALLOWANCE_DIVISOR.
+      densityCrutch: ["является"],
       stopwords: new Set([
         "в", "все", "для", "же", "за", "и", "из", "к", "как", "на", "не",
         "но", "о", "от", "по", "с", "тоже", "только", "что", "это",
@@ -572,7 +702,9 @@
         "важливо зазначити", "варто зазначити", "слід зазначити",
         "у сучасному світі", "у швидкоплинному світі", "давайте зануримося",
         "давайте розберемося", "підсумовуючи", "на завершення",
-        "у двох словах", "як мовна модель", "як штучний інтелект",
+        "у двох словах",
+        // "як мовна модель" / "як штучний інтелект" moved to
+        // artifactPhrases below in 0.9.0.
         "сподіваюся, це допоможе", "не соромтеся", "чудове запитання",
         "коли справа доходить до", "широкий спектр можливостей",
         "відкриває нові горизонти", "відіграє ключову роль",
@@ -593,6 +725,10 @@
         ["стос застережень (може/ймовірно/зазвичай)",
           /(?<![\p{L}\p{N}_])(?:може|можуть|можна|ймовірно|як правило|зазвичай|часто|можливо)(?![\p{L}\p{N}_])/giu, 0,
           "стільки застережень звучить ухильно - стверджуй або прибери"],
+      ],
+      artifactPhrases: [
+        ["самопосилання чат-бота (мовна модель)", "як мовна модель"],
+        ["самопосилання чат-бота (ШІ)", "як штучний інтелект"],
       ],
       stopwords: new Set([
         "або", "але", "вже", "від", "для", "до", "за", "з", "зі", "лише",
@@ -623,8 +759,10 @@
         "w erze cyfrowej", "zanurzmy się w", "zagłębmy się w",
         "podsumowując", "reasumując", "na koniec dnia",
         "mam nadzieję, że to pomoże", "nie wahaj się", "śmiało pytaj",
-        "świetne pytanie", "jako model językowy",
-        "jako sztuczna inteligencja", "kiedy przychodzi do",
+        "świetne pytanie",
+        // "jako model językowy" / "jako sztuczna inteligencja" moved to
+        // artifactPhrases below in 0.9.0.
+        "kiedy przychodzi do",
         "szeroki wachlarz", "otwiera nowe możliwości", "więcej niż tylko",
         "niezależnie od tego, czy jesteś",
       ],
@@ -644,6 +782,10 @@
         ["stos zastrzeżeń (może/często/zazwyczaj)",
           /(?<![\p{L}\p{N}_])(?:może|mogą|często|zazwyczaj|zwykle|prawdopodobnie|ewentualnie|ogólnie)(?![\p{L}\p{N}_])/giu, 0,
           "tyle zastrzeżeń brzmi wymijająco - stwierdź albo wytnij"],
+      ],
+      artifactPhrases: [
+        ["autoreferencja chatbota (model językowy)", "jako model językowy"],
+        ["autoreferencja chatbota (SI)", "jako sztuczna inteligencja"],
       ],
       stopwords: new Set([
         "ale", "czy", "dla", "do", "i", "jak", "jest", "na", "nie", "o",
@@ -670,7 +812,9 @@
         "stojí za povšimnutí", "v dnešním světě",
         "v dnešním uspěchaném světě", "v digitální době", "ponořme se do",
         "pojďme prozkoumat", "doufám, že to pomůže", "neváhejte",
-        "skvělá otázka", "jako jazykový model", "jako umělá inteligence",
+        "skvělá otázka",
+        // "jako jazykový model" / "jako umělá inteligence" moved to
+        // artifactPhrases below in 0.9.0.
         "když přijde na", "široká škála možností", "otevírá nové možnosti",
         "hraje klíčovou roli", "hraje zásadní roli", "víc než jen",
       ],
@@ -687,6 +831,10 @@
         ["hromada výhrad (může/často/obvykle)",
           /(?<![\p{L}\p{N}_])(?:může|mohou|často|obvykle|obecně|pravděpodobně|možná)(?![\p{L}\p{N}_])/giu, 0,
           "tolik výhrad zní vyhýbavě - tvrď, nebo škrtni"],
+      ],
+      artifactPhrases: [
+        ["sebeodkaz chatbota (jazykový model)", "jako jazykový model"],
+        ["sebeodkaz chatbota (UI)", "jako umělá inteligence"],
       ],
       stopwords: new Set([
         "a", "avšak", "co", "je", "jen", "kde", "když", "mezi", "na", "nebo",
@@ -713,7 +861,9 @@
         "önemle belirtmek gerekir ki", "belirtmek gerekir ki",
         "unutulmamalıdır ki", "günümüzün hızlı dünyasında",
         "günümüz dünyasında", "sonuç olarak", "kısacası", "özetle",
-        "bir yapay zeka olarak", "bir dil modeli olarak", "harika bir soru",
+        // "bir yapay zeka olarak" / "bir dil modeli olarak" moved to
+        // artifactPhrases below in 0.9.0.
+        "harika bir soru",
         "mükemmel bir soru", "çekinmeyin", "yardımcı olması umarım",
         "yardımcı olacağını umuyorum", "hadi dalalım", "gelin inceleyelim",
         "söz konusu olduğunda", "sadece bir araç değil", "günün sonunda",
@@ -740,6 +890,10 @@
           /(?<![\p{L}\p{N}_])(?:\w*(?:abilir|ebilir)|muhtemelen|genellikle|genelde|sıklıkla|belki|büyük ihtimalle)(?![\p{L}\p{N}_])/giu, 0,
           "bu kadar çekince kaçamak gibi duruyor - ya net konuş ya da çıkar"],
       ],
+      artifactPhrases: [
+        ["chatbot öz-referansı (yapay zeka)", "bir yapay zeka olarak"],
+        ["chatbot öz-referansı (dil modeli)", "bir dil modeli olarak"],
+      ],
       stopwords: new Set([
         "ama", "bir", "bu", "daha", "en", "gibi", "her", "ile", "için",
         "kadar", "mi", "ne", "olan", "sonra", "ve", "veya", "çok", "önce",
@@ -765,7 +919,9 @@
         "det är viktigt att notera", "det är värt att notera",
         "värt att nämna", "i dagens snabbrörliga värld",
         "i dagens digitala värld", "sammanfattningsvis", "i slutändan",
-        "som en ai", "som en språkmodell", "tveka inte", "bra fråga",
+        // "som en ai" / "som en språkmodell" moved to artifactPhrases
+        // below in 0.9.0.
+        "tveka inte", "bra fråga",
         "utmärkt fråga", "när det kommer till", "ett brett utbud av",
         "spelar en avgörande roll", "spelar en viktig roll",
         "mer än bara ett verktyg", "jag hoppas att detta hjälper",
@@ -784,6 +940,10 @@
         ["garderingsstapel (kan/ofta/vanligtvis)",
           /(?<![\p{L}\p{N}_])(?:kan|skulle kunna|ofta|vanligtvis|i allmänhet|möjligen|kanske)(?![\p{L}\p{N}_])/giu, 0,
           "så mycket gardering läses undvikande - hävda eller stryk"],
+      ],
+      artifactPhrases: [
+        ["chatbotens självreferens (AI)", "som en ai"],
+        ["chatbotens självreferens (språkmodell)", "som en språkmodell"],
       ],
       stopwords: new Set([
         "att", "de", "det", "du", "för", "han", "hon", "inte", "jag", "kan",
@@ -810,7 +970,9 @@
         "este important de menționat", "merită menționat",
         "trebuie remarcat", "în lumea de azi în ritm alert",
         "în era digitală", "pe scurt", "în concluzie", "la sfârșitul zilei",
-        "ca inteligență artificială", "ca model lingvistic", "nu ezita să",
+        // "ca inteligență artificială" / "ca model lingvistic" moved to
+        // artifactPhrases below in 0.9.0.
+        "nu ezita să",
         "sper că te ajută", "întrebare excelentă", "întrebare grozavă",
         "atunci când vine vorba de", "joacă un rol esențial",
         "joacă un rol crucial", "nu doar un instrument",
@@ -829,6 +991,10 @@
         ["stivă de rezerve (poate/adesea/de obicei)",
           /(?<![\p{L}\p{N}_])(?:poate|ar putea|adesea|de obicei|în general|probabil|posibil)(?![\p{L}\p{N}_])/giu, 0,
           "atâtea rezerve sună evaziv - afirmă sau taie"],
+      ],
+      artifactPhrases: [
+        ["auto-referință de chatbot (IA)", "ca inteligență artificială"],
+        ["auto-referință de chatbot (model lingvistic)", "ca model lingvistic"],
       ],
       stopwords: new Set([
         "ca", "care", "cu", "dacă", "dar", "de", "din", "este", "foarte",
@@ -853,8 +1019,10 @@
       phrases: [
         "fontos megjegyezni", "érdemes megjegyezni", "fontos kiemelni",
         "napjaink rohanó világában", "a mai digitális világban",
-        "összefoglalva", "végezetül", "mesterséges intelligenciaként",
-        "nyelvi modellként", "ne habozz", "remélem, ez segít",
+        "összefoglalva", "végezetül",
+        // "mesterséges intelligenciaként" / "nyelvi modellként" moved to
+        // artifactPhrases below in 0.9.0.
+        "ne habozz", "remélem, ez segít",
         "nagyszerű kérdés", "kiváló kérdés", "amikor arról van szó",
         "szabadítsd fel a benned rejlő potenciált", "nem csak egy eszköz",
         "a nap végén", "új távlatokat nyit",
@@ -876,6 +1044,10 @@
         ["óvatoskodás-halom (lehet/gyakran/általában)",
           /(?<![\p{L}\p{N}_])(?:lehet|lehetnek|gyakran|általában|valószínűleg|esetleg)(?![\p{L}\p{N}_])/giu, 0,
           "ennyi óvatoskodás kitérőnek hat - állítsd, vagy húzd ki"],
+      ],
+      artifactPhrases: [
+        ["chatbot önhivatkozás (MI)", "mesterséges intelligenciaként"],
+        ["chatbot önhivatkozás (nyelvi modell)", "nyelvi modellként"],
       ],
       stopwords: new Set([
         "a", "az", "azt", "csak", "de", "egy", "ez", "ha", "hogy", "is",
@@ -902,7 +1074,10 @@
         "on tärkeää huomioida", "kannattaa muistaa", "on syytä mainita",
         "nykypäivän nopeatempoisessa maailmassa",
         "tämän päivän digitaalisessa maailmassa", "yhteenvetona",
-        "loppujen lopuksi", "tekoälynä", "kielimallina", "älä epäröi",
+        "loppujen lopuksi",
+        // "tekoälynä" / "kielimallina" moved to artifactPhrases below in
+        // 0.9.0.
+        "älä epäröi",
         "toivottavasti tästä on apua", "loistava kysymys",
         "erinomainen kysymys", "kun kyse on", "laaja valikoima vaihtoehtoja",
         "ei vain työkalu", "avaa uusia mahdollisuuksia",
@@ -921,6 +1096,10 @@
         ["varauksien kasa (voi/usein/yleensä)",
           /(?<![\p{L}\p{N}_])(?:voi|voivat|saattaa|usein|yleensä|tavallisesti|todennäköisesti)(?![\p{L}\p{N}_])/giu, 0,
           "noin moni varaus lukee välttelevältä - väitä tai poista"],
+      ],
+      artifactPhrases: [
+        ["chatbotin itseviittaus (tekoäly)", "tekoälynä"],
+        ["chatbotin itseviittaus (kielimalli)", "kielimallina"],
       ],
       stopwords: new Set([
         "ei", "että", "hyvin", "ja", "jo", "joka", "jos", "kanssa", "kuin",
@@ -1113,6 +1292,11 @@
     const spans = [];
     for (const w of buzzwords) for (const [s, e] of findAll(lower, w)) spans.push([s, e, "buzz", w]);
     for (const p of phrases) for (const [s, e] of findAll(lower, p)) spans.push([s, e, "phrase", p]);
+    // Copula-avoidance and scope-inflation share the same overlap-resolution
+    // pool as buzzwords/phrases, so a longer existing phrase entry wins over
+    // a shorter fragment it contains. Mirrors noslop.py analyze().
+    for (const w of (pack.copulaAvoidance || [])) for (const [s, e] of findAll(lower, w)) spans.push([s, e, "copula", w]);
+    for (const w of (pack.scopeInflation || [])) for (const [s, e] of findAll(lower, w)) spans.push([s, e, "scope", w]);
     spans.sort((a, b) => (a[0] - b[0]) || (b[1] - a[1]));
     const kept = [];
     let lastEnd = -1;
@@ -1140,6 +1324,17 @@
     const buzzTotal = buzz.reduce((t, r) => t + r[1], 0);
     const phrTotal = phr.reduce((t, r) => t + r[1], 0);
 
+    // Copula-avoidance only counts past a density gate (2+ hits AND 2+ per
+    // 1,000 words - the absolute floor guards short documents the same way
+    // noslop.py's does); scope-inflation scores every hit, at a lower
+    // weight (applied below).
+    const copulaAvoidance = tally("copula");
+    const scopeInflation = tally("scope");
+    const copulaTotal = copulaAvoidance.reduce((t, r) => t + r[1], 0);
+    const scopeTotal = scopeInflation.reduce((t, r) => t + r[1], 0);
+    const copulaAvoidanceScored =
+      copulaTotal >= 2 && (copulaTotal * 1000.0) / wc >= COPULA_AVOIDANCE_MIN_PER_1K;
+
     const pat = [];
     let patRaw = 0;
     for (const entry of pack.patterns) {
@@ -1166,7 +1361,11 @@
     const emoji = countMatches(text, EMOJI);
 
     // Chat-UI residue. Overlapping/adjacent spans merge - mirrors the
-    // artifact block in noslop.py analyze().
+    // artifact block in noslop.py analyze(). Markup tokens (AI_ARTIFACTS)
+    // are bare substring matches since they can sit inside a URL; chatbot
+    // disclaimer sentences (AI_ARTIFACT_PHRASES and the pack's own
+    // artifactPhrases) use findAll()'s word-boundary search like any other
+    // phrase.
     const artSpans = [];
     for (const [label, needle] of AI_ARTIFACTS) {
       let i = lower.indexOf(needle);
@@ -1174,6 +1373,12 @@
         artSpans.push([i, i + needle.length, label]);
         i = lower.indexOf(needle, i + 1);
       }
+    }
+    for (const [label, needle] of AI_ARTIFACT_PHRASES) {
+      for (const [s, e] of findAll(lower, needle)) artSpans.push([s, e, label]);
+    }
+    for (const [label, needle] of (pack.artifactPhrases || [])) {
+      for (const [s, e] of findAll(lower, needle)) artSpans.push([s, e, label]);
     }
     artSpans.sort((a, b) => (a[0] - b[0]) || (a[1] - b[1]));
     const artRows = new Map();
@@ -1214,6 +1419,36 @@
       }
     }
 
+    // Bare bullet glyphs (•/▪/‣) opening a line - mirrors noslop.py.
+    const bareBullets = countMatches(text, BARE_BULLET_RE);
+
+    // Generic AI-listicle headings - only score at 2+ hits. Mirrors
+    // noslop.py's generic-heading block, including stripping emphasis
+    // markers and a trailing colon before matching.
+    const HEADING_TEXT_RE = /^#{1,6}[ \t]+(.+?)[ \t]*$/gm;
+    let genericHeadingLines = [];
+    let hm;
+    while ((hm = HEADING_TEXT_RE.exec(text)) !== null) {
+      const label = hm[1].replace(/[*_`]+/g, "").trim().replace(/[:.]+$/, "").toLowerCase();
+      if (GENERIC_HEADINGS.has(label)) genericHeadingLines.push(lineOf(text, hm.index));
+      if (hm.index === HEADING_TEXT_RE.lastIndex) HEADING_TEXT_RE.lastIndex++;
+    }
+    const genericHeadings = genericHeadingLines.length;
+    const genericHeadingExcess = genericHeadings >= 2 ? Math.max(0, genericHeadings - 1) : 0;
+
+    // Heading-level skip (H2 straight to H4, no H3) - reported only.
+    const HEADING_LEVEL_RE = /^(#{1,6})[ \t]+\S/gm;
+    const headingLevels = [];
+    let hl;
+    while ((hl = HEADING_LEVEL_RE.exec(text)) !== null) {
+      headingLevels.push(hl[1].length);
+      if (hl.index === HEADING_LEVEL_RE.lastIndex) HEADING_LEVEL_RE.lastIndex++;
+    }
+    let headingLevelSkips = 0;
+    for (let i = 1; i < headingLevels.length; i++) {
+      if (headingLevels[i] > headingLevels[i - 1] + 1) headingLevelSkips++;
+    }
+
     // Curly and straight marks of the SAME kind mixed in one document -
     // a paste boundary. Cross-kind mixing is how humans quote sources.
     const curlyApo = (text.split("’").length - 1) + (text.split("‘").length - 1);
@@ -1222,6 +1457,10 @@
     const straightDq = text.split('"').length - 1;
     const quoteMix = ((curlyApo >= 3 && straightApo >= 3) ||
                       (curlyDq >= 3 && straightDq >= 3)) ? 1 : 0;
+
+    // Sentence-punctuation entropy - mirrors noslop.py's punct_entropy().
+    const punctEnt = punctEntropy(text);
+    const punctEntropyLow = punctEnt !== null && punctEnt < PUNCT_ENTROPY_LOW;
 
     const sentences = text.trim().split(/(?<=[.!?])\s+/).filter((s) => s.trim());
     const slens = sentences.filter((s) => s.trim()).map((s) => (s.match(SENT_WORD_RE) || []).length);
@@ -1253,6 +1492,29 @@
       const pmean = plens.reduce((a, b) => a + b, 0) / plens.length;
       const psd = Math.sqrt(plens.reduce((a, x) => a + (x - pmean) ** 2, 0) / plens.length);
       paragraphUniformity = pyRound(pmean ? psd / pmean : 0, 2);
+    }
+
+    // Cross-paragraph opener self-repetition - mirrors noslop.py. Pure
+    // string comparison over each paragraph's first five words, so it
+    // works identically in every language.
+    let paragraphOpenerRepeat = 0;
+    let paragraphOpenerRepeatText = null;
+    if (paras.length >= 5) {
+      const paraOpeners = new Map();
+      for (const p of paras) {
+        const head = (p.toLowerCase().match(/[\p{L}]+/gu) || []).slice(0, 5);
+        if (!head.length) continue;
+        const key = head.join(" ");
+        paraOpeners.set(key, (paraOpeners.get(key) || 0) + 1);
+      }
+      let bestOpener = null, bestN = 0;
+      for (const [key, n] of paraOpeners) {
+        if (n > bestN) { bestOpener = key; bestN = n; }
+      }
+      if (bestN >= 3) {
+        paragraphOpenerRepeat = bestN;
+        paragraphOpenerRepeatText = bestOpener;
+      }
     }
 
     // Self-answering question hooks (mid-line only) - mirrors noslop.py.
@@ -1294,6 +1556,23 @@
       openerTopShare = pyRound(bestN / openers.length, 2);
     }
 
+    // Windowed type-token ratio and function-word ratio - report-only
+    // diagnostics, never scored (same ESL false-positive risk noted on
+    // sentence-uniformity in the README applies here, if not more so).
+    // Mirrors noslop.py; the UI never surfaces either as something to fix.
+    const wordsLc = words.map((w) => w.toLowerCase());
+    let windowedTtr = null;
+    if (wordsLc.length >= 200) {
+      const ratios = [];
+      for (let i = 0; i + 200 <= wordsLc.length; i += 200) {
+        ratios.push(new Set(wordsLc.slice(i, i + 200)).size / 200);
+      }
+      windowedTtr = pyRound(ratios.reduce((a, b) => a + b, 0) / ratios.length, 3);
+    }
+    const stopwordSet = pack.stopwords || new Set();
+    const functionWordRatio = pyRound(
+      wordsLc.filter((w) => stopwordSet.has(w)).length / wc, 3);
+
     let raw = buzzTotal * 3 + phrTotal * 3 + patRaw;
     raw += artTotal * 10;
     // Dialogue-dash languages get a wider allowance (emDashFactor) - an
@@ -1308,6 +1587,19 @@
     const boldInlineExcess = Math.max(0, boldInline - Math.max(2, Math.floor(wc / 150)));
     raw += boldInlineExcess * 2;
     raw += questionHookExcess * 2;
+    // Copula-avoidance only counts past its density gate; scope-inflation
+    // scores every hit, at the lower weight noted above.
+    if (copulaAvoidanceScored) raw += copulaTotal * 3;
+    raw += scopeTotal * 2;
+    raw += genericHeadingExcess * 2;
+    raw += bareBullets * 3;
+    let densityCrutchTotal = 0;
+    for (const w of (pack.densityCrutch || [])) {
+      densityCrutchTotal += findAll(lower, w).length;
+    }
+    const densityCrutchAllowance = Math.max(2, Math.floor(wc / DENSITY_CRUTCH_ALLOWANCE_DIVISOR));
+    const densityCrutchExcess = Math.max(0, densityCrutchTotal - densityCrutchAllowance);
+    raw += densityCrutchExcess * 2;
 
     let score = per1k(raw);
     // Rhythm and typography signals ride on top of the normalized score
@@ -1317,6 +1609,8 @@
     score += Math.min(Math.max(0, staccatoRuns - 1) * 4, 8);
     score += quoteMix * 4;
     score += Math.min(connectiveExcess, 2) * 2;
+    if (punctEntropyLow) score += 5;
+    if (paragraphOpenerRepeat) score += 5;
     // A chat-UI artifact is proof of paste - it pins the score at the
     // hard-verdict floor no matter how long the text is.
     if (artTotal > 0) score = Math.max(score, 25.0);
@@ -1351,6 +1645,20 @@
       sentence_uniformity_cv: uniformity,
       paragraph_uniformity_cv: paragraphUniformity,
       opener_top_share: openerTopShare,
+      copula_avoidance: copulaAvoidance,
+      copula_avoidance_scored: copulaAvoidanceScored,
+      scope_inflation: scopeInflation,
+      generic_headings: genericHeadings,
+      bare_bullets: bareBullets,
+      punct_entropy: punctEnt,
+      punct_entropy_low: punctEntropyLow,
+      heading_level_skips: headingLevelSkips,
+      paragraph_opener_repeat: paragraphOpenerRepeat,
+      paragraph_opener_repeat_text: paragraphOpenerRepeatText,
+      windowed_ttr: windowedTtr,
+      function_word_ratio: functionWordRatio,
+      density_crutch: densityCrutchTotal,
+      density_crutch_excess: densityCrutchExcess,
     };
   }
 
@@ -1369,11 +1677,14 @@
     buzzword: { label: "LLM buzzword" },
     construction: { label: "construction" },
     hedge: { label: "hedge (not scored)" },
+    copula: { label: "copula-avoidance phrase" },
+    scope: { label: "scope-inflation phrase" },
     emoji: { label: "emoji" },
     emdash: { label: "em dash" },
     "bold-bullet": { label: "**Term:** bullet" },
+    "bare-bullet": { label: "bare bullet glyph" },
   };
-  const PRIORITY = ["artifact", "phrase", "buzzword", "construction", "hedge", "emoji", "emdash", "bold-bullet"];
+  const PRIORITY = ["artifact", "phrase", "buzzword", "construction", "copula", "scope", "hedge", "emoji", "emdash", "bold-bullet", "bare-bullet"];
 
   function highlight(text, opts) {
     opts = opts || {};
@@ -1389,7 +1700,8 @@
     const raw = [];
 
     // Chat-UI residue first - merged the same way analyze() merges it, so
-    // a pasted citation block paints as one mark.
+    // a pasted citation block paints as one mark. Includes the chatbot
+    // disclaimer phrases promoted to this tier in 0.9.0.
     const artSpans = [];
     for (const [label, needle] of AI_ARTIFACTS) {
       let i = lower.indexOf(needle);
@@ -1397,6 +1709,12 @@
         artSpans.push([i, i + needle.length, label]);
         i = lower.indexOf(needle, i + 1);
       }
+    }
+    for (const [label, needle] of AI_ARTIFACT_PHRASES) {
+      for (const [s, e] of findAll(lower, needle)) artSpans.push([s, e, label]);
+    }
+    for (const [label, needle] of (pack.artifactPhrases || [])) {
+      for (const [s, e] of findAll(lower, needle)) artSpans.push([s, e, label]);
     }
     artSpans.sort((a, b) => (a[0] - b[0]) || (a[1] - b[1]));
     let artStart = -1;
@@ -1419,6 +1737,8 @@
     const spans = [];
     for (const w of buzzwords) for (const [s, e] of findAll(lower, w)) spans.push([s, e, "buzzword", w]);
     for (const p of phrases) for (const [s, e] of findAll(lower, p)) spans.push([s, e, "phrase", p]);
+    for (const w of (pack.copulaAvoidance || [])) for (const [s, e] of findAll(lower, w)) spans.push([s, e, "copula", w]);
+    for (const w of (pack.scopeInflation || [])) for (const [s, e] of findAll(lower, w)) spans.push([s, e, "scope", w]);
     spans.sort((a, b) => (a[0] - b[0]) || (b[1] - a[1]));
     let lastEnd = -1;
     for (const [s, e, cat, key] of spans) {
@@ -1450,6 +1770,12 @@
     while ((bb = BOLD_BULLET.exec(text)) !== null) {
       raw.push({ start: bb.index, end: bb.index + bb[0].length, category: "bold-bullet", key: "**Term:**" });
       if (bb.index === BOLD_BULLET.lastIndex) BOLD_BULLET.lastIndex++;
+    }
+    BARE_BULLET_RE.lastIndex = 0;
+    let bu;
+    while ((bu = BARE_BULLET_RE.exec(text)) !== null) {
+      raw.push({ start: bu.index, end: bu.index + bu[0].length, category: "bare-bullet", key: bu[0].trim() });
+      if (bu.index === BARE_BULLET_RE.lastIndex) BARE_BULLET_RE.lastIndex++;
     }
 
     // Resolve overlaps by category priority, then flatten to non-overlapping.

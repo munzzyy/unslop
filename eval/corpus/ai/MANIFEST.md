@@ -23,6 +23,16 @@ Generated for AI-writing detector calibration. Each sample represents unedited, 
 | 15-selfhelp-habits.txt | "Write about habit formation and behavior change" | Self-Help / Educational | 729 |
 | 16-corporate-announcement.txt | "Write a corporate acquisition announcement press release" | Press Release / Corporate Communication | 665 |
 
+### 0.9.0 additions
+
+Three more samples, added to calibrate the detectors that shipped in 0.9.0 (generic listicle headings, bare bullet glyphs, chatbot self-reference/disclaimer phrases, copula-avoidance and scope-inflation phrasing). Same model and no-style-adjustment rule as the rest of the corpus, but the prompt was chosen to plausibly draw out the pattern under test rather than picked at random - noted here so that's not implied to be blind sampling like files 01-16.
+
+| File | Prompt Simulated | Genre | Word Count |
+|------|-----------------|-------|-----------|
+| 17-blog-morning-routine.txt | "Write a blog post about building a morning routine, with headings" | Blog / Listicle | 342 |
+| 18-chatbot-disclaimer-qa.txt | "What's the current interest rate and where's it headed?" (a question a live-data assistant can't fully answer) | Chat Q&A / Assistant Response | 290 |
+| 19-corporate-bio.txt | "Write a professional bio / company about-page profile" | Corporate Bio / About Page | 278 |
+
 ## Metadata
 
 - **Model:** Claude (Haiku 4.5)

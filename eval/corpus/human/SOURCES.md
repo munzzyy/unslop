@@ -24,8 +24,15 @@ projects, fetched at pre-2018 tags.
 | 14-science-faraday.txt | Michael Faraday | *The Chemical History of a Candle*, Lecture I | 1861 | https://www.gutenberg.org/cache/epub/14474/pg14474.txt | US public domain |
 | 15-docs-rails.txt | Rails core team | Ruby on Rails README, tag v5.0.0 | 2016 | https://raw.githubusercontent.com/rails/rails/v5.0.0/README.md | MIT License. The excerpt is the full README, including its own license section ("Ruby on Rails is released under the MIT License"). |
 | 16-docs-cpython.txt | Python core developers | CPython README, tag v2.7.9 | 2014 | https://raw.githubusercontent.com/python/cpython/v2.7.9/README | PSF License (permissive, BSD-style). The excerpt keeps the file's own copyright and license-information section. |
+| 17-law-civil-code-ru.txt | Russian Federation (legislature) | Civil Code of the Russian Federation, Part One, Articles 1-3 | enacted 1994, current text as amended | https://www.consultant.ru/document/cons_doc_LAW_5142/ (Articles 1-3; cross-checked against independent legal-database mirrors of the same statute, e.g. https://sudact.ru/law/gk-rf-chast1/razdel-i/podrazdel-1/glava-1/) | Official text of a Russian federal law - not protected by copyright under Article 1259 of this very Code, which excludes official documents of state bodies (laws, court decisions, and other official texts) from copyright. Added in 0.9.0 as the corpus's first non-English human sample: formal/bureaucratic Russian legal prose is exactly the register the 0.9.0 Russian buzzword and "является"-density additions needed a false-positive check against, and this text is genuinely public domain rather than a paraphrase written to order. |
 
 Notes:
+
+- 17-law-civil-code-ru.txt is quoted, not paraphrased, but assembled from
+  three separate articles of the same statute (1, 2, 3) rather than one
+  continuous passage - flagged here as the one exception to the
+  single-continuous-passage rule below, and noted because statute articles
+  are numbered, freestanding units by design, unlike a cut mid-paragraph.
 
 - Every excerpt is a single continuous passage, copied verbatim from the fetched
   source. No stitching, no paraphrase.

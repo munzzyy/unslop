@@ -33,10 +33,11 @@ import re
 import json
 import glob
 import os
+import math
 import fnmatch
 import argparse
 
-__version__ = "0.8.0"
+__version__ = "0.9.0"
 
 # analyze()'s return dict is noslop's only machine-readable contract. If you
 # add, rename, or remove a top-level key, update this set and bump the
@@ -50,6 +51,12 @@ JSON_SCHEMA_KEYS = {
     "connective_openers", "connective_excess",
     "sentence_uniformity_cv", "paragraph_uniformity_cv",
     "opener_top_share",
+    # 0.9.0 additions - see the annotated blocks below for what each one is.
+    "copula_avoidance", "copula_avoidance_scored", "scope_inflation",
+    "generic_headings", "bare_bullets", "punct_entropy", "punct_entropy_low",
+    "heading_level_skips", "paragraph_opener_repeat",
+    "paragraph_opener_repeat_text", "windowed_ttr", "function_word_ratio",
+    "density_crutch", "density_crutch_excess",
 }
 
 # Words that show up far more in LLM prose than in how people actually write.
@@ -93,8 +100,11 @@ PHRASES = [
     "that said", "rest assured", "needless to say", "at the end of the day",
     "in today's world", "in today's fast-paced", "let's dive", "dive into",
     "let's break it down", "here's the thing", "i hope this helps",
-    "feel free to", "happy to help", "great question", "as an ai",
-    "as a language model", "this is where", "look no further",
+    "feel free to", "happy to help", "great question",
+    # "as an ai" / "as a language model" moved to AI_ARTIFACT_PHRASES in
+    # 0.9.0 - a person describing their own writing never says either one,
+    # so it's paste evidence (floor-at-25), not a vocabulary tell.
+    "this is where", "look no further",
     "without further ado", "the key takeaway", "let's explore",
     "let's take a look", "buckle up", "when it comes to", "at its core",
     "the world of", "in the realm of", "plays a vital role",
@@ -189,6 +199,104 @@ AI_ARTIFACTS = [
     # "nobody types these by hand" bar this class requires.
 ]
 
+# Chatbot disclaimer sentences: things a chat assistant says about itself
+# that nobody drafting their own prose writes unprompted. Same floor-at-25
+# tier as AI_ARTIFACTS above, but these are natural-language phrases (with
+# spaces that can wrap across an edited line), not markup tokens that can
+# sit inside a URL - so they're matched with find_all()'s word-boundary
+# search instead of find_all_plain()'s bare substring search. Matching
+# "as an ai" as a raw substring would also fire inside "was an air leak";
+# the word-boundary search doesn't.
+#
+# "as an AI" / "as a language model" used to be phrase-tier (weight 3, like
+# any other filler phrase) - promoted to this tier because, like the
+# citation residue above, a person drafting their own writing does not
+# refer to themselves this way. It's paste evidence, not a vocabulary tell.
+AI_ARTIFACT_PHRASES = [
+    ("chatbot self-reference (\"as an AI\")", "as an ai"),
+    ("chatbot self-reference (\"as a language model\")", "as a language model"),
+    ("chatbot knowledge-cutoff disclaimer (\"as of my last update\")", "as of my last update"),
+    ("chatbot knowledge-cutoff disclaimer (\"as of my knowledge cutoff\")", "as of my knowledge cutoff"),
+    ("chatbot no-browsing disclaimer (\"I don't have real-time access\")", "i don't have real-time access"),
+    ("chatbot no-browsing disclaimer (\"I cannot browse the internet\")", "i cannot browse the internet"),
+]
+
+# Copula-avoidance filler ("X serves as a Y" instead of "X is a Y") -
+# legitimate technical writing uses these occasionally, so this is scored on
+# density (2+ per 1,000 words), not on the first hit, the same guard as the
+# hedge-stack and connective-opener checks. English only for now.
+COPULA_AVOIDANCE = [
+    "serves as a", "stands as a", "functions as a", "acts as a testament",
+]
+COPULA_AVOIDANCE_MIN_PER_1K = 2.0
+
+# Per-language "density crutch" words: an ordinary verb/word in that
+# language that LLM prose leans on as a formal-register filler well past
+# normal usage - only the count past a calibrated per-1,000-word allowance
+# scores, the same density-allowance shape as em dashes. A pack opts in
+# with a "density_crutch" tuple; packs without one skip the check. (Russian
+# "является" is the only entry so far - see the ru pack's note.)
+DENSITY_CRUTCH_ALLOWANCE_DIVISOR = 150
+
+# Scope-inflation phrases - significance-language that's a normal idiom once
+# and a tell in a cluster. Lower weight than a buzzword/phrase hit (2, not
+# 3) because each one has legitimate everyday use. English only for now.
+SCOPE_INFLATION = [
+    "cannot be overstated", "cannot be understated", "in every sense of the word",
+    "from the moment",
+]
+
+# Generic listicle headings an LLM reaches for by default (Introduction,
+# Key Takeaways, Final Thoughts...). One "Conclusion" is an ordinary essay
+# structure - it's the *pattern* of several of these in one document that
+# reads templated, so this only scores at 2+ hits. English only for now;
+# see the language notes near LANGUAGES for why a translated set isn't
+# shipped yet.
+GENERIC_HEADINGS = frozenset((
+    "introduction", "conclusion", "overview", "key takeaways",
+    "final thoughts", "in summary", "background", "the bottom line",
+    "why it matters", "getting started",
+))
+
+# Bare bullet glyphs opening a line - chat-UI copy/paste residue. Nobody
+# hand-types a U+2022 BULLET, U+25AA BLACK SMALL SQUARE, or U+2023
+# TRIANGULAR BULLET into a markdown file; the native way to write a list
+# item is "-" or "*". Phrase-tier weight, not the artifact floor, because a
+# note-taking app's export can legitimately carry these.
+BARE_BULLET_RE = re.compile(r"(?m)^[ \t]*[•▪‣]")
+
+# Sentence-punctuation classes for the entropy check below. Deliberately
+# excludes characters that mean something other than sentence punctuation in
+# code-adjacent prose (slashes, brackets, at-signs).
+PUNCT_CLASS = ".,;:!?…()'\"’“”—-"
+PUNCT_ENTROPY_MIN_CHARS = 30
+PUNCT_ENTROPY_LOW = 0.55
+
+
+def punct_entropy(text):
+    """Shannon entropy over the sentence-punctuation characters in text,
+    normalized by log2(distinct classes used) so the result is 0..1
+    regardless of how many of the PUNCT_CLASS characters appear at all.
+    Low normalized entropy means the writer leans on very few punctuation
+    marks - a comma-only or dash-only style - which reads flatter than
+    ordinary prose, where writers reach for a wider mix. Returns None when
+    there isn't enough punctuation in the sample to measure honestly (under
+    PUNCT_ENTROPY_MIN_CHARS marks - a short document can look artificially
+    "even" by chance alone)."""
+    counts = {}
+    total = 0
+    for ch in text:
+        if ch in PUNCT_CLASS:
+            counts[ch] = counts.get(ch, 0) + 1
+            total += 1
+    if total < PUNCT_ENTROPY_MIN_CHARS:
+        return None
+    classes = len(counts)
+    if classes <= 1:
+        return 0.0
+    ent = -sum((c / total) * math.log2(c / total) for c in counts.values())
+    return round(ent / math.log2(classes), 3)
+
 # Real emoji + the decorative dingbats used as slop. Plain glyphs that belong
 # in technical prose - check/cross marks (U+2713 U+2717), bare arrows, bullets,
 # box-drawing - are not matched unless a variation selector (U+FE0F) forces
@@ -259,6 +367,11 @@ LANGUAGES = {
             "ultimately", "importantly", "crucially", "significantly",
             "in essence", "overall",
         ),
+        # Density-gated filler families - see COPULA_AVOIDANCE and
+        # SCOPE_INFLATION above for the rationale. English only for now;
+        # packs without these fields just skip the checks.
+        "copula_avoidance": COPULA_AVOIDANCE,
+        "scope_inflation": SCOPE_INFLATION,
         "marks": "",
         "em_dash_factor": 1.0,
     },
@@ -290,8 +403,11 @@ LANGUAGES = {
             "en el vertiginoso mundo", "sumérgete en", "exploremos",
             "profundicemos en", "espero que esto ayude",
             "espero que esto te ayude", "no dudes en", "siéntete libre de",
-            "gran pregunta", "excelente pregunta", "como modelo de lenguaje",
-            "como inteligencia artificial", "desbloquea todo tu potencial",
+            "gran pregunta", "excelente pregunta",
+            # "como modelo de lenguaje" / "como inteligencia artificial"
+            # moved to artifact_phrases below in 0.9.0 - see the note on
+            # AI_ARTIFACT_PHRASES.
+            "desbloquea todo tu potencial",
             "libera todo tu potencial", "ya seas", "tanto si eres",
             "atrás quedaron los días", "más que un simple",
             "juega un papel crucial", "juega un papel fundamental",
@@ -314,6 +430,16 @@ LANGUAGES = {
              r"(?i)\b(?:puede|podría|podrían|a menudo|generalmente"
              r"|típicamente|usualmente|posiblemente|quizás|tal vez)\b", 0,
              "tantos matices suenan evasivos - afirma o corta"),
+        ],
+        # Chatbot self-reference/disclaimer phrases, promoted out of
+        # "phrases" above - see AI_ARTIFACT_PHRASES for why. The knowledge-
+        # cutoff and no-browsing variants are researched additions for
+        # 0.9.0 (es was one of the three packs that got them this pass).
+        "artifact_phrases": [
+            ("autorreferencia de chatbot (modelo de lenguaje)", "como modelo de lenguaje"),
+            ("autorreferencia de chatbot (ia)", "como inteligencia artificial"),
+            ("aviso de chatbot (sin acceso en tiempo real)", "no tengo acceso a internet en tiempo real"),
+            ("aviso de chatbot (fecha de corte de conocimiento)", "mi conocimiento tiene fecha de corte"),
         ],
         "stopwords": frozenset((
             "el", "la", "los", "las", "de", "que", "y", "en", "un", "una",
@@ -350,8 +476,8 @@ LANGUAGES = {
             "explorons", "penchons-nous sur", "j'espère que cela vous aide",
             "j'espère que cela aide", "n'hésitez pas à",
             "excellente question", "très bonne question",
-            "en tant que modèle de langage",
-            "en tant qu'intelligence artificielle",
+            # "en tant que modèle de langage" / "...intelligence
+            # artificielle" moved to artifact_phrases below in 0.9.0.
             "libérez tout votre potentiel", "que vous soyez",
             "joue un rôle crucial", "joue un rôle essentiel",
             "une large gamme de", "lorsqu'il s'agit de",
@@ -373,6 +499,10 @@ LANGUAGES = {
              r"(?i)\b(?:peut|pourrait|pourraient|souvent|généralement"
              r"|typiquement|habituellement|sans doute|peut-être)\b", 0,
              "trop de précautions sonne évasif - affirmez ou coupez"),
+        ],
+        "artifact_phrases": [
+            ("auto-référence de chatbot (modèle de langage)", "en tant que modèle de langage"),
+            ("auto-référence de chatbot (ia)", "en tant qu'intelligence artificielle"),
         ],
         "stopwords": frozenset((
             "le", "la", "les", "des", "de", "et", "est", "une", "un", "dans",
@@ -411,7 +541,8 @@ LANGUAGES = {
             "in der heutigen zeit", "tauchen wir ein", "tauchen sie ein",
             "lassen sie uns eintauchen", "ich hoffe, das hilft",
             "zögern sie nicht", "gute frage", "ausgezeichnete frage",
-            "als ki-modell", "als sprachmodell",
+            # "als ki-modell" / "als sprachmodell" moved to
+            # artifact_phrases below in 0.9.0.
             "entfesseln sie ihr volles potenzial",
             "schöpfen sie ihr volles potenzial aus", "egal, ob sie",
             "ganz gleich, ob sie", "spielt eine entscheidende rolle",
@@ -436,6 +567,14 @@ LANGUAGES = {
              r"|in der regel|üblicherweise|möglicherweise|vielleicht)\b", 0,
              "so viel Absicherung wirkt ausweichend - behaupten oder"
              " streichen"),
+        ],
+        # de was one of the three packs that got researched knowledge-
+        # cutoff / no-browsing variants this pass (see AI_ARTIFACT_PHRASES).
+        "artifact_phrases": [
+            ("Chatbot-Selbstbezug (als KI-Modell)", "als ki-modell"),
+            ("Chatbot-Selbstbezug (als Sprachmodell)", "als sprachmodell"),
+            ("Chatbot-Hinweis (kein Echtzeitzugriff)", "ich habe keinen zugriff auf das internet in echtzeit"),
+            ("Chatbot-Hinweis (Wissensstand-Stichtag)", "mein wissensstand reicht bis"),
         ],
         "stopwords": frozenset((
             "der", "die", "das", "und", "ist", "nicht", "mit", "für", "auf",
@@ -475,7 +614,8 @@ LANGUAGES = {
             "espero ter ajudado", "não hesite em",
             "sinta-se à vontade para", "fique à vontade para",
             "ótima pergunta", "excelente pergunta",
-            "como modelo de linguagem", "como inteligência artificial",
+            # "como modelo de linguagem" / "como inteligência artificial"
+            # moved to artifact_phrases below in 0.9.0.
             "desbloqueie todo o seu potencial",
             "libere todo o seu potencial", "seja você", "quer você seja",
             "desempenha um papel crucial",
@@ -499,6 +639,10 @@ LANGUAGES = {
              r"(?i)\b(?:pode|poderia|poderiam|frequentemente|geralmente"
              r"|tipicamente|normalmente|possivelmente|talvez)\b", 0,
              "tanta ressalva soa evasivo - afirme ou corte"),
+        ],
+        "artifact_phrases": [
+            ("autorreferência de chatbot (modelo de linguagem)", "como modelo de linguagem"),
+            ("autorreferência de chatbot (ia)", "como inteligência artificial"),
         ],
         "stopwords": frozenset((
             "o", "os", "as", "de", "que", "e", "em", "um", "uma", "é",
@@ -535,7 +679,8 @@ LANGUAGES = {
             "immergiamoci in", "esploriamo", "approfondiamo",
             "spero che questo aiuti", "spero che questo ti sia utile",
             "non esitare a", "sentiti libero di", "ottima domanda",
-            "come modello linguistico", "come intelligenza artificiale",
+            # "come modello linguistico" / "come intelligenza artificiale"
+            # moved to artifact_phrases below in 0.9.0.
             "sblocca tutto il tuo potenziale",
             "libera tutto il tuo potenziale", "che tu sia",
             "svolge un ruolo cruciale", "svolge un ruolo fondamentale",
@@ -559,6 +704,10 @@ LANGUAGES = {
              r"(?i)\b(?:può|potrebbe|potrebbero|spesso|generalmente"
              r"|tipicamente|solitamente|possibilmente|forse)\b", 0,
              "troppe cautele suonano evasive - afferma o taglia"),
+        ],
+        "artifact_phrases": [
+            ("autoreferenza del chatbot (modello linguistico)", "come modello linguistico"),
+            ("autoreferenza del chatbot (ia)", "come intelligenza artificiale"),
         ],
         "stopwords": frozenset((
             "il", "la", "le", "gli", "di", "che", "e", "è", "per", "con",
@@ -596,7 +745,9 @@ LANGUAGES = {
             "laten we duiken in", "laten we eens kijken naar",
             "duik in de wereld van", "ik hoop dat dit helpt",
             "aarzel niet om", "voel je vrij om", "goede vraag",
-            "uitstekende vraag", "als taalmodel", "als ai-model",
+            "uitstekende vraag",
+            # "als taalmodel" / "als ai-model" moved to artifact_phrases
+            # below in 0.9.0.
             "ontgrendel je volledige potentieel",
             "ontketen je volledige potentieel", "of je nu",
             "speelt een cruciale rol", "speelt een belangrijke rol",
@@ -622,6 +773,10 @@ LANGUAGES = {
              r"|over het algemeen|mogelijk|misschien)\b", 0,
              "zoveel voorbehoud leest ontwijkend - beweer of schrap"),
         ],
+        "artifact_phrases": [
+            ("chatbot-zelfverwijzing (taalmodel)", "als taalmodel"),
+            ("chatbot-zelfverwijzing (ai-model)", "als ai-model"),
+        ],
         "stopwords": frozenset((
             "de", "het", "een", "en", "van", "is", "dat", "niet", "met",
             "voor", "op", "zijn", "aan", "ook", "maar", "naar", "deze",
@@ -645,18 +800,29 @@ LANGUAGES = {
             "гармонично сочетает", "безграничные возможности",
             "на переднем крае", "краеугольный камень",
             "по-настоящему уникальный",
+            # Bureaucratic determiners and nominalizations (канцелярит) -
+            # 0.9.0 research pass. Genuinely common in formal/official
+            # Russian registers too, which is why these are calibrated
+            # against a formal-Russian human sample in eval/corpus/human
+            # rather than shipped on faith - see eval/README.md.
+            "данный", "указанный", "вышеупомянутый",
+            "осуществление", "проведение", "обеспечение",
         ],
         "phrases": [
             "важно отметить", "стоит отметить", "следует отметить",
             "нельзя не отметить", "в современном мире",
             "в быстро меняющемся мире", "давайте погрузимся",
             "давайте разберемся", "в заключение", "подводя итог",
-            "в двух словах", "как языковая модель",
-            "как искусственный интеллект", "надеюсь, это поможет",
+            "в двух словах",
+            # "как языковая модель" / "как искусственный интеллект" moved
+            # to artifact_phrases below in 0.9.0.
+            "надеюсь, это поможет",
             "не стесняйтесь", "отличный вопрос", "когда речь заходит о",
             "широкий спектр возможностей", "открывает новые горизонты",
             "играет ключевую роль", "играет важную роль",
             "хочу подчеркнуть",
+            # 0.9.0 opener cliché.
+            "в эпоху цифровизации",
         ],
         "patterns": [
             ("конструкция 'не только X, но и Y'",
@@ -677,6 +843,20 @@ LANGUAGES = {
              r"|зачастую|возможно|порой)\b", 0,
              "столько оговорок звучит уклончиво - утверждай или убери"),
         ],
+        # ru was one of the three packs that got researched knowledge-
+        # cutoff / no-browsing variants this pass (see AI_ARTIFACT_PHRASES).
+        "artifact_phrases": [
+            ("самоссылка чат-бота (языковая модель)", "как языковая модель"),
+            ("самоссылка чат-бота (ИИ)", "как искусственный интеллект"),
+            ("оговорка чат-бота (нет доступа в реальном времени)", "у меня нет доступа к интернету в реальном времени"),
+            ("оговорка чат-бота (дата отсечки знаний)", "мои знания ограничены датой обучения"),
+        ],
+        # "является" (is/serves as) is an ordinary Russian copula verb, but
+        # LLM Russian leans on it as a formal-register crutch well past the
+        # rate of ordinary prose - excess over a calibrated per-1,000-word
+        # allowance scores, the same density-allowance shape as em dashes.
+        # See YAVLYAETSYA_ALLOWANCE_PER_1K near analyze().
+        "density_crutch": ("является",),
         "stopwords": frozenset((
             "и", "в", "не", "на", "с", "что", "как", "это", "для", "но",
             "к", "по", "из", "о", "же", "только", "все", "от", "за",
@@ -704,8 +884,10 @@ LANGUAGES = {
             "важливо зазначити", "варто зазначити", "слід зазначити",
             "у сучасному світі", "у швидкоплинному світі",
             "давайте зануримося", "давайте розберемося", "підсумовуючи",
-            "на завершення", "у двох словах", "як мовна модель",
-            "як штучний інтелект", "сподіваюся, це допоможе",
+            "на завершення", "у двох словах",
+            # "як мовна модель" / "як штучний інтелект" moved to
+            # artifact_phrases below in 0.9.0.
+            "сподіваюся, це допоможе",
             "не соромтеся", "чудове запитання", "коли справа доходить до",
             "широкий спектр можливостей", "відкриває нові горизонти",
             "відіграє ключову роль", "відіграє важливу роль",
@@ -730,6 +912,10 @@ LANGUAGES = {
              r"|часто|можливо)\b", 0,
              "стільки застережень звучить ухильно - стверджуй або "
              "прибери"),
+        ],
+        "artifact_phrases": [
+            ("самопосилання чат-бота (мовна модель)", "як мовна модель"),
+            ("самопосилання чат-бота (ШІ)", "як штучний інтелект"),
         ],
         "stopwords": frozenset((
             "і", "це", "що", "як", "для", "з", "на", "не", "у", "до",
@@ -761,8 +947,10 @@ LANGUAGES = {
             "w erze cyfrowej", "zanurzmy się w", "zagłębmy się w",
             "podsumowując", "reasumując", "na koniec dnia",
             "mam nadzieję, że to pomoże", "nie wahaj się", "śmiało pytaj",
-            "świetne pytanie", "jako model językowy",
-            "jako sztuczna inteligencja", "kiedy przychodzi do",
+            "świetne pytanie",
+            # "jako model językowy" / "jako sztuczna inteligencja" moved
+            # to artifact_phrases below in 0.9.0.
+            "kiedy przychodzi do",
             "szeroki wachlarz", "otwiera nowe możliwości",
             "więcej niż tylko", "niezależnie od tego, czy jesteś",
         ],
@@ -785,6 +973,10 @@ LANGUAGES = {
              r"(?i)\b(?:może|mogą|często|zazwyczaj|zwykle"
              r"|prawdopodobnie|ewentualnie|ogólnie)\b", 0,
              "tyle zastrzeżeń brzmi wymijająco - stwierdź albo wytnij"),
+        ],
+        "artifact_phrases": [
+            ("autoreferencja chatbota (model językowy)", "jako model językowy"),
+            ("autoreferencja chatbota (SI)", "jako sztuczna inteligencja"),
         ],
         "stopwords": frozenset((
             "i", "w", "na", "nie", "z", "do", "że", "się", "to", "jest",
@@ -814,7 +1006,8 @@ LANGUAGES = {
             "v dnešním uspěchaném světě", "v digitální době",
             "ponořme se do", "pojďme prozkoumat",
             "doufám, že to pomůže", "neváhejte", "skvělá otázka",
-            "jako jazykový model", "jako umělá inteligence",
+            # "jako jazykový model" / "jako umělá inteligence" moved to
+            # artifact_phrases below in 0.9.0.
             "když přijde na", "široká škála možností",
             "otevírá nové možnosti", "hraje klíčovou roli",
             "hraje zásadní roli", "víc než jen",
@@ -834,6 +1027,10 @@ LANGUAGES = {
              r"(?i)\b(?:může|mohou|často|obvykle|obecně"
              r"|pravděpodobně|možná)\b", 0,
              "tolik výhrad zní vyhýbavě - tvrď, nebo škrtni"),
+        ],
+        "artifact_phrases": [
+            ("sebeodkaz chatbota (jazykový model)", "jako jazykový model"),
+            ("sebeodkaz chatbota (UI)", "jako umělá inteligence"),
         ],
         "stopwords": frozenset((
             "a", "v", "na", "je", "se", "to", "kde", "pro", "před",
@@ -863,7 +1060,8 @@ LANGUAGES = {
             "önemle belirtmek gerekir ki", "belirtmek gerekir ki",
             "unutulmamalıdır ki", "günümüzün hızlı dünyasında",
             "günümüz dünyasında", "sonuç olarak", "kısacası", "özetle",
-            "bir yapay zeka olarak", "bir dil modeli olarak",
+            # "bir yapay zeka olarak" / "bir dil modeli olarak" moved to
+            # artifact_phrases below in 0.9.0.
             "harika bir soru", "mükemmel bir soru", "çekinmeyin",
             "yardımcı olması umarım", "yardımcı olacağını umuyorum",
             "hadi dalalım", "gelin inceleyelim",
@@ -895,6 +1093,10 @@ LANGUAGES = {
              "bu kadar çekince kaçamak gibi duruyor - ya net konuş ya "
              "da çıkar"),
         ],
+        "artifact_phrases": [
+            ("chatbot öz-referansı (yapay zeka)", "bir yapay zeka olarak"),
+            ("chatbot öz-referansı (dil modeli)", "bir dil modeli olarak"),
+        ],
         "stopwords": frozenset((
             "ve", "bir", "bu", "için", "ile", "gibi", "ama", "veya",
             "çok", "daha", "olan", "her", "kadar", "sonra", "önce",
@@ -920,7 +1122,9 @@ LANGUAGES = {
             "det är viktigt att notera", "det är värt att notera",
             "värt att nämna", "i dagens snabbrörliga värld",
             "i dagens digitala värld", "sammanfattningsvis",
-            "i slutändan", "som en ai", "som en språkmodell",
+            "i slutändan",
+            # "som en ai" / "som en språkmodell" moved to artifact_phrases
+            # below in 0.9.0.
             "tveka inte", "bra fråga", "utmärkt fråga",
             "när det kommer till", "ett brett utbud av",
             "spelar en avgörande roll", "spelar en viktig roll",
@@ -942,6 +1146,10 @@ LANGUAGES = {
              r"(?i)\b(?:kan|skulle kunna|ofta|vanligtvis|i allmänhet"
              r"|möjligen|kanske)\b", 0,
              "så mycket gardering läses undvikande - hävda eller stryk"),
+        ],
+        "artifact_phrases": [
+            ("chatbotens självreferens (AI)", "som en ai"),
+            ("chatbotens självreferens (språkmodell)", "som en språkmodell"),
         ],
         "stopwords": frozenset((
             "och", "är", "inte", "att", "det", "som", "för", "med",
@@ -969,8 +1177,10 @@ LANGUAGES = {
             "este important de menționat", "merită menționat",
             "trebuie remarcat", "în lumea de azi în ritm alert",
             "în era digitală", "pe scurt", "în concluzie",
-            "la sfârșitul zilei", "ca inteligență artificială",
-            "ca model lingvistic", "nu ezita să", "sper că te ajută",
+            "la sfârșitul zilei",
+            # "ca inteligență artificială" / "ca model lingvistic" moved
+            # to artifact_phrases below in 0.9.0.
+            "nu ezita să", "sper că te ajută",
             "întrebare excelentă", "întrebare grozavă",
             "atunci când vine vorba de", "joacă un rol esențial",
             "joacă un rol crucial", "nu doar un instrument",
@@ -992,6 +1202,10 @@ LANGUAGES = {
              r"(?i)\b(?:poate|ar putea|adesea|de obicei|în general"
              r"|probabil|posibil)\b", 0,
              "atâtea rezerve sună evaziv - afirmă sau taie"),
+        ],
+        "artifact_phrases": [
+            ("auto-referință de chatbot (IA)", "ca inteligență artificială"),
+            ("auto-referință de chatbot (model lingvistic)", "ca model lingvistic"),
         ],
         "stopwords": frozenset((
             "și", "în", "de", "un", "este", "cu", "care", "pentru",
@@ -1018,7 +1232,8 @@ LANGUAGES = {
             "fontos megjegyezni", "érdemes megjegyezni",
             "fontos kiemelni", "napjaink rohanó világában",
             "a mai digitális világban", "összefoglalva", "végezetül",
-            "mesterséges intelligenciaként", "nyelvi modellként",
+            # "mesterséges intelligenciaként" / "nyelvi modellként" moved
+            # to artifact_phrases below in 0.9.0.
             "ne habozz", "remélem, ez segít", "nagyszerű kérdés",
             "kiváló kérdés", "amikor arról van szó",
             "szabadítsd fel a benned rejlő potenciált",
@@ -1044,6 +1259,10 @@ LANGUAGES = {
              r"(?i)\b(?:lehet|lehetnek|gyakran|általában"
              r"|valószínűleg|esetleg)\b", 0,
              "ennyi óvatoskodás kitérőnek hat - állítsd, vagy húzd ki"),
+        ],
+        "artifact_phrases": [
+            ("chatbot önhivatkozás (MI)", "mesterséges intelligenciaként"),
+            ("chatbot önhivatkozás (nyelvi modell)", "nyelvi modellként"),
         ],
         "stopwords": frozenset((
             "és", "a", "az", "nem", "hogy", "van", "egy", "is", "de",
@@ -1071,7 +1290,9 @@ LANGUAGES = {
             "on tärkeää huomioida", "kannattaa muistaa",
             "on syytä mainita", "nykypäivän nopeatempoisessa maailmassa",
             "tämän päivän digitaalisessa maailmassa", "yhteenvetona",
-            "loppujen lopuksi", "tekoälynä", "kielimallina",
+            "loppujen lopuksi",
+            # "tekoälynä" / "kielimallina" moved to artifact_phrases below
+            # in 0.9.0.
             "älä epäröi", "toivottavasti tästä on apua",
             "loistava kysymys", "erinomainen kysymys", "kun kyse on",
             "laaja valikoima vaihtoehtoja", "ei vain työkalu",
@@ -1093,6 +1314,10 @@ LANGUAGES = {
              r"(?i)\b(?:voi|voivat|saattaa|usein|yleensä"
              r"|tavallisesti|todennäköisesti)\b", 0,
              "noin moni varaus lukee välttelevältä - väitä tai poista"),
+        ],
+        "artifact_phrases": [
+            ("chatbotin itseviittaus (tekoäly)", "tekoälynä"),
+            ("chatbotin itseviittaus (kielimalli)", "kielimallina"),
         ],
         "stopwords": frozenset((
             "ja", "on", "ei", "että", "se", "joka", "kuin", "tämä",
@@ -1330,6 +1555,12 @@ def to_rdjsonl(path, r):
             "severity": severity,
         }))
 
+    # Chat-UI residue and the chatbot disclaimer phrases that were promoted
+    # to the same tier in 0.9.0 - direct paste evidence, flagged as errors
+    # rather than warnings since a single hit already pins the hard verdict.
+    for label, n, ls in r["ai_artifacts"]:
+        for ln in ls:
+            emit(f"{label} - direct paste evidence", ln, "ERROR")
     for word, n, ls in r["buzzwords"]:
         for ln in ls:
             emit(f'buzzword: "{word}" reads as an AI tell', ln, "WARNING")
@@ -1340,6 +1571,13 @@ def to_rdjsonl(path, r):
         severity = "WARNING" if weight else "INFO"
         for ln in ls:
             emit(f"{label} - {hint}", ln, severity)
+    for phrase, n, ls in r["copula_avoidance"]:
+        for ln in ls:
+            emit(f'copula-avoidance phrase: "{phrase}"', ln,
+                 "WARNING" if r["copula_avoidance_scored"] else "INFO")
+    for phrase, n, ls in r["scope_inflation"]:
+        for ln in ls:
+            emit(f'scope-inflation phrase: "{phrase}"', ln, "WARNING")
     return lines
 
 
@@ -1390,6 +1628,15 @@ def analyze(text, buzzwords=None, phrases=None, lang=None, lang_source=None):
         spans += [(s, e, "buzz", w) for s, e in find_all(lower, w)]
     for p in phrases:
         spans += [(s, e, "phrase", p) for s, e in find_all(lower, p)]
+    # Copula-avoidance and scope-inflation share the same overlap-resolution
+    # pool as buzzwords/phrases (not a separate pass) so a longer existing
+    # phrase entry wins over a shorter fragment that sits inside it - e.g.
+    # "stands as a testament" (a PHRASES hit) beats the copula-avoidance
+    # fragment "stands as a" it contains, rather than scoring both.
+    for w in pack.get("copula_avoidance", ()):
+        spans += [(s, e, "copula", w) for s, e in find_all(lower, w)]
+    for w in pack.get("scope_inflation", ()):
+        spans += [(s, e, "scope", w) for s, e in find_all(lower, w)]
     spans.sort(key=lambda h: (h[0], -h[1]))
     kept, last_end = [], -1
     for s, e, kind, key in spans:
@@ -1412,6 +1659,25 @@ def analyze(text, buzzwords=None, phrases=None, lang=None, lang_source=None):
     buzz_total = sum(n for _, n, _ in buzz)
     phr_total = sum(n for _, n, _ in phr)
 
+    # Copula-avoidance ("X serves as a Y") is legitimate technical writing
+    # occasionally - only scores past a density gate, like the hedge stack
+    # and connective-opener checks. Scope-inflation ("cannot be overstated")
+    # scores every hit, but at a lower weight (2, not 3) since each phrase
+    # has everyday non-AI use on its own.
+    copula_avoidance = tally("copula")
+    scope_inflation = tally("scope")
+    copula_total = sum(n for _, n, _ in copula_avoidance)
+    scope_total = sum(n for _, n, _ in scope_inflation)
+    # Density gate needs both an absolute floor (2+ hits) and a rate floor:
+    # a rate alone would let a single hit in a 400-word note clear "2 per
+    # 1,000 words" on arithmetic alone, the same short-document trap the
+    # connective-opener and question-hook checks already guard against
+    # elsewhere in this function.
+    copula_avoidance_scored = (
+        copula_total >= 2 and
+        (copula_total * 1000.0 / wc) >= COPULA_AVOIDANCE_MIN_PER_1K
+    )
+
     pat = []
     pat_raw = 0
     for entry in pack["patterns"]:
@@ -1430,9 +1696,17 @@ def analyze(text, buzzwords=None, phrases=None, lang=None, lang_source=None):
 
     # Chat-UI residue. Overlapping/adjacent spans merge (a pasted
     # ":contentReference[oaicite:...]" block is one artifact, not several).
+    # Markup tokens (AI_ARTIFACTS) are matched as bare substrings since they
+    # can sit inside a URL; chatbot disclaimer sentences (AI_ARTIFACT_PHRASES
+    # and the pack's own researched artifact_phrases) are matched with word
+    # boundaries like any other phrase - see the note on AI_ARTIFACT_PHRASES.
     art_spans = []
     for label, needle in AI_ARTIFACTS:
         art_spans += [(s, e, label) for s, e in find_all_plain(lower, needle)]
+    for label, needle in AI_ARTIFACT_PHRASES:
+        art_spans += [(s, e, label) for s, e in find_all(lower, needle)]
+    for label, needle in pack.get("artifact_phrases", ()):
+        art_spans += [(s, e, label) for s, e in find_all(lower, needle)]
     art_spans.sort()
     # Sentinel is -2, not -1: a span at offset 0 must still pass the
     # adjacency test (0 > -1), or an artifact that opens the text vanishes.
@@ -1466,6 +1740,34 @@ def analyze(text, buzzwords=None, phrases=None, lang=None, lang_source=None):
                 matches = matches[1:]
             bold_inline += len(matches)
 
+    # Bare bullet glyphs (•/▪/‣) opening a line - chat-UI copy/paste
+    # residue, since the native way to hand-write a markdown list item is
+    # "-" or "*". Phrase-tier weight, not the artifact floor - some
+    # note-app exports legitimately carry these.
+    bare_bullets = len(BARE_BULLET_RE.findall(text))
+
+    # Generic AI-listicle headings (Introduction, Key Takeaways, Final
+    # Thoughts...) only score at 2+ hits - one "Conclusion" is an ordinary
+    # essay, several of these in one document is a template. Emphasis
+    # markers and a trailing colon are stripped before matching so
+    # "**Conclusion:**" and "Conclusion" count the same.
+    generic_heading_lines = []
+    for m in re.finditer(r"(?m)^#{1,6}[ \t]+(.+?)[ \t]*$", text):
+        label = re.sub(r"[*_`]+", "", m.group(1)).strip().rstrip(":.").lower()
+        if label in GENERIC_HEADINGS:
+            generic_heading_lines.append(line_of(text, m.start()))
+    generic_headings = len(generic_heading_lines)
+    generic_heading_excess = max(0, generic_headings - 1) if generic_headings >= 2 else 0
+
+    # Heading-level skip (H2 straight to H4, no H3 in between) - reported
+    # only, like opener_top_share below. A skipped level is often just a
+    # deliberate doc structure, not strong enough evidence on its own to
+    # score, but it's a real templating habit worth surfacing.
+    heading_levels = [len(m.group(1)) for m in re.finditer(r"(?m)^(#{1,6})[ \t]+\S", text)]
+    heading_level_skips = sum(
+        1 for i in range(1, len(heading_levels))
+        if heading_levels[i] > heading_levels[i - 1] + 1)
+
     # Curly and straight marks of the SAME kind mixed in one document
     # usually means a paste boundary - chat UIs render smart quotes,
     # editors type straight ones. Cross-kind mixing (straight apostrophes
@@ -1477,6 +1779,11 @@ def analyze(text, buzzwords=None, phrases=None, lang=None, lang_source=None):
     straight_dq = text.count('"')
     quote_mix = 1 if ((curly_apo >= 3 and straight_apo >= 3) or
                       (curly_dq >= 3 and straight_dq >= 3)) else 0
+
+    # Sentence-punctuation entropy: see punct_entropy()'s docstring. Small
+    # fixed bump like uniformity/quote_mix, never verdict-crossing alone.
+    punct_ent = punct_entropy(text)
+    punct_entropy_low = punct_ent is not None and punct_ent < PUNCT_ENTROPY_LOW
 
     sentences = [s for s in re.split(r"(?<=[.!?])\s+", text.strip()) if s.strip()]
     slens = [len(re.findall(r"(?:[^\W\d_]|['\-])+", s)) for s in sentences if s.strip()]
@@ -1511,6 +1818,29 @@ def analyze(text, buzzwords=None, phrases=None, lang=None, lang_source=None):
         pmean = sum(plens) / len(plens)
         psd = (sum((x - pmean) ** 2 for x in plens) / len(plens)) ** 0.5
         paragraph_uniformity = round((psd / pmean) if pmean else 0, 2)
+
+    # Cross-paragraph opener self-repetition: normalize each paragraph's
+    # first five words and look for the same opener starting 3+ paragraphs.
+    # Pure string comparison, so it works identically in every language -
+    # distinct from opener_top_share below, which tracks a single word
+    # across sentences, not a five-word run across paragraphs.
+    paragraph_opener_repeat = 0
+    paragraph_opener_repeat_text = None
+    if len(paras) >= 5:
+        para_openers = {}
+        for p in paras:
+            head = re.findall(r"[^\W\d_]+", p.lower())[:5]
+            if not head:
+                continue
+            key = " ".join(head)
+            para_openers[key] = para_openers.get(key, 0) + 1
+        best_opener, best_n = None, 0
+        for key, n in para_openers.items():
+            if n > best_n:
+                best_opener, best_n = key, n
+        if best_n >= 3:
+            paragraph_opener_repeat = best_n
+            paragraph_opener_repeat_text = best_opener
 
     # Self-answering question hooks: a tiny question dropped mid-paragraph
     # and immediately answered ("More miners join? The puzzle gets harder.").
@@ -1555,6 +1885,27 @@ def analyze(text, buzzwords=None, phrases=None, lang=None, lang_source=None):
                 best_n = n
         opener_top_share = round(best_n / len(openers), 2)
 
+    # Windowed type-token ratio and function-word ratio: report-only
+    # diagnostics, never scored. Both track how repetitive/formulaic the
+    # vocabulary reads, but the same Stanford burstiness research that
+    # documents the sentence-uniformity ESL false-positive risk (see the
+    # README's limitations section) applies at least as much here - a
+    # non-native writer's smaller working vocabulary would over-flag on
+    # this family more, not less, than on sentence rhythm. --json exposes
+    # both for anyone who wants them; the human-readable report never
+    # prints or suggests "fixing" either one, on purpose.
+    words_lc = [w.lower() for w in words]
+    windowed_ttr = None
+    if len(words_lc) >= 200:
+        ratios = [
+            len(set(words_lc[i:i + 200])) / 200
+            for i in range(0, len(words_lc) - 200 + 1, 200)
+        ]
+        windowed_ttr = round(sum(ratios) / len(ratios), 3)
+    stopwords = pack.get("stopwords", frozenset())
+    function_word_ratio = round(
+        sum(1 for w in words_lc if w in stopwords) / wc, 3)
+
     raw = (buzz_total * 3) + (phr_total * 3) + pat_raw
     raw += art_total * 10
     # Dialogue-dash languages get a wider allowance (see em_dash_factor in
@@ -1578,6 +1929,18 @@ def analyze(text, buzzwords=None, phrases=None, lang=None, lang_source=None):
     bold_inline_excess = max(0, bold_inline - max(2, wc // 150))
     raw += bold_inline_excess * 2
     raw += question_hook_excess * 2
+    # Copula-avoidance only counts past its density gate; scope-inflation
+    # scores every hit, at the lower weight noted above.
+    if copula_avoidance_scored:
+        raw += copula_total * 3
+    raw += scope_total * 2
+    raw += generic_heading_excess * 2
+    raw += bare_bullets * 3
+    density_crutch_total = sum(
+        len(find_all(lower, w)) for w in pack.get("density_crutch", ()))
+    density_crutch_allowance = max(2, wc // DENSITY_CRUTCH_ALLOWANCE_DIVISOR)
+    density_crutch_excess = max(0, density_crutch_total - density_crutch_allowance)
+    raw += density_crutch_excess * 2
     score = per1k(raw)
     # Rhythm and typography signals ride on top of the normalized score as
     # small fixed bumps instead of raw points: per-1k normalization
@@ -1594,6 +1957,10 @@ def analyze(text, buzzwords=None, phrases=None, lang=None, lang_source=None):
     score += min(max(0, staccato_runs - 1) * 4, 8)
     score += quote_mix * 4
     score += min(connective_excess, 2) * 2
+    if punct_entropy_low:
+        score += 5
+    if paragraph_opener_repeat:
+        score += 5
     # A chat-UI artifact is proof of paste, not a probabilistic signal - it
     # pins the score at the hard-verdict floor no matter how long the text
     # is (per-1k normalization would otherwise dilute it to nothing in a
@@ -1624,6 +1991,20 @@ def analyze(text, buzzwords=None, phrases=None, lang=None, lang_source=None):
         "sentence_uniformity_cv": uniformity,
         "paragraph_uniformity_cv": paragraph_uniformity,
         "opener_top_share": opener_top_share,
+        "copula_avoidance": copula_avoidance,
+        "copula_avoidance_scored": copula_avoidance_scored,
+        "scope_inflation": scope_inflation,
+        "generic_headings": generic_headings,
+        "bare_bullets": bare_bullets,
+        "punct_entropy": punct_ent,
+        "punct_entropy_low": punct_entropy_low,
+        "heading_level_skips": heading_level_skips,
+        "paragraph_opener_repeat": paragraph_opener_repeat,
+        "paragraph_opener_repeat_text": paragraph_opener_repeat_text,
+        "windowed_ttr": windowed_ttr,
+        "function_word_ratio": function_word_ratio,
+        "density_crutch": density_crutch_total,
+        "density_crutch_excess": density_crutch_excess,
     }
 
 
@@ -1654,6 +2035,15 @@ def report(r, quiet=False):
             tag = "" if weight else "  [style, not scored]"
             out.append(f"  {n:>2}x  {label}{tag} (lines {', '.join(map(str, lines))})")
             out.append(f"        -> {hint}")
+    if r["copula_avoidance"]:
+        tag = "" if r["copula_avoidance_scored"] else "  [below the density gate, not scored]"
+        out.append(f"\nCopula-avoidance phrases:{tag}")
+        for p, n, lines in r["copula_avoidance"]:
+            out.append(f'  {n:>2}x  "{p}" (lines {", ".join(map(str, lines))})')
+    if r["scope_inflation"]:
+        out.append("\nScope-inflation phrases:")
+        for p, n, lines in r["scope_inflation"]:
+            out.append(f'  {n:>2}x  "{p}" (lines {", ".join(map(str, lines))})')
     misc = []
     if r["em_dash_excess"]:
         misc.append(f"{r['em_dashes']} em dashes is dense for the length (vary the punctuation)")
@@ -1679,11 +2069,24 @@ def report(r, quiet=False):
         misc.append(f"{r['bold_inline']} bold spans in running prose is heavy - keep the few that earn it")
     if r["opener_top_share"] is not None and r["opener_top_share"] >= 0.4:
         misc.append(f"{int(r['opener_top_share'] * 100)}% of sentences open with the same word [style, not scored] - vary the openers")
+    if r["generic_headings"] and r["generic_headings"] >= 2:
+        misc.append(f"{r['generic_headings']} generic listicle headings (Introduction/Conclusion/Key Takeaways/...) - the template shows")
+    if r["bare_bullets"]:
+        misc.append(f"{r['bare_bullets']} line(s) open with a bare •/▪/‣ glyph - chat-UI paste residue; use - or *")
+    if r["punct_entropy_low"]:
+        misc.append(f"punctuation leans on very few marks (entropy={r['punct_entropy']}) - vary the punctuation")
+    if r["paragraph_opener_repeat"]:
+        misc.append(f"{r['paragraph_opener_repeat']} paragraphs open with \"{r['paragraph_opener_repeat_text']}...\" - vary the opener")
+    if r["density_crutch_excess"]:
+        misc.append(f"{r['density_crutch']} uses of a formal-register crutch word is dense for the length (vary the phrasing)")
+    if r["heading_level_skips"]:
+        misc.append(f"{r['heading_level_skips']} heading level(s) skip a level (e.g. H2 straight to H4) [style, not scored]")
     if misc:
         out.append("\nRhythm & surface:")
         for m in misc:
             out.append(f"  - {m}")
-    if not (r["ai_artifacts"] or r["buzzwords"] or r["phrases"] or r["patterns"] or misc):
+    if not (r["ai_artifacts"] or r["buzzwords"] or r["phrases"] or r["patterns"] or
+            r["copula_avoidance"] or r["scope_inflation"] or misc):
         out.append("\nNothing flagged. Reads clean.")
     return "\n".join(out)
 
