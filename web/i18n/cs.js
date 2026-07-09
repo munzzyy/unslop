@@ -16,8 +16,8 @@ window.NoslopI18N.catalogs.cs = {
   "theme.auto": "Automaticky",
   "uilang.switcherLabel": "Jazyk",
 
-  "hero.heading": "Zjisti, co dělá tvůj text znít jako robota.",
-  "hero.tagline": "Vlož níže koncept. noslop ukáže přesně ta slova a zvyky, které ho prozrazují, abys je mohl opravit ještě před odesláním.",
+  "hero.heading": "Jediný deterministický linter AI textu, který mluví 16 jazyky.",
+  "hero.tagline": "Vlož níže koncept. noslop ukáže přesně ta slova a zvyky, které ho prozrazují - žádný model, nic se nenahrává - abys je mohl opravit ještě před odesláním.",
   "privacy.strong": "Vše běží přímo v prohlížeči.",
   "privacy.rest": "Nic z toho, co vložíš, se nikam neodesílá, neukládá ani nesdílí.",
 

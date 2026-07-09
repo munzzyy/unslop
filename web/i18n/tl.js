@@ -14,8 +14,8 @@ window.NoslopI18N.catalogs.tl = {
   "theme.auto": "Awtomatiko",
   "uilang.switcherLabel": "Wika",
 
-  "hero.heading": "Tingnan kung ano ang nagpapabango sa sinulat mo na parang robot.",
-  "hero.tagline": "Mag-paste ng draft sa ibaba. Itinuturo ng noslop ang eksaktong mga salita at ugali na nagbubunyag nito, para maayos mo bago mo ipadala.",
+  "hero.heading": "Ang tanging AI-writing linter na walang modelo na marunong sa 16 na wika.",
+  "hero.tagline": "Mag-paste ng draft sa ibaba. Itinuturo ng noslop ang eksaktong mga salita at ugali na nagbubunyag nito - walang modelo, walang ina-upload - para maayos mo bago mo ipadala.",
   "privacy.strong": "Lahat ay gumagana sa browser mo.",
   "privacy.rest": "Wala sa i-paste mo ang ina-upload, ini-imbak, o ipinapadala kahit saan.",
 

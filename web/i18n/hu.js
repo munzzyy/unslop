@@ -14,8 +14,8 @@ window.NoslopI18N.catalogs.hu = {
   "theme.auto": "Automatikus",
   "uilang.switcherLabel": "Nyelv",
 
-  "hero.heading": "Nézd meg, mitől hangzik robotnak a szöveged.",
-  "hero.tagline": "Illessz be lent egy piszkozatot. Az noslop pontosan azokra a szavakra és szokásokra mutat rá, amelyek elárulják, hogy kijavíthasd őket, mielőtt elküldöd.",
+  "hero.heading": "Az egyetlen determinisztikus MI-szöveglinter, amely 16 nyelven ért.",
+  "hero.tagline": "Illessz be lent egy piszkozatot. Az noslop pontosan azokra a szavakra és szokásokra mutat rá, amelyek elárulják - nincs modell, semmi nem kerül feltöltésre - hogy kijavíthasd őket, mielőtt elküldöd.",
   "privacy.strong": "Minden a böngésződben fut.",
   "privacy.rest": "Semmi, amit beillesztesz, nem kerül feltöltésre, tárolásra vagy elküldésre sehova.",
 

@@ -14,8 +14,8 @@ window.NoslopI18N.catalogs.nl = {
   "theme.auto": "Automatisch",
   "uilang.switcherLabel": "Taal",
 
-  "hero.heading": "Zie wat je tekst als een robot laat klinken.",
-  "hero.tagline": "Plak hieronder een concept. noslop wijst precies de woorden en gewoontes aan die het verraden, zodat je ze kunt verbeteren voordat je verzendt.",
+  "hero.heading": "De enige deterministische AI-schrijflinter die 16 talen spreekt.",
+  "hero.tagline": "Plak hieronder een concept. noslop wijst precies de woorden en gewoontes aan die het verraden - geen model, niets geüpload - zodat je ze kunt verbeteren voordat je verzendt.",
   "privacy.strong": "Alles draait in je browser.",
   "privacy.rest": "Niets van wat je plakt wordt geüpload, opgeslagen of ergens naartoe gestuurd.",
 

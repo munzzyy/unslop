@@ -16,8 +16,8 @@ window.NoslopI18N.catalogs["zh-Hant"] = {
   "theme.auto": "自動",
   "uilang.switcherLabel": "語言",
 
-  "hero.heading": "看看是什麼讓你的文字聽起來像機器人。",
-  "hero.tagline": "把草稿貼到下面。noslop 會準確指出洩露痕跡的那些字詞和習慣,方便你在傳送前改掉。",
+  "hero.heading": "唯一不依賴模型、支援16種語言的AI寫作檢測工具。",
+  "hero.tagline": "把草稿貼到下面。noslop 會準確指出洩露痕跡的那些字詞和習慣——不用模型,不上傳任何內容——方便你在傳送前改掉。",
   "privacy.strong": "一切都在你的瀏覽器裡執行。",
   "privacy.rest": "你貼上的任何內容都不會被上傳、儲存或傳送到任何地方。",
 

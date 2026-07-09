@@ -1,6 +1,6 @@
 # noslop
 
-**The AI-writing linter. See the exact words that make your writing sound like a robot — in sixteen languages, on your own machine — and fix them before anyone else reads a word.**
+**The only deterministic AI-writing linter that speaks 16 languages: English, Spanish, French, German, Portuguese (Brazil), Italian, Dutch, Russian, Ukrainian, Polish, Czech, Turkish, Swedish, Romanian, Hungarian, and Finnish. No model, no upload - it reads the text on your machine and prints the exact phrase to fix.**
 
 [![CI](https://github.com/munzzyy/noslop/actions/workflows/test.yml/badge.svg)](https://github.com/munzzyy/noslop/actions/workflows/test.yml)
 [![License: Prosperity 3.0.0](https://img.shields.io/badge/license-Prosperity--3.0.0-blue.svg)](LICENSE)
@@ -9,11 +9,12 @@
 ![16 languages](https://img.shields.io/badge/languages-16-blue)
 [![try it in your browser](https://img.shields.io/badge/try%20it-in%20your%20browser-orange)](https://munzzyy.github.io/noslop/)
 
-AI detectors hand you a verdict-shaped guess. noslop hands you the exact words to change:
-every buzzword, filler phrase, contrast-frame cliché, stray em dash, and flat-rhythm
-paragraph, underlined where it sits, with a line number and a reason. Deterministic, so
-the same text gets the same score every time. Local, so your unpublished draft never
-touches anyone's server.
+Every other AI-writing detector on the market runs a machine-learning model on someone
+else's server: you upload a draft, wait, and get back a percentage with no way to check
+its work. noslop runs no model at all. It's word lists, regex, and rhythm math, all in
+one file you can read end to end, scoring your text on your own machine. Paste the same
+paragraph in twice, a year apart, and the score doesn't move, because there's no model
+behind it to retrain.
 
 > **The proof is the product: this README scores 0.0/1k on noslop itself, and CI fails the build the day that stops being true.**
 
@@ -27,19 +28,34 @@ Prefer the terminal? It's also one Python file with no dependencies that drops i
 
 ## Why this and not a detector
 
-| | noslop | AI detectors (SaaS) | Vale + ai-tells |
+| | noslop | Cloud AI detectors (GPTZero, Copyleaks, Originality.ai, Pangram, Winston...) | vale-ai-tells |
 |---|---|---|---|
-| Tells you *what to fix*, word by word | yes — line numbers and hints | no — one probability score | vocabulary and phrasing |
-| Sentence-rhythm and formatting tells | yes | opaque | no ([their own docs name the gap](#vs-vale--vale-ai-tells)) |
-| Languages | sixteen, each researched separately | English-first | English |
-| Your draft stays on your machine | always — even the browser app | uploaded to their servers | yes |
-| Same text, same score, every time | yes — CLI and browser parity-tested | no, model-dependent | yes |
-| Pre-commit, CI, agent skill | all three, zero dependencies | paid API, upload required | pre-commit, via a Vale install |
-| Open source, auditable scoring | every weight in one file | no | yes |
+| How it decides | fixed word lists, regex, and rhythm math, all in [noslop.py](noslop.py) | a trained classifier; weights and training data aren't published | fixed word lists and regex (Vale rules) |
+| Same input, twice | same score, always | can shift after a silent model update | same score, always |
+| Your draft leaves your machine | never | yes, that's how the check runs | never |
+| Tells you which phrase to fix | yes, with a line number and a hint | no, just a percentage | yes, with a line number |
+| Sentence-rhythm / paragraph checks | yes | not published, so unknown | no - its own docs say it ["can't detect sentence-length uniformity, or burstiness [or] paragraph-length patterns"](#vs-vale--vale-ai-tells) |
+| Languages | 16, each researched separately, same weights everywhere | English is strongest; Copyleaks, Originality.ai, and Pangram each cover 20-30+ as one shared model, not per-language research | English only |
+| Cost | free, no account | paid API or credit-based | free, needs a Vale install |
 
-Nothing else combines that column. And the honest limits are documented [below](#limitations) — a
+Nothing else combines that column. The honest limits are documented [below](#limitations) - a
 clean score means these tells are absent, not that a human typed it. That's the linter's contract:
 catch what's catchable, show the work, leave the verdict-guessing to tools that enjoy being wrong.
+
+## Why deterministic beats a black box
+
+A cloud detector's score depends on a model you can't see, retrained on a schedule nobody
+publishes. The same essay can score 12% one month and 61% the next after a silent update,
+and the vendor's dashboard will insist both numbers were right. When that score is the
+reason a student gets accused of cheating or a freelancer gets turned down for a job,
+trusting the model isn't good enough, and there's nothing to appeal to but the vendor's
+word.
+
+noslop can't drift that way, because there's nothing behind it to update. The word lists,
+the regex, and the arithmetic all sit in [noslop.py](noslop.py), readable end to end in an
+afternoon. Paste the same draft in twice and you get the same score twice, on any machine,
+forever. If the score looks wrong, you can see the exact line and rule that fired and argue
+with the rule itself instead of a percentage nobody can explain.
 
 ## As an agent skill
 
@@ -90,6 +106,30 @@ Constructions:
 $ echo $?
 1
 ```
+
+## Example, in Spanish
+
+```
+$ noslop informe.md
+words: 29   AI-tell score: 517.2/1k   -> reads as AI - needs a real rewrite
+language: Español (detected)
+
+LLM buzzwords:
+   1x  robusta            (lines 1)
+   1x  vanguardia         (lines 1)
+
+Filler phrases:
+   1x  "es importante destacar" (lines 1)
+   1x  "cuando se trata de" (lines 2)
+
+Constructions:
+   1x  construcción 'no solo X, sino Y' (lines 2)
+        -> dilo directamente, sin el marco de contraste
+```
+
+No `--lang` flag. The auto-detector recognized Spanish from stop-word coverage in the
+first few thousand characters and switched to the Spanish word lists, patterns, and
+em-dash allowance on its own - the same thing it does for the other fifteen packs.
 
 ## Sixteen languages
 
@@ -223,10 +263,12 @@ python noslop.py --rdjson docs/*.md | reviewdog -f=rdjsonl -name=noslop -reporte
 
 The word and phrase lists live at the top of [noslop.py](noslop.py); edit them directly if you're hacking on noslop itself, or use a [config file](#config) if you just want to adjust the lists for your own project. Roughly:
 
-- **chat-UI residue** - leftover citation markup (`oaicite`, `oai_citation`, `grok_card`)
-  and `utm_source=chatgpt.com` links. Nobody types these by hand, so one hit scores the
-  hard verdict on its own. (Writing *about* these markers trips it too - quote them in
-  code formatting, or skip the file with `.noslopignore`.)
+- **chat-UI residue** - leftover citation markup (`oaicite`, `oai_citation`, `grok_card`),
+  `utm_source=chatgpt.com` links, and chatbot self-reference/disclaimer sentences
+  (`As an AI...`, `As of my last update...`, `I don't have real-time access...`). Nobody
+  types these by hand, so one hit scores the hard verdict on its own. (Writing *about*
+  these markers trips it too - quote them in code formatting, or skip the file with
+  `.noslopignore`.)
 - words LLMs lean on far more than people do (`delve`, `robust`, `leverage`, `tapestry` -
   plus the words two 2025 word-frequency studies measured at 3x-67x their pre-LLM baseline:
   `groundbreaking`, `surpassing`, `garnered`, `emphasizing`, and friends)
@@ -242,14 +284,32 @@ The word and phrase lists live at the top of [noslop.py](noslop.py); edit them d
   just rhetoric
 - sentence-initial connective spray (`Moreover... Furthermore... Additionally...`),
   scored on density, never on one hit
+- copula-avoidance filler (`serves as a`, `stands as a`, `functions as a`) once it's
+  dense enough to be a habit, and scope-inflation phrases (`cannot be overstated`)
+- generic listicle headings (`Introduction`, `Key Takeaways`, `Final Thoughts`) once
+  two or more show up in the same document, and bare bullet glyphs (•/▪/‣) opening a
+  line - chat-UI paste residue that nobody hand-types into a markdown file
+- cross-paragraph opener repetition, when the same five-word opener starts three or
+  more paragraphs in one document
+- a punctuation-variety check, when a document leans on almost none of the normal
+  range of sentence punctuation
 - em dashes well past normal density, emoji in prose, and emoji decorating headings
 - runs of `**Term:** explanation` bullets (with or without the bullet), bold-emphasis
   spray inside running prose
 - curly and straight quotes mixed in one document - usually a paste boundary
 - staccato runs of three-plus tiny sentences, sentence lengths with almost no variation,
   paragraph lengths with almost no variation
+- report-only diagnostics that never move the score: heading levels that skip a level
+  (H2 straight to H4), a 200-word windowed type-token ratio, and function-word ratio -
+  left unscored on purpose, since both can over-flag non-native writers the same way
+  the sentence-rhythm check can (see [Limitations](#limitations))
 - all of the above that's language-independent runs for every language; the vocabulary,
-  phrase, and construction lists are researched per language, never machine-translated
+  phrase, and construction lists are researched per language, never machine-translated.
+  Russian also gets three researched additions of its own: an opener cliché
+  (`в эпоху цифровизации`), a set of bureaucratic determiner/nominalization buzzwords
+  (`данный`, `указанный`, `осуществление`), and a density check on `является` used as
+  a formal-register crutch verb - calibrated against a real Russian legal text in
+  `eval/corpus/` so it doesn't fire on ordinary formal Russian
 
 Each hit has a weight, the weights are summed, and the total is scaled per 1,000 words. Under 10 usually reads fine. From 10 to 25 the text deserves a second pass, and past 25 it needs rewriting rather than word swaps. The cutoffs are judgment calls, not measurements; if they fight your material, move `--threshold`.
 
@@ -261,20 +321,21 @@ If you're already running [Vale](https://vale.sh), [vale-ai-tells](https://githu
 
 ## Measured, not vibes
 
-`eval/` holds a labeled corpus - 16 samples of unedited LLM output across genres, 16 samples
-of human writing from essays to old cookbooks to a 2016 Rails README - and a scorer that
-reports detection rate, false-positive rate, and AUC against it. The current engine catches
-**14 of 16 AI samples** at the "worth a pass" threshold (up from 6 of 16 on the previous
-engine) and flags **one human sample** (Thoreau, who writes about literal landscapes with
-heavy em dashes - the receipts are in [eval/README.md](eval/README.md)). CI runs the eval
-with floors, so a change that trades false positives for recall fails the build instead of
-shipping quietly.
+`eval/` holds a labeled corpus - 19 samples of unedited LLM output across genres, 17 samples
+of human writing from essays to old cookbooks to a 2016 Rails README to a Russian statute
+excerpt - and a scorer that reports detection rate, false-positive rate, and AUC against it.
+The current engine scores an AUC of **0.9752**, catches **89.5% of AI samples** at the
+"worth a pass" threshold, and flags **one human sample** out of 17 (Thoreau, who writes
+about literal landscapes with heavy em dashes - the receipts are in
+[eval/README.md](eval/README.md)). CI runs the eval with floors, so a change that trades
+false positives for recall fails the build instead of shipping quietly.
 
 ## Limitations
 
 - It matches surface patterns, not intent. A document that quotes slop in running prose gets flagged for it, quotation marks or not. Code formatting is the only escape hatch it understands.
 - The lists are one person's research-informed opinion, sixteen languages deep. If `robust` is a term of art in your field, edit the list or raise the threshold.
-- The sentence-uniformity check shares a mechanism with the burstiness signal that a Stanford study ([Liang et al. 2023](https://www.sciencedirect.com/science/article/pii/S2666389923001307)) showed flags non-native English writers far more than native ones. That's why it adds a small fixed bump instead of a verdict, why its weight didn't go up in 0.7.0, and why no rhythm check alone can push clean text past the hard threshold. If you write in a second language and noslop nags you about rhythm, that's the check to ignore.
+- The sentence-uniformity check shares a mechanism with the burstiness signal that a Stanford study ([Liang et al. 2023](https://www.sciencedirect.com/science/article/pii/S2666389923001307)) showed flags non-native English writers far more than native ones. That's why it adds a small fixed bump instead of a verdict, why its weight didn't go up in 0.7.0, and why no rhythm check alone can push clean text past the hard threshold. If you write in a second language and noslop nags you about rhythm, that's the check to ignore. The 0.9.0 windowed type-token and function-word diagnostics carry the same risk, which is why they're report-only and never touch the score.
+- Word-boundary matching doesn't stem or conjugate. A Russian buzzword list entry like `является` matches that exact form, not `являются` or a case-inflected noun - real, and traded on purpose for not flagging ordinary formal Russian (see the note on `density_crutch` in `noslop.py`).
 - A clean score doesn't mean the writing is good, and it doesn't prove a human wrote it. It means none of these particular tells showed up. A careful writer can trip it, and lazy slop can slip past it.
 
 ## Contributing

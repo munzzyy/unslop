@@ -17,8 +17,8 @@ window.NoslopI18N.catalogs.ro = {
   "theme.auto": "Automat",
   "uilang.switcherLabel": "Limbă",
 
-  "hero.heading": "Vezi ce face textul tău să sune ca un robot.",
-  "hero.tagline": "Lipește o ciornă mai jos. noslop arată exact cuvintele și obiceiurile care îl trădează, ca să le corectezi înainte să-l trimiți.",
+  "hero.heading": "Singurul linter determinist pentru text AI care vorbește 16 limbi.",
+  "hero.tagline": "Lipește o ciornă mai jos. noslop arată exact cuvintele și obiceiurile care îl trădează - fără model, fără nimic încărcat - ca să le corectezi înainte să-l trimiți.",
   "privacy.strong": "Totul rulează în browserul tău.",
   "privacy.rest": "Nimic din ce lipești nu este încărcat, salvat sau trimis nicăieri.",
 

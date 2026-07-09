@@ -65,8 +65,8 @@ window.NoslopI18N.catalogs.en = {
   "uilang.switcherLabel": "Language",
 
   // ---- Hero -----------------------------------------------------------------
-  "hero.heading": "See what makes your writing sound like a robot.",
-  "hero.tagline": "Paste a draft below. noslop points at the exact words and habits that give it away, so you can fix them before you hit send.",
+  "hero.heading": "The only deterministic AI-writing linter that speaks 16 languages.",
+  "hero.tagline": "Paste a draft below. noslop points at the exact words and habits that give it away - no model, nothing uploaded - so you can fix them before you hit send.",
   "privacy.strong": "Everything runs in your browser.",
   "privacy.rest": "Nothing you paste is uploaded, stored, or sent anywhere.",
 

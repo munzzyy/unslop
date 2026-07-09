@@ -16,8 +16,8 @@ window.NoslopI18N.catalogs.it = {
   "theme.auto": "Automatico",
   "uilang.switcherLabel": "Lingua",
 
-  "hero.heading": "Scopri cosa fa suonare il tuo testo come un robot.",
-  "hero.tagline": "Incolla una bozza qui sotto. noslop indica le parole e le abitudini esatte che lo tradiscono, così le correggi prima di inviarlo.",
+  "hero.heading": "L'unico linter deterministico per la scrittura IA che parla 16 lingue.",
+  "hero.tagline": "Incolla una bozza qui sotto. noslop indica le parole e le abitudini esatte che lo tradiscono - senza modello, senza caricare nulla - così le correggi prima di inviarlo.",
   "privacy.strong": "Tutto avviene nel tuo browser.",
   "privacy.rest": "Niente di quello che incolli viene caricato, salvato o inviato da nessuna parte.",
 

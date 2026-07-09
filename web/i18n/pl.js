@@ -15,8 +15,8 @@ window.NoslopI18N.catalogs.pl = {
   "theme.auto": "Automatyczny",
   "uilang.switcherLabel": "Język",
 
-  "hero.heading": "Zobacz, co sprawia, że twój tekst brzmi jak robot.",
-  "hero.tagline": "Wklej szkic poniżej. noslop wskazuje dokładnie te słowa i nawyki, które go zdradzają, żebyś mógł je poprawić przed wysłaniem.",
+  "hero.heading": "Jedyny deterministyczny linter tekstu AI, który mówi w 16 językach.",
+  "hero.tagline": "Wklej szkic poniżej. noslop wskazuje dokładnie te słowa i nawyki, które go zdradzają - bez modelu, bez wysyłania czegokolwiek - żebyś mógł je poprawić przed wysłaniem.",
   "privacy.strong": "Wszystko działa w twojej przeglądarce.",
   "privacy.rest": "Nic z tego, co wklejasz, nie jest wysyłane, zapisywane ani przekazywane nigdzie indziej.",
 

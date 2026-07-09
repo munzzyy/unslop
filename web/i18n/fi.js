@@ -14,8 +14,8 @@ window.NoslopI18N.catalogs.fi = {
   "theme.auto": "Automaattinen",
   "uilang.switcherLabel": "Kieli",
 
-  "hero.heading": "Katso, mikä saa tekstisi kuulostamaan robotilta.",
-  "hero.tagline": "Liitä luonnos alle. noslop osoittaa juuri ne sanat ja tavat, jotka paljastavat sen, jotta voit korjata ne ennen lähettämistä.",
+  "hero.heading": "Ainoa deterministinen tekoälytekstin lintteri, joka osaa 16 kieltä.",
+  "hero.tagline": "Liitä luonnos alle. noslop osoittaa juuri ne sanat ja tavat, jotka paljastavat sen - ei mallia, ei mitään ladattavaa - jotta voit korjata ne ennen lähettämistä.",
   "privacy.strong": "Kaikki tapahtuu selaimessasi.",
   "privacy.rest": "Mitään liittämääsi ei lähetetä, tallenneta tai välitetä minnekään.",
 

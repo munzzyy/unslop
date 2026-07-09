@@ -16,8 +16,8 @@ window.NoslopI18N.catalogs.fr = {
   "theme.auto": "Automatique",
   "uilang.switcherLabel": "Langue",
 
-  "hero.heading": "Découvre ce qui fait sonner ton texte comme un robot.",
-  "hero.tagline": "Colle un brouillon ci-dessous. noslop pointe les mots et les habitudes précises qui le trahissent, pour que tu les corriges avant d'envoyer.",
+  "hero.heading": "Le seul linter déterministe pour l'écriture IA qui parle 16 langues.",
+  "hero.tagline": "Colle un brouillon ci-dessous. noslop pointe les mots et les habitudes précises qui le trahissent - sans modèle, sans rien envoyer - pour que tu les corriges avant d'envoyer.",
   "privacy.strong": "Tout se passe dans ton navigateur.",
   "privacy.rest": "Rien de ce que tu colles n'est envoyé, stocké ou transmis nulle part.",
 

@@ -16,8 +16,8 @@ window.NoslopI18N.catalogs.ko = {
   "theme.auto": "자동",
   "uilang.switcherLabel": "언어",
 
-  "hero.heading": "글이 로봇처럼 들리게 만드는 요소를 확인해보세요.",
-  "hero.tagline": "아래에 초안을 붙여넣어 보세요. noslop이 그 원인이 되는 단어와 습관을 정확히 짚어드리니, 보내기 전에 고칠 수 있습니다.",
+  "hero.heading": "AI 모델 없이 16개 언어를 지원하는 유일한 AI 글쓰기 린터.",
+  "hero.tagline": "아래에 초안을 붙여넣어 보세요. noslop이 그 원인이 되는 단어와 습관을 정확히 짚어드립니다 - 모델도, 업로드도 없이 - 보내기 전에 고칠 수 있습니다.",
   "privacy.strong": "모든 처리는 브라우저 안에서 이루어집니다.",
   "privacy.rest": "붙여넣은 내용은 업로드되거나 저장되거나 어디로도 전송되지 않습니다.",
 

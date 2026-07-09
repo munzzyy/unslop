@@ -16,8 +16,8 @@ window.NoslopI18N.catalogs.id = {
   "theme.auto": "Otomatis",
   "uilang.switcherLabel": "Bahasa",
 
-  "hero.heading": "Lihat apa yang membuat tulisanmu terdengar seperti robot.",
-  "hero.tagline": "Tempel draf di bawah ini. noslop menunjukkan tepat kata dan kebiasaan yang membocorkannya, supaya kamu bisa memperbaikinya sebelum mengirim.",
+  "hero.heading": "Satu-satunya linter tulisan AI tanpa model yang mendukung 16 bahasa.",
+  "hero.tagline": "Tempel draf di bawah ini. noslop menunjukkan tepat kata dan kebiasaan yang membocorkannya - tanpa model, tanpa unggahan - supaya kamu bisa memperbaikinya sebelum mengirim.",
   "privacy.strong": "Semuanya berjalan di browser kamu.",
   "privacy.rest": "Tidak ada yang kamu tempel yang diunggah, disimpan, atau dikirim ke mana pun.",
 

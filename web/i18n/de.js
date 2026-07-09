@@ -14,8 +14,8 @@ window.NoslopI18N.catalogs.de = {
   "theme.auto": "Automatisch",
   "uilang.switcherLabel": "Sprache",
 
-  "hero.heading": "Sieh, was deinen Text wie einen Roboter klingen lässt.",
-  "hero.tagline": "Füge unten einen Entwurf ein. noslop zeigt genau die Wörter und Angewohnheiten, die ihn verraten, damit du sie vor dem Abschicken korrigieren kannst.",
+  "hero.heading": "Der einzige deterministische KI-Text-Linter, der 16 Sprachen spricht.",
+  "hero.tagline": "Füge unten einen Entwurf ein. noslop zeigt genau die Wörter und Angewohnheiten, die ihn verraten - kein Modell, kein Hochladen - damit du sie vor dem Abschicken korrigieren kannst.",
   "privacy.strong": "Alles läuft in deinem Browser.",
   "privacy.rest": "Nichts von dem, was du einfügst, wird hochgeladen, gespeichert oder irgendwohin gesendet.",
 

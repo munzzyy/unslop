@@ -14,8 +14,8 @@ window.NoslopI18N.catalogs.nb = {
   "theme.auto": "Automatisk",
   "uilang.switcherLabel": "Språk",
 
-  "hero.heading": "Se hva som får teksten din til å høres ut som en robot.",
-  "hero.tagline": "Lim inn et utkast nedenfor. noslop peker på nøyaktig de ordene og vanene som avslører det, så du kan fikse dem før du sender.",
+  "hero.heading": "Den eneste deterministiske AI-tekstlinteren som snakker 16 språk.",
+  "hero.tagline": "Lim inn et utkast nedenfor. noslop peker på nøyaktig de ordene og vanene som avslører det - ingen modell, ingenting lastes opp - så du kan fikse dem før du sender.",
   "privacy.strong": "Alt kjører i nettleseren din.",
   "privacy.rest": "Ingenting du limer inn, blir lastet opp, lagret eller sendt noe sted.",
 

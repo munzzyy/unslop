@@ -14,8 +14,8 @@ window.NoslopI18N.catalogs.es = {
   "theme.auto": "Automático",
   "uilang.switcherLabel": "Idioma",
 
-  "hero.heading": "Descubre qué hace que tu texto suene a robot.",
-  "hero.tagline": "Pega un borrador abajo. noslop señala las palabras y costumbres exactas que lo delatan, para que las corrijas antes de enviarlo.",
+  "hero.heading": "El único linter determinista de escritura de IA que habla 16 idiomas.",
+  "hero.tagline": "Pega un borrador abajo. noslop señala las palabras y costumbres exactas que lo delatan - sin modelo, sin subir nada - para que las corrijas antes de enviarlo.",
   "privacy.strong": "Todo ocurre en tu navegador.",
   "privacy.rest": "Nada de lo que pegues se sube, se guarda ni se envía a ningún sitio.",
 

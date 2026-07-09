@@ -16,8 +16,8 @@ window.NoslopI18N.catalogs.vi = {
   "theme.auto": "Tự động",
   "uilang.switcherLabel": "Ngôn ngữ",
 
-  "hero.heading": "Xem điều gì khiến bài viết của bạn nghe như robot.",
-  "hero.tagline": "Dán một bản nháp bên dưới. noslop chỉ ra chính xác những từ ngữ và thói quen tố cáo điều đó, để bạn sửa trước khi gửi đi.",
+  "hero.heading": "Công cụ kiểm tra văn bản AI xác định duy nhất nói được 16 ngôn ngữ.",
+  "hero.tagline": "Dán một bản nháp bên dưới. noslop chỉ ra chính xác những từ ngữ và thói quen tố cáo điều đó - không mô hình, không tải lên gì cả - để bạn sửa trước khi gửi đi.",
   "privacy.strong": "Mọi thứ đều chạy trong trình duyệt của bạn.",
   "privacy.rest": "Không có gì bạn dán vào bị tải lên, lưu trữ hay gửi đi bất cứ đâu.",
 

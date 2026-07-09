@@ -14,8 +14,8 @@ window.NoslopI18N.catalogs.tr = {
   "theme.auto": "Otomatik",
   "uilang.switcherLabel": "Dil",
 
-  "hero.heading": "Metnini robot gibi gösteren şeyi gör.",
-  "hero.tagline": "Aşağıya bir taslak yapıştır. noslop, onu ele veren tam olarak hangi kelimeler ve alışkanlıklar olduğunu gösterir, sen de göndermeden önce düzeltirsin.",
+  "hero.heading": "16 dil bilen tek deterministik yapay zeka metin linter'ı.",
+  "hero.tagline": "Aşağıya bir taslak yapıştır. noslop, onu ele veren tam olarak hangi kelimeler ve alışkanlıklar olduğunu gösterir - model yok, hiçbir şey yüklenmiyor - sen de göndermeden önce düzeltirsin.",
   "privacy.strong": "Her şey tarayıcında çalışır.",
   "privacy.rest": "Yapıştırdığın hiçbir şey yüklenmez, saklanmaz ya da herhangi bir yere gönderilmez.",
 
