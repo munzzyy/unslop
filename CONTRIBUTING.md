@@ -79,6 +79,20 @@ python noslop.py --json some-file.md
   solo, so response time varies, don't read silence as a no. If it's been
   a couple weeks with no response, a polite bump is fine.
 
+## Cutting a release (maintainer notes)
+
+The version lives in four places, and history shows they drift when this is
+done from memory. In order:
+
+1. Bump `__version__` in `noslop.py`, `version` in `pyproject.toml`, and
+   `version` in `.claude-plugin/plugin.json`, and re-point the README's
+   pre-commit `rev:` and `uses: munzzyy/noslop@` examples at the new tag.
+   Two tests in the suite compare all of these against `__version__`, so a
+   missed spot fails CI.
+2. Add a CHANGELOG.md entry. Anyone pinning a tag reads that before bumping.
+3. Run the suite, tag `vX.Y.Z`, push the tag, and publish a GitHub release
+   for it; the release workflow builds and uploads to PyPI from there.
+
 ## Reporting bugs / requesting features
 
 Use the issue templates, they ask for the couple of details that make a

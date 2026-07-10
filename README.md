@@ -74,13 +74,13 @@ Either way, the agent gets [SKILL.md](skills/noslop/SKILL.md): what to run, how 
 
 ## In your browser
 
-[munzzyy.github.io/noslop](https://munzzyy.github.io/noslop/) is the whole tool as a single page. Paste or type, and every buzzword, filler phrase, construction, stray em dash, and emoji gets underlined in place, with a live score and a breakdown of exactly what tripped it. No build step, no account, no server: the page loads the same scorer the CLI uses and runs it on your machine. You can save the page and use it offline.
+[munzzyy.github.io/noslop](https://munzzyy.github.io/noslop/) is the whole tool as a single page. Paste or type, and every buzzword, filler phrase, construction, stray em dash, and emoji gets underlined in place, with a live score and a breakdown of exactly what tripped it. No build step, no account, no server: the page loads the same scorer the CLI uses and runs it on your machine. Once loaded, it makes no further network requests - cut the connection and it keeps working.
 
 Nine themes from the header - Paper and Ink, plus Terminal, Sepia, Newsprint, Midnight, both Solarized variants, and a high-contrast mode. Auto follows your system by default; your pick is remembered and applied before the page paints.
 
 [![the light theme, showing the score and the per-finding breakdown](docs/media/app-full-light.png)](https://munzzyy.github.io/noslop/)
 
-> Looking for a package literally named `noslop` on PyPI or npm? Those are different projects - an LLM-based rewriter and an old code-quality tool. This one's git-only for now; see [Install](#install).
+> Looking for a package literally named `noslop` on PyPI or npm? Those are different projects - an LLM-based rewriter and an old code-quality tool. This one ships on PyPI as `noslop-lint`; see [Install](#install).
 
 ## Example
 
@@ -203,7 +203,7 @@ The exit code is 0 when every input scores under the threshold, 1 when something
 
 In markdown files, fenced code blocks and inline code are not scored, since code samples aren't prose. Pass `--markdown` to get the same treatment for stdin or other file extensions.
 
-To skip files in a glob or directory run without listing them all on the command line, drop a `.noslopignore` next to them (one glob per line, `#` comments allowed) or repeat `--exclude PATTERN`.
+To skip files in a glob run without listing them all on the command line, put a `.noslopignore` in the directory you run noslop from (one glob per line, `#` comments allowed) or repeat `--exclude PATTERN`. It's read from the working directory only - noslop doesn't search parent directories for it the way it does for `.noslop.json`.
 
 ## Config
 
@@ -236,7 +236,7 @@ With [pre-commit](https://pre-commit.com):
 ```yaml
 repos:
   - repo: https://github.com/munzzyy/noslop
-    rev: v0.6.0
+    rev: v0.9.0
     hooks:
       - id: noslop
 ```
@@ -246,7 +246,7 @@ That runs on the markdown, text, and rst files in each commit.
 As a GitHub Action, no pre-commit framework required:
 
 ```yaml
-- uses: munzzyy/noslop@v0.6.0
+- uses: munzzyy/noslop@v0.9.0
   with:
     paths: "docs/*.md README.md"
 ```

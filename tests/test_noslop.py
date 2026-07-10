@@ -2,6 +2,7 @@ import contextlib
 import io
 import json
 import os
+import re
 import sys
 import tempfile
 
@@ -1249,3 +1250,27 @@ def test_russian_ai_self_reference_is_an_artifact():
                        "но вот что показывают доступные данные по теме.",
                        lang="ru")
     assert r["ai_artifacts"]
+
+
+def _repo_file(*parts):
+    return os.path.join(os.path.dirname(__file__), os.pardir, *parts)
+
+
+def test_readme_version_pins_match_the_shipped_version():
+    # The pre-commit and Action snippets in the README pin a release tag.
+    # Those pins once sat at v0.6.0 across three releases; this keeps every
+    # pinned example on the version this module says it is.
+    with open(_repo_file("README.md"), encoding="utf-8") as fh:
+        readme = fh.read()
+    pins = re.findall(r"(?:rev:\s*|munzzyy/noslop@)v(\d+\.\d+\.\d+)", readme)
+    assert pins, "the README should pin the pre-commit and Action examples"
+    assert set(pins) == {noslop.__version__}
+
+
+def test_packaging_versions_match_the_module():
+    # pyproject.toml and the Claude Code plugin manifest each carry their
+    # own copy of the version; both have drifted before
+    with open(_repo_file("pyproject.toml"), encoding="utf-8") as fh:
+        assert 'version = "%s"' % noslop.__version__ in fh.read()
+    with open(_repo_file(".claude-plugin", "plugin.json"), encoding="utf-8") as fh:
+        assert json.load(fh)["version"] == noslop.__version__
