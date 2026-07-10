@@ -2158,6 +2158,14 @@ def main(argv=None):
         else:
             paths.append(p)
 
+    # A bare `noslop` on an interactive terminal sits waiting on stdin with
+    # no prompt, which looks like a hang. Say so on stderr - stdout stays
+    # untouched, so piped and redirected output is unaffected.
+    if "-" in paths and getattr(sys.stdin, "isatty", lambda: False)():
+        print("noslop: reading from stdin - paste text, then press Ctrl-D "
+              "(Ctrl-Z then Enter on Windows), or pass a file path instead",
+              file=sys.stderr)
+
     results = []
     for p in paths:
         try:

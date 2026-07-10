@@ -244,6 +244,36 @@ def test_stdin_without_buffer_falls_back_to_text_read():
     assert text == "plain text with no special encoding needs"
 
 
+def test_bare_run_on_a_tty_says_it_is_waiting_on_stdin():
+    # `noslop` with no arguments on an interactive terminal blocks on stdin,
+    # which looks like a hang without a hint - so one goes to stderr.
+    class FakeTty(io.StringIO):
+        def isatty(self):
+            return True
+
+    old_stdin = sys.stdin
+    sys.stdin = FakeTty("short and plain enough to read fine")
+    try:
+        code, out, err = run_cli_err([])
+    finally:
+        sys.stdin = old_stdin
+    assert code == 0
+    assert "reading from stdin" in err
+    assert "reading from stdin" not in out
+
+
+def test_piped_stdin_gets_no_tty_hint():
+    # the hint is for interactive runs only; a pipe stays quiet on stderr
+    old_stdin = sys.stdin
+    sys.stdin = io.StringIO("short and plain enough to read fine")
+    try:
+        code, out, err = run_cli_err([])
+    finally:
+        sys.stdin = old_stdin
+    assert code == 0
+    assert err == ""
+
+
 def test_utf8_bom_file_does_not_break_fence_detection():
     # a UTF-8 BOM glued to the opening fence used to stop the fence regex
     # from matching, so the whole code block got scored as prose
