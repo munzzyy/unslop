@@ -1291,8 +1291,34 @@
 
   // ---- core: mirrors analyze() in noslop.py ----
 
+  // Blank out fenced code blocks and inline code so quoted code isn't scored
+  // as prose. Mirrors strip_markdown_code() in noslop.py, which the CLI runs on
+  // any .md input before analysis - the browser has to do the same or the two
+  // ends count different words on a code-heavy README. Line count is preserved.
+  function stripMarkdownCode(text) {
+    const out = [];
+    let fence = null;
+    for (const line of text.split("\n")) {
+      const stripped = line.replace(/^\s+/, "");
+      if (fence !== null) {
+        if (stripped.startsWith(fence)) fence = null;
+        out.push("");
+        continue;
+      }
+      const opener = stripped.match(/^(`{3,}|~{3,})/);
+      if (opener) {
+        fence = opener[1];
+        out.push("");
+        continue;
+      }
+      out.push(line.replace(/`[^`\n]*`/g, (m) => " ".repeat(m.length)));
+    }
+    return out.join("\n");
+  }
+
   function analyze(text, opts) {
     opts = opts || {};
+    if (opts.markdown) text = stripMarkdownCode(text);
     const [code, source, pack] = resolvePack(text, opts);
     const buzzwords = opts.buzzwords || pack.buzzwords;
     const phrases = opts.phrases || pack.phrases;

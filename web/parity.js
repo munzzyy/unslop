@@ -28,12 +28,16 @@ function pyRunner() {
 }
 const RUNNER = pyRunner();
 
-function cliAnalyze(text, lang) {
+function cliAnalyze(text, lang, markdown) {
   // --threshold 1e12 so the CLI always exits 0: it exits 1 on a high score by
   // design, which execFileSync would otherwise throw on. The score in --json
   // output is the same either way.
   const args = RUNNER.slice(1).concat([CLI, "--json", "--no-config", "--threshold", "1e12"]);
   if (lang) args.push("--lang", lang);
+  // --markdown makes the CLI strip fenced/inline code before scoring, the same
+  // as it does automatically for a .md file; the browser mirrors it via
+  // analyze(text, {markdown: true}).
+  if (markdown) args.push("--markdown");
   const out = execFileSync(RUNNER[0], args, { input: Buffer.from(text, "utf8") });
   return JSON.parse(out.toString("utf8"));
 }
@@ -318,16 +322,47 @@ const FORCED = {
   "russian ai self reference artifact": ["Как языковая модель, я не могу дать точный прогноз, но вот что показывают доступные данные по этой теме на сегодня.", "ru"],
 };
 
+// Markdown fixtures: analyzed with fence-stripping on both sides (CLI
+// --markdown, browser {markdown: true}). A code-heavy doc is where the two
+// ends used to disagree - the browser counted the fenced buzzwords the CLI
+// dropped. See issue #7.
+const MARKDOWN = {
+  "markdown strips fenced and inline code before scoring": [
+    "# Overview",
+    "",
+    "In today's fast-paced world, it is important to note that this seamless",
+    "tool leverages cutting-edge synergy to unlock your full potential.",
+    "",
+    "```python",
+    "def delve(x):",
+    "    # synergy leverage cutting-edge seamless robust tapestry buzzwords",
+    "    return x * 2  # these words must not be scored as prose",
+    "```",
+    "",
+    "Call `delve(21)` with the `cutting_edge_synergy` flag for a robust result.",
+    "",
+    "~~~js",
+    "const seamless = leverage(synergy); // more buzzwords that should not count",
+    "~~~",
+    "",
+    "Overall this comprehensive solution is a game-changer for the ecosystem.",
+  ].join("\n"),
+};
+
 let pass = 0, fail = 0;
 const failures = [];
 const cases = [];
-for (const [name, text] of Object.entries(FIXTURES)) cases.push([name, text, null]);
-for (const [name, [text, lang]] of Object.entries(FORCED)) cases.push([name, text, lang]);
-for (const [name, text, lang] of cases) {
+for (const [name, text] of Object.entries(FIXTURES)) cases.push([name, text, null, false]);
+for (const [name, [text, lang]] of Object.entries(FORCED)) cases.push([name, text, lang, false]);
+for (const [name, text] of Object.entries(MARKDOWN)) cases.push([name, text, null, true]);
+for (const [name, text, lang, markdown] of cases) {
   let py, js, err = null;
   try {
-    py = cliAnalyze(text, lang);
-    js = Noslop.analyze(text, lang ? { lang: lang } : undefined);
+    py = cliAnalyze(text, lang, markdown);
+    const opts = {};
+    if (lang) opts.lang = lang;
+    if (markdown) opts.markdown = true;
+    js = Noslop.analyze(text, Object.keys(opts).length ? opts : undefined);
   } catch (e) {
     err = e.message;
   }
