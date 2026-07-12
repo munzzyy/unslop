@@ -1820,3 +1820,34 @@ def test_ruby_begin_end_block_comment_is_recognized():
 def test_sniff_shell_shebang_picks_shell_family():
     assert noslop.sniff_code_family("#!/bin/bash\ncat <<EOF\nx\nEOF\n")[0] == "shell"
     assert noslop.sniff_code_family("#!/usr/bin/env bash\n")[0] == "shell"
+
+
+# --- fixture corpus (tests/fixtures/slop, tests/fixtures/clean) ---------------
+# Contributors adding a buzzword or phrase can drop a sample file in the right
+# folder instead of writing a test function. Everything under slop/ must score
+# at or above the default threshold, everything under clean/ below it.
+
+_FIXTURE_DIR = os.path.join(os.path.dirname(__file__), "fixtures")
+
+
+def _fixture_files(kind):
+    folder = os.path.join(_FIXTURE_DIR, kind)
+    return [os.path.join(folder, n) for n in sorted(os.listdir(folder)) if n.endswith(".md")]
+
+
+def test_fixture_slop_samples_score_at_or_above_threshold():
+    files = _fixture_files("slop")
+    assert files, "tests/fixtures/slop is empty - add at least one flagged sample"
+    for path in files:
+        with open(path, encoding="utf-8") as fh:
+            score = noslop.analyze(fh.read())["score_per_1k"]
+        assert score >= 10, f"{os.path.basename(path)} scored {score}, expected >= 10"
+
+
+def test_fixture_clean_samples_score_below_threshold():
+    files = _fixture_files("clean")
+    assert files, "tests/fixtures/clean is empty - add at least one clean sample"
+    for path in files:
+        with open(path, encoding="utf-8") as fh:
+            score = noslop.analyze(fh.read())["score_per_1k"]
+        assert score < 10, f"{os.path.basename(path)} scored {score}, expected < 10"
