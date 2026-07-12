@@ -366,6 +366,31 @@ def test_config_file_adds_extra_words():
         assert "frobnicate" in out
 
 
+def test_config_file_adds_extra_patterns():
+    with tempfile.TemporaryDirectory() as d:
+        with open(os.path.join(d, ".noslop.json"), "w", encoding="utf-8") as fh:
+            json.dump({"extra_patterns": [
+                {"label": "company jargon", "regex": r"\bsynergize\b", "weight": 3,
+                 "hint": "say what you mean"}]}, fh)
+        p = os.path.join(d, "a.md")
+        with open(p, "w", encoding="utf-8") as fh:
+            fh.write("We need to synergize the teams and synergize the roadmap now.")
+        code, out = run_cli_in(d, ["a.md"])
+        assert "company jargon" in out
+
+
+def test_config_bad_extra_pattern_regex_errors_cleanly():
+    with tempfile.TemporaryDirectory() as d:
+        with open(os.path.join(d, ".noslop.json"), "w", encoding="utf-8") as fh:
+            json.dump({"extra_patterns": [{"regex": "([unclosed"}]}, fh)
+        p = os.path.join(d, "a.md")
+        with open(p, "w", encoding="utf-8") as fh:
+            fh.write("Plain text here.")
+        code, out, err = run_cli_err_in(d, ["a.md"])
+        assert code == 2
+        assert "does not compile" in err
+
+
 def test_no_config_flag_bypasses_config_file():
     with tempfile.TemporaryDirectory() as d:
         with open(os.path.join(d, ".noslop.json"), "w", encoding="utf-8") as fh:

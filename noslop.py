@@ -1511,7 +1511,32 @@ def load_config(path):
         "ignore_phrases": list(data.get("ignore_phrases", [])),
         "extra_words": list(data.get("extra_words", [])),
         "extra_phrases": list(data.get("extra_phrases", [])),
+        "extra_patterns": _load_extra_patterns(data.get("extra_patterns", []), path),
     }
+
+
+def _load_extra_patterns(raw, path):
+    """Validate the config's extra_patterns into (label, regex, weight, hint)
+    tuples shaped like the built-in PATTERNS list. A malformed entry or a regex
+    that doesn't compile raises ValueError with a plain message, so main()
+    reports it as `noslop: <path>: <what's wrong>` instead of a traceback."""
+    if not isinstance(raw, list):
+        raise ValueError(f"{path}: extra_patterns must be a list")
+    out = []
+    for i, item in enumerate(raw):
+        if not isinstance(item, dict) or not item.get("regex"):
+            raise ValueError(f"{path}: extra_patterns[{i}] needs a non-empty 'regex'")
+        try:
+            re.compile(item["regex"])
+        except re.error as exc:
+            raise ValueError(f"{path}: extra_patterns[{i}] regex does not compile ({exc})")
+        try:
+            weight = int(item.get("weight", 1))
+        except (TypeError, ValueError):
+            raise ValueError(f"{path}: extra_patterns[{i}] weight must be a whole number")
+        out.append((str(item.get("label") or item["regex"]), item["regex"], weight,
+                    str(item.get("hint", ""))))
+    return out
 
 
 def apply_config(config, buzzwords, phrases):
@@ -1598,7 +1623,8 @@ def to_rdjsonl(path, r):
     return lines
 
 
-def analyze(text, buzzwords=None, phrases=None, lang=None, lang_source=None):
+def analyze(text, buzzwords=None, phrases=None, lang=None, lang_source=None,
+            extra_patterns=None):
     """Score one piece of text.
 
     lang picks the language pack: a code from LANGUAGES forces that pack,
@@ -1697,7 +1723,13 @@ def analyze(text, buzzwords=None, phrases=None, lang=None, lang_source=None):
 
     pat = []
     pat_raw = 0
-    for entry in pack["patterns"]:
+    # Config-supplied extra_patterns (label, regex, weight, hint) scan alongside
+    # the pack's built-in list. Only build a merged list when there are any, so
+    # the default path is untouched.
+    scan_patterns = pack["patterns"]
+    if extra_patterns:
+        scan_patterns = list(scan_patterns) + list(extra_patterns)
+    for entry in scan_patterns:
         label, rx, weight, hint = entry[:4]
         # Optional 5th field: hits that don't score. A device that's normal
         # rhetoric once (a single triad) only counts when it repeats.
@@ -3352,7 +3384,8 @@ def main(argv=None):
             pack = LANGUAGES[code]
             bw, ph = ((None, None) if config is None else
                       apply_config(config, pack["buzzwords"], pack["phrases"]))
-            r = analyze(text, buzzwords=bw, phrases=ph, lang=code, lang_source=source)
+            r = analyze(text, buzzwords=bw, phrases=ph, lang=code, lang_source=source,
+                        extra_patterns=None if config is None else config.get("extra_patterns"))
         if p != "-":
             r["path"] = p
         results.append((p, r))
