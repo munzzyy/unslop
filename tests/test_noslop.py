@@ -1354,6 +1354,25 @@ def test_extractor_docstring_vs_assigned_triple_string():
     assert any("data" in s for _, s in p["strings"])
 
 
+def test_extractor_dict_value_triple_string_is_not_a_docstring():
+    # A dict value's triple-quoted string sits right after a ":" too, but
+    # that's the colon closing a dict key, not the one closing a def/class
+    # header - it's data, and scoring it as prose is a false positive.
+    src = 'MESSAGES = {"welcome": """Leverage our seamless platform."""}\n'
+    p = noslop.extract_code_parts(src, "hash")
+    assert not p["docstrings"]
+    assert any("Leverage our seamless platform" in s for _, s in p["strings"])
+
+
+def test_dict_value_triple_string_does_not_score_as_prose():
+    src = ('MESSAGES = {"welcome": """We leverage a seamless, robust '
+           'platform to unlock your potential and elevate your workflow. '
+           'It is important to note this comprehensive approach fosters '
+           'a paradigm shift."""}\n')
+    r = noslop.analyze_code(src, ext=".py")
+    assert r["score_per_100"] < 10
+
+
 def test_extractor_block_comment_line_numbers():
     p = noslop.extract_code_parts("int x;\n/* a\nb\nc */\nint y; // t\n", "c")
     assert p["comments"][0][0] == 2 and p["comments"][1] == (5, "t")
@@ -1374,6 +1393,19 @@ def test_extractor_rust_nested_block_comments():
 def test_extractor_js_template_literal_swallows_fake_comment():
     p = noslop.extract_code_parts("const t = `x // no\n${y}`;\n// real\n", "c")
     assert [c[1] for c in p["comments"]] == ["real"]
+
+
+def test_extractor_nested_template_literal_does_not_leak_into_code():
+    # A naive "find the next unescaped backtick" reads the nested literal's
+    # own backtick as the outer one's close, which un-blanks whatever comes
+    # after it (a URL, here) into the code view where the artifact scan
+    # finds it.
+    src = "const m = `${flag ? `see claude.ai/share` : `x`} done`;\n"
+    p = noslop.extract_code_parts(src, "c")
+    assert "claude.ai/share" not in p["code"]
+    assert any("claude.ai/share" in s for _, s in p["strings"])
+    r = noslop.analyze_code(src, ext=".js")
+    assert not r["ai_artifacts"]
 
 
 def test_extractor_c_preprocessor_is_code():
@@ -1678,9 +1710,111 @@ def test_shell_arithmetic_shift_is_not_a_heredoc():
     assert [c[1] for c in p["comments"]] == ["real comment"]
 
 
+def test_shell_arithmetic_shift_with_uppercase_operand_is_not_a_heredoc():
+    # The digit case above is guarded by the bare-delimiter's uppercase
+    # requirement, but that same requirement is exactly what makes an
+    # uppercase shell variable in $(( )) arithmetic look like a heredoc
+    # word too - << KSHIFT parses the same as << EOF unless arithmetic
+    # context is excluded on its own.
+    src = "size=$(( bytes << KSHIFT ))\n# real comment\n"
+    p = noslop.extract_code_parts(src, "shell")
+    assert [c[1] for c in p["comments"]] == ["real comment"]
+
+
 def test_shell_unterminated_heredoc_does_not_crash():
     p = noslop.extract_code_parts("cat <<EOF\n# never closed\n", "shell")
     assert not p["comments"]
+
+
+def test_shell_arg_count_is_not_a_comment():
+    # $# (positional-arg count) glues a bare # to $, not to a word boundary
+    # - a real shell never starts a comment there.
+    src = 'if [ $# -eq 0 ]; then\n  echo "usage"\nfi\n'
+    p = noslop.extract_code_parts(src, "shell")
+    assert not p["comments"]
+    assert "-eq 0" in p["code"]
+
+
+def test_shell_string_length_hash_is_not_a_comment():
+    # ${#var} (string length) glues the # to {, same word-boundary rule.
+    src = "len=${#myvar}\necho $len\n"
+    p = noslop.extract_code_parts(src, "shell")
+    assert not p["comments"]
+    assert "myvar" in p["code"]
+
+
+def test_php_heredoc_body_is_not_comments():
+    src = ('<?php\n'
+           '$html = <<<HTML\n'
+           '<p>Visit https://example.com — a robust, seamless resource.</p>\n'
+           'HTML;\n'
+           'echo $html;\n')
+    p = noslop.extract_code_parts(src, "php")
+    assert not p["comments"]
+    assert any("example.com" in s for _, s in p["strings"])
+    r = noslop.analyze_code(src, ext=".php")
+    assert r["score_per_100"] < 10
+
+
+def test_php_nowdoc_quoted_delimiter_body_is_not_comments():
+    # <<<'WORD' is a nowdoc (no interpolation) - same body-is-data rule.
+    src = "<?php\n$sql = <<<'SQL'\nSELECT * FROM users -- all of them\nSQL;\n"
+    p = noslop.extract_code_parts(src, "php")
+    assert not p["comments"]
+    assert any("SELECT" in s for _, s in p["strings"])
+
+
+# ---- each family's real block-comment syntax, not a borrowed one ----
+
+def test_lua_block_comment_uses_lua_syntax_not_c():
+    # Lua's block comment is --[[ ]], not /* */ - the wrong pair left a
+    # Lua block comment scanned as code instead of prose.
+    src = ("--[[\nIt's important to note that this robust, seamless "
+           "platform leverages cutting-edge synergy to unlock a "
+           "comprehensive, transformative experience. I hope this helps!\n"
+           "]]\nlocal x = 1\n")
+    r = noslop.analyze_code(src, ext=".lua")
+    assert r["score_per_100"] >= 25
+
+
+def test_elm_block_comment_uses_elm_syntax_not_c():
+    # Elm's block comment is {- -}, not /* */, and it nests like Haskell's.
+    src = ("{-\nIt's important to note that this robust, seamless "
+           "platform leverages cutting-edge synergy to unlock a "
+           "comprehensive, transformative experience. I hope this helps!\n"
+           "-}\nx = 1\n")
+    r = noslop.analyze_code(src, ext=".elm")
+    assert r["score_per_100"] >= 25
+
+
+def test_julia_block_comment_is_recognized():
+    # #= =# is Julia's block comment; the hash family only knew a bare #.
+    src = ("#=\nIt's important to note that this robust, seamless "
+           "platform leverages cutting-edge synergy to unlock a "
+           "comprehensive, transformative experience. I hope this helps!\n"
+           "=#\nx = 1\n")
+    r = noslop.analyze_code(src, ext=".jl")
+    assert r["score_per_100"] >= 25
+
+
+def test_powershell_block_comment_is_recognized():
+    # <# #> is PowerShell's block comment; the hash family only knew #.
+    src = ("<#\nIt's important to note that this robust, seamless "
+           "platform leverages cutting-edge synergy to unlock a "
+           "comprehensive, transformative experience. I hope this helps!\n"
+           "#>\n$x = 1\n")
+    r = noslop.analyze_code(src, ext=".ps1")
+    assert r["score_per_100"] >= 25
+
+
+def test_ruby_begin_end_block_comment_is_recognized():
+    # =begin/=end is Ruby's block comment; the hash family only knew #.
+    src = ("=begin\nIt's important to note that this robust, seamless "
+           "platform leverages cutting-edge synergy to unlock a "
+           "comprehensive, transformative experience. I hope this helps!\n"
+           "=end\nx = 1\n")
+    r = noslop.analyze_code(src, ext=".rb")
+    assert r["score_per_100"] >= 25
 
 
 def test_sniff_shell_shebang_picks_shell_family():

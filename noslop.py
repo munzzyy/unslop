@@ -2130,14 +2130,18 @@ def report(r, quiet=False):
 CODE_SYNTAX = {
     "hash": {"line": ("#",), "block": (), "triple": True, "backtick": False,
              "quotes": "'\"", "nested": False},
+    # "heredoc" carries the opener token itself (not just True/False) since
+    # PHP's is a different token than shell's - see the note above the
+    # heredoc-detection block in extract_code_parts.
     "shell": {"line": ("#",), "block": (), "triple": False, "backtick": False,
-              "quotes": "'\"", "nested": False, "heredoc": True},
+              "quotes": "'\"", "nested": False, "heredoc": "<<"},
     "c": {"line": ("//",), "block": (("/*", "*/"),), "triple": False,
           "backtick": True, "quotes": "'\"", "nested": False},
     "rust": {"line": ("//",), "block": (("/*", "*/"),), "triple": False,
              "backtick": False, "quotes": "\"", "nested": True},
     "php": {"line": ("//", "#"), "block": (("/*", "*/"),), "triple": False,
-            "backtick": False, "quotes": "'\"", "nested": False},
+            "backtick": False, "quotes": "'\"", "nested": False,
+            "heredoc": "<<<"},
     "dash": {"line": ("--",), "block": (("/*", "*/"),), "triple": False,
              "backtick": False, "quotes": "'\"", "nested": False},
     "haskell": {"line": ("--",), "block": (("{-", "-}"),), "triple": False,
@@ -2148,18 +2152,28 @@ CODE_SYNTAX = {
              "quotes": "\"", "nested": False},
     "percent": {"line": ("%",), "block": (), "triple": False,
                 "backtick": False, "quotes": "'\"", "nested": False},
+    "lua": {"line": ("--",), "block": (("--[[", "]]"),), "triple": False,
+            "backtick": False, "quotes": "'\"", "nested": False},
+    "elm": {"line": ("--",), "block": (("{-", "-}"),), "triple": False,
+            "backtick": False, "quotes": "'\"", "nested": True},
+    "julia": {"line": ("#",), "block": (("#=", "=#"),), "triple": True,
+              "backtick": False, "quotes": "'\"", "nested": True},
+    "powershell": {"line": ("#",), "block": (("<#", "#>"),), "triple": False,
+                   "backtick": False, "quotes": "'\"", "nested": False},
+    "ruby": {"line": ("#",), "block": (("=begin", "=end"),), "triple": False,
+             "backtick": False, "quotes": "'\"", "nested": False},
 }
 
 # Extension -> (syntax family, display name). Extensions listed here flip a
 # file into code mode automatically; --code forces it for anything else.
 CODE_EXTENSIONS = {
     ".py": ("hash", "Python"), ".pyw": ("hash", "Python"),
-    ".rb": ("hash", "Ruby"), ".rake": ("hash", "Ruby"),
+    ".rb": ("ruby", "Ruby"), ".rake": ("ruby", "Ruby"),
     ".sh": ("shell", "shell"), ".bash": ("shell", "shell"),
     ".zsh": ("shell", "shell"), ".ksh": ("shell", "shell"),
-    ".ps1": ("hash", "PowerShell"), ".psm1": ("hash", "PowerShell"),
+    ".ps1": ("powershell", "PowerShell"), ".psm1": ("powershell", "PowerShell"),
     ".yml": ("hash", "YAML"), ".yaml": ("hash", "YAML"),
-    ".toml": ("hash", "TOML"), ".r": ("hash", "R"), ".jl": ("hash", "Julia"),
+    ".toml": ("hash", "TOML"), ".r": ("hash", "R"), ".jl": ("julia", "Julia"),
     ".pl": ("hash", "Perl"), ".pm": ("hash", "Perl"),
     ".nim": ("hash", "Nim"), ".cr": ("hash", "Crystal"),
     ".ex": ("hash", "Elixir"), ".exs": ("hash", "Elixir"),
@@ -2181,7 +2195,7 @@ CODE_EXTENSIONS = {
     ".proto": ("c", "protobuf"),
     ".css": ("c", "CSS"), ".scss": ("c", "SCSS"), ".less": ("c", "Less"),
     ".php": ("php", "PHP"),
-    ".sql": ("dash", "SQL"), ".lua": ("dash", "Lua"), ".elm": ("dash", "Elm"),
+    ".sql": ("dash", "SQL"), ".lua": ("lua", "Lua"), ".elm": ("elm", "Elm"),
     ".hs": ("haskell", "Haskell"),
     ".html": ("html", "HTML"), ".htm": ("html", "HTML"),
     ".xml": ("html", "XML"), ".svg": ("html", "SVG"), ".vue": ("html", "Vue"),
@@ -2215,6 +2229,100 @@ def sniff_code_family(text):
     return "dash", "code"
 
 
+def _in_shell_arith(text, i):
+    """True when position i (the start of a `<<`) sits inside an unclosed
+    `$((` earlier on the same line - so `bytes << KSHIFT` reads as the
+    arithmetic shift operator, not a heredoc open, whatever the word after
+    the << looks like. Bounded to the current line: real shell arithmetic
+    essentially never spans one, and scanning back to the last newline
+    keeps this O(line length) instead of O(file length) per candidate."""
+    line_start = text.rfind("\n", 0, i) + 1
+    before = text[line_start:i]
+    return before.count("$((") > before.count("))")
+
+
+def _match_heredoc_open(text, i, family):
+    """Match a heredoc/nowdoc opener at text[i]. Shell's `<<WORD` requires
+    a bare delimiter to start uppercase or underscore - every real-world
+    EOF/EOT/SQL does - so `<<<` here-strings never read as one (arithmetic
+    shift is ruled out separately, by _in_shell_arith); PHP only has the
+    `<<<` spelling, is never a here-string, and any identifier is a valid
+    delimiter there. Returns (strip_leading_tabs, word) or None."""
+    if family == "shell":
+        if text.startswith("<<<", i):
+            return None
+        m = re.match(r"<<(-?)[ \t]*(?:(['\"])(\w+)\2|([A-Z_][A-Za-z0-9_]*))",
+                      text[i:])
+        if not m:
+            return None
+        return m.group(1) == "-", m.group(3) or m.group(4)
+    if family == "php":
+        m = re.match(r"<<<[ \t]*(?:(['\"])(\w+)\1|(\w+))", text[i:])
+        if not m:
+            return None
+        return False, m.group(2) or m.group(3)
+    return None
+
+
+def _scan_backtick(text, i, n):
+    """Scan a JS/TS template literal starting at text[i] == '`'.
+
+    Returns (end, closed): end is the index just past the closing
+    backtick, or n if it runs off the end unterminated. Has to understand
+    `${...}` interpolation - a naive "find the next unescaped backtick"
+    reads a nested template literal's own backtick as the outer one's
+    close, which leaks whatever comes after (a URL, an em dash, anything)
+    into the unblanked code view. Recurses for a nested template literal
+    inside an interpolation, and tracks brace depth so a `}` inside a
+    plain string in the interpolation doesn't end it early."""
+    j = i + 1
+    while j < n:
+        c = text[j]
+        if c == "\\":
+            j += 2
+        elif c == "`":
+            return j + 1, True
+        elif text.startswith("${", j):
+            j += 2
+            depth = 1
+            while j < n and depth:
+                cj = text[j]
+                if cj == "\\":
+                    j += 2
+                elif cj == "`":
+                    j, _ = _scan_backtick(text, j, n)
+                elif cj in "'\"":
+                    q = cj
+                    j += 1
+                    while j < n and text[j] != q:
+                        j += 2 if text[j] == "\\" else 1
+                    if j < n:
+                        j += 1
+                else:
+                    if cj == "{":
+                        depth += 1
+                    elif cj == "}":
+                        depth -= 1
+                    j += 1
+        else:
+            j += 1
+    return n, False
+
+
+def _line_comment_marker(text, i, family, line_markers):
+    """Which line-comment marker (if any) starts at text[i]. In the shell
+    family, a bare # only opens a comment at a word boundary - line start
+    or preceded by whitespace: $# (positional-arg count) and ${#var}
+    (string length) glue the # straight to $ or {, and a real shell parses
+    neither of those as a comment."""
+    lm = next((m for m in line_markers if text.startswith(m, i)), None)
+    if lm == "#" and family == "shell":
+        prev = text[i - 1] if i > 0 else ""
+        if prev and prev not in " \t\n":
+            return None
+    return lm
+
+
 def extract_code_parts(text, family):
     """Split source into comments, docstrings, strings, and blanked code.
 
@@ -2244,6 +2352,7 @@ def extract_code_parts(text, family):
     comment_lines = set()
     i, line = 0, 1
     last_code_char = ""
+    last_code_pos = -1
 
     def advance(j, keep):
         nonlocal i, line
@@ -2254,27 +2363,32 @@ def extract_code_parts(text, family):
 
     while i < n:
         ch = text[i]
-        # Shell heredocs: the body of `cat <<EOF ... EOF` is payload being
-        # written somewhere else, not shell - a "# Step 1" line inside one
-        # is text, not a comment. Bare delimiters must start uppercase or
-        # underscore (every real-world EOF/EOT/SQL does) so `$((1 << 20))`
-        # arithmetic and `<<<` here-strings never read as heredocs; quoted
-        # delimiters are unambiguous and can be anything.
-        if (syntax.get("heredoc") and text.startswith("<<", i)
-                and not text.startswith("<<<", i)
-                and (i == 0 or text[i - 1] != "<")):
-            hm = re.match(r"<<(-?)[ \t]*(?:(['\"])(\w+)\2|([A-Z_][A-Za-z0-9_]*))",
-                          text[i:])
+        # Heredocs/nowdocs: the body of `cat <<EOF ... EOF` (shell) or
+        # `<<<HTML ... HTML;` (PHP) is payload being written somewhere
+        # else, not code - a "# Step 1" line or a stray // inside one is
+        # text, not a comment. Quoted delimiters are unambiguous and can be
+        # anything; _match_heredoc_open owns each family's bare-delimiter
+        # rule. The i-1 check skips re-matching partway through a run of
+        # `<` characters (a heredoc opener at the second or third `<` of
+        # `<<<<EOF` would double up with the one already found at the
+        # first), and shell arithmetic (`$(( bytes << KSHIFT ))`) is ruled
+        # out before the delimiter grammar even runs.
+        hd = syntax.get("heredoc")
+        if (hd and text.startswith(hd, i)
+                and (i == 0 or text[i - 1] != "<")
+                and not (hd == "<<" and _in_shell_arith(text, i))):
+            hm = _match_heredoc_open(text, i, family)
             if hm:
-                strip_tabs = hm.group(1) == "-"
-                word = hm.group(3) or hm.group(4)
+                strip_tabs, word = hm
                 nl = text.find("\n", i)
                 if nl == -1:
                     advance(n, keep=True)
                     continue
                 # The rest of the opener line stays code; the body runs to
-                # the line that is exactly the delimiter (bash is strict
-                # about that, so this is too).
+                # the line that closes it. Shell requires the delimiter
+                # alone on the line (bash is strict about that, so this is
+                # too); PHP's heredoc/nowdoc just requires it to lead the
+                # line, optionally indented, before a `;`/`,`/`)`/EOL.
                 advance(nl + 1, keep=True)
                 body_line = line
                 j = i
@@ -2282,31 +2396,23 @@ def extract_code_parts(text, family):
                     eol = text.find("\n", j)
                     eol = n if eol == -1 else eol
                     cand = text[j:eol]
-                    if strip_tabs:
-                        cand = cand.lstrip("\t")
-                    if cand == word:
+                    if family == "shell":
+                        if strip_tabs:
+                            cand = cand.lstrip("\t")
+                        closes = cand == word
+                    else:
+                        closes = re.match(r"[ \t]*" + re.escape(word) + r"\b",
+                                          cand) is not None
+                    if closes:
                         break
                     j = eol + 1 if eol < n else n
                 out["strings"].append((body_line, text[i:j]))
                 advance(j, keep=False)
                 continue
-        lm = next((m for m in line_markers if text.startswith(m, i)), None)
-        if lm is not None:
-            j = text.find("\n", i)
-            j = n if j == -1 else j
-            body = text[i + len(lm):j].strip()
-            out["comments"].append((line, body))
-            # A line comment alone on an *indented* line is a body comment -
-            # the kind that narrates the statement below it. Comments at
-            # column 0 (file/function docs) and trailing comments after code
-            # are collected above but excluded here.
-            ls = text.rfind("\n", 0, i) + 1
-            prefix = text[ls:i]
-            if prefix and not prefix.strip():
-                out["body_line_comments"].append((line, body))
-            comment_lines.add(line)
-            advance(j, keep=False)
-            continue
+        # Block markers before line markers: Lua's --[[ ]] and Julia's #=
+        # =# each open with their own family's line-comment marker (-- and
+        # #), so checking the line marker first would always win and read
+        # the block opener as a line comment that runs to end of line.
         bm = next(((op, cl) for op, cl in blocks if text.startswith(op, i)), None)
         if bm is not None:
             op, cl = bm
@@ -2327,6 +2433,23 @@ def extract_code_parts(text, family):
                 comment_lines.add(k)
             advance(j, keep=False)
             continue
+        lm = _line_comment_marker(text, i, family, line_markers)
+        if lm is not None:
+            j = text.find("\n", i)
+            j = n if j == -1 else j
+            body = text[i + len(lm):j].strip()
+            out["comments"].append((line, body))
+            # A line comment alone on an *indented* line is a body comment -
+            # the kind that narrates the statement below it. Comments at
+            # column 0 (file/function docs) and trailing comments after code
+            # are collected above but excluded here.
+            ls = text.rfind("\n", 0, i) + 1
+            prefix = text[ls:i]
+            if prefix and not prefix.strip():
+                out["body_line_comments"].append((line, body))
+            comment_lines.add(line)
+            advance(j, keep=False)
+            continue
         if syntax["triple"] and text.startswith(('"""', "'''"), i):
             q = text[i:i + 3]
             start_line = line
@@ -2335,8 +2458,17 @@ def extract_code_parts(text, family):
             j = jc + 3 if jc != -1 else n
             # Doc position: nothing but whitespace before it in the file so
             # far, or the last real code character is the ":" that closed a
-            # def/class line. Assignments (x = """...""") stay strings.
-            if last_code_char in ("", ":"):
+            # def/class header. A dict value's colon ends a line the same
+            # way ("welcome": """...""") but isn't one - check the line the
+            # colon is actually on, not just the character itself, so a
+            # message catalog doesn't get read as prose. Assignments
+            # (x = """...""") stay strings regardless, same as before.
+            is_doc = last_code_char == ""
+            if last_code_char == ":":
+                hdr_start = text.rfind("\n", 0, last_code_pos) + 1
+                is_doc = bool(re.match(r"\s*(?:async\s+)?(?:def|class)\b",
+                                       text[hdr_start:last_code_pos]))
+            if is_doc:
                 out["docstrings"].append((start_line, body.strip()))
             else:
                 out["strings"].append((start_line, body))
@@ -2362,19 +2494,13 @@ def extract_code_parts(text, family):
             else:
                 advance(i + 1, keep=True)
                 last_code_char = ch
+                last_code_pos = i
             continue
         if syntax["backtick"] and ch == "`":
             start_line = line
-            j = i + 1
-            while j < n:
-                if text[j] == "\\":
-                    j += 2
-                    continue
-                if text[j] == "`":
-                    break
-                j += 1
-            out["strings"].append((start_line, text[i + 1:min(j, n)]))
-            advance(min(j + 1, n), keep=False)
+            j, closed = _scan_backtick(text, i, n)
+            out["strings"].append((start_line, text[i + 1:j - 1 if closed else j]))
+            advance(j, keep=False)
             continue
         # Plain code: consume up to the next character anything above could
         # care about, in one slice rather than one char at a time.
@@ -2383,14 +2509,14 @@ def extract_code_parts(text, family):
             cj = text[j]
             if cj in quotes or (syntax["backtick"] and cj == "`"):
                 break
-            if any(text.startswith(m, j) for m in line_markers):
+            if _line_comment_marker(text, j, family, line_markers) is not None:
                 break
             if any(text.startswith(op, j) for op, cl in blocks):
                 break
             if syntax["triple"] and text.startswith(('"""', "'''"), j):
                 break
             if (syntax.get("heredoc") and cj == "<" and j > i
-                    and text.startswith("<<", j)):
+                    and text.startswith(syntax["heredoc"], j)):
                 break
             j += 1
         j = max(j, i + 1)
@@ -2398,6 +2524,7 @@ def extract_code_parts(text, family):
         stripped = seg.rstrip()
         if stripped:
             last_code_char = stripped[-1]
+            last_code_pos = i + len(stripped) - 1
         advance(j, keep=True)
 
     code = "".join(code_out)
@@ -2904,8 +3031,10 @@ def analyze_code(text, ext=None, config=None, lang=None):
                 sentence_comments += 1
     comment_sentence_share = (round(sentence_comments / counted_comments, 2)
                               if counted_comments >= 5 else None)
+    # Ruby uses "def" too (just with its own block-comment family now, not
+    # "hash" - see CODE_SYNTAX), so it keeps this diagnostic.
     defs = len(re.findall(r"(?m)^[ \t]*(?:async[ \t]+)?def[ \t]+\w+",
-                          parts["code"])) if family == "hash" else 0
+                          parts["code"])) if family in ("hash", "ruby") else 0
     docstring_coverage = (round(len(parts["docstrings"]) / defs, 2)
                           if defs >= 3 else None)
 
